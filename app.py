@@ -295,10 +295,10 @@ if not st.session_state.authenticated:
             )
             with st.form("register_form"):
                 reg_name = st.text_input(
-                    "Full Name:", placeholder="e.g. Shashank Singh"
+                    "Full Name:", placeholder="e.g. Jane Doe"
                 ).strip()
                 reg_user = (
-                    st.text_input("Choose Username:", placeholder="e.g. shashank_singh")
+                    st.text_input("Choose Username:", placeholder="e.g. jane_doe")
                     .strip()
                     .lower()
                 )
