@@ -225,7 +225,6 @@ if not st.session_state.authenticated:
             """
         <div style='text-align: center; margin-bottom: 25px;'>
             <h1 style='color: #1E3A8A; font-weight: 800; margin-bottom: 4px;'> Learning Analytics Portal</h1>
-            <p style='color: #64748B; font-size: 1rem;'>Python for Data Science | E&ICT Academy, IIT Kanpur</p>
         </div>
         """,
             unsafe_allow_html=True,
@@ -355,7 +354,7 @@ else:
         <div style='display: flex; align-items: center; gap: 12px;'>
             <h2 style='color: #1E3A8A; margin: 0; font-weight: 800;'>Learning Analytics Portal</h2>
         </div>
-        <div style='color: #64748B; font-size: 0.9rem;'>Welcome, <b>{st.session_state.username.title()}</b> | E&ICT Academy, IIT Kanpur</div>
+        <div style='color: #64748B; font-size: 0.9rem;'>Welcome, <b>{st.session_state.username.title()}</b></div>
         """,
             unsafe_allow_html=True,
         )
@@ -459,7 +458,6 @@ else:
                                 f"b) {b}",
                                 f"c) {c}",
                                 f"d) {d}",
-                                "Leave blank",
                             ]
                             c_val = st.radio(
                                 f"Select answer for Q{idx}:",
@@ -478,12 +476,6 @@ else:
                                 explanation,
                             )
 
-                            if hint and hint.strip():
-                                show_hint = st.checkbox(
-                                    f" Need a hint for Q{idx}?", key=f"hint_{qno}"
-                                )
-                                if show_hint:
-                                    st.info(f"Hint: {hint}")
                             st.write("")
 
                         submit_assessment = st.form_submit_button(
@@ -513,7 +505,7 @@ else:
                             d,
                             exp,
                         ) in user_choices.items():
-                            if c_val and c_val != "Leave blank":
+                            if c_val:
                                 letter = c_val[0].lower()
                                 opt_map = {
                                     "a": str(a).strip().lower(),
