@@ -820,7 +820,7 @@ else:
                 with ml_sub_tabs[0]:
                     st.markdown("#### Binary Classification: Pass/Fail Prediction")
                     st.caption(
-                        "Models: Logistic Regression & Random Forest | Features: time, hints, speed, hint_ratio"
+                        "Models: Logistic Regression & Random Forest | Features: time, speed"
                     )
 
                     with st.spinner("Training classifiers..."):
@@ -957,7 +957,7 @@ else:
 
                     st.markdown("**Cluster Summary**")
                     summary_display = clust["cluster_summary"][
-                        ["segment", "count", "avg_score", "avg_time", "avg_hints"]
+                        ["segment", "count", "avg_score", "avg_time"]
                     ].copy()
                     summary_display.columns = [
                         "Segment",
