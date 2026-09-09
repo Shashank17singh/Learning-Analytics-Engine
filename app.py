@@ -360,7 +360,7 @@ else:
         )
 
     with col_nav2:
-        st.write("")
+        st.markdown("<br>", unsafe_allow_html=True)
         if st.button(" Sign Out", use_container_width=True):
             st.session_state.authenticated = False
             st.session_state.username = ""
