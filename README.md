@@ -54,8 +54,8 @@ graph TD
 
 | Capability | Description |
 |---|---|
-| **Assessment Engine** | A secure platform supporting candidate registration, timed assessmentzes, hints, and leaderboard rankings. |
-| **Exploratory Data Analysis** | Automated descriptive statistics, competency segmentation, and statistical correlations (e.g., hints requested vs. final score). |
+| **Assessment Engine** | A secure platform supporting candidate registration, timed assessmentzes, reviews, and leaderboard rankings. |
+| **Exploratory Data Analysis** | Automated descriptive statistics, competency segmentation, and statistical correlations (e.g., reviews requested vs. final score). |
 | **Machine Learning** | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation). |
 | **Interactive Dashboard** | Provides a modern, reactive interface to interact with real-time cohort analytics, histograms, and correlation heatmaps. |
 
@@ -79,7 +79,7 @@ Learning-Analytics-Engine/
 ├── main.py                             # Main CLI Entry Point & Menu Router
 ├── admin.py                            # Secure Admin Authentication & Role Management
 ├── assessment_mgmt.py                         # Assessment Question CRUD & Robust CSV Loader
-├── assessment_engine.py                             # Interactive Assessment Taking Engine (Timing & Hints)
+├── assessment_engine.py                             # Interactive Assessment Taking Engine (Timing & Reviews)
 ├── leaderboard.py                      # Real-Time Ranked Leaderboard Module
 ├── analytics.py                        # EDA & Descriptive Statistics (Pandas, NumPy)
 ├── visualizer.py                       # Visual Dashboards & Charts (Matplotlib, Seaborn)
@@ -126,6 +126,6 @@ The app will open automatically in your browser at `http://localhost:8501`.
 
 ## Key Analytics Workflows
 
-1. **End-to-End Tracking:** User actions (hints taken, time elapsed) are captured in SQLite and analyzed dynamically using Pandas and Seaborn.
+1. **End-to-End Tracking:** User actions (reviews taken, time elapsed) are captured in SQLite and analyzed dynamically using Pandas and Seaborn.
 2. **Statistical Rigor:** Computes standard deviation, IQR, and Pearson correlation coefficients to identify conceptual bottlenecks.
 3. **Predictive Modeling:** Trains Random Forest and Logistic Regression models on-the-fly to predict student success based on behavioral telemetry.

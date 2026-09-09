@@ -32,7 +32,7 @@ def engineer_features(df):
 
     New features:
         - speed: questions answered per second (efficiency metric)
-        - hint_ratio: proportion of hints used vs total questions
+        - review_ratio: proportion of reviews used vs total questions
         - is_fast: binary flag for below-median completion time
         - attempt_number: nth attempt per student (learning curve)
         - score_improvement: delta from previous attempt per student
@@ -42,8 +42,8 @@ def engineer_features(df):
     # Efficiency metric: how fast did the student answer correctly
     df["speed"] = df["score"] / df["time_taken_seconds"].replace(0, 1)
 
-    # Hint dependency: what fraction of questions required hints
-    df["hint_ratio"] = df["hints_used"] / df["total_questions"].replace(0, 1)
+    # Review dependency: what fraction of questions required reviews
+    df["review_ratio"] = df["reviews_used"] / df["total_questions"].replace(0, 1)
 
     # Binary speed flag relative to cohort median
     median_time = df["time_taken_seconds"].median()
@@ -67,10 +67,10 @@ def engineer_features(df):
 
 CLASSIFICATION_FEATURES = [
     "time_taken_seconds",
-    "hints_used",
+    "reviews_used",
     "total_questions",
     "speed",
-    "hint_ratio",
+    "review_ratio",
     "is_fast",
 ]
 
@@ -151,10 +151,10 @@ def train_classifiers(df):
 
 REGRESSION_FEATURES = [
     "time_taken_seconds",
-    "hints_used",
+    "reviews_used",
     "total_questions",
     "speed",
-    "hint_ratio",
+    "review_ratio",
 ]
 
 
@@ -201,7 +201,7 @@ def train_regression(df):
 CLUSTER_FEATURES = [
     "score_percentage",
     "time_taken_seconds",
-    "hints_used",
+    "reviews_used",
 ]
 
 
@@ -227,7 +227,7 @@ def train_clustering(df, n_clusters=3):
         .agg(
             avg_score=("score_percentage", "mean"),
             avg_time=("time_taken_seconds", "mean"),
-            avg_hints=("hints_used", "mean"),
+            avg_reviews=("reviews_used", "mean"),
             count=("cluster", "size"),
         )
         .sort_values("avg_score", ascending=False)
@@ -325,7 +325,7 @@ def print_ml_report(conn):
     print(f"\n  Cluster Summary:")
     for _, row in cluster_results["cluster_summary"].iterrows():
         print(
-            f"    {row['segment']:<22} | n={int(row['count']):>3} | Avg Score: {row['avg_score']:.1f}% | Avg Time: {row['avg_time']:.0f}s | Avg Hints: {row['avg_hints']:.1f}"
+            f"    {row['segment']:<22} | n={int(row['count']):>3} | Avg Score: {row['avg_score']:.1f}% | Avg Time: {row['avg_time']:.0f}s | Avg Reviews: {row['avg_reviews']:.1f}"
         )
 
     print("=" * 65)
