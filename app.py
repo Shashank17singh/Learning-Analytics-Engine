@@ -86,7 +86,7 @@ def init_db(conn):
         try:
             import pandas as pd
 
-            df_q = pd.read_csv(os.path.join(BASE_DIR, "assessment_engine.csv"))
+            df_q = pd.read_csv(os.path.join(BASE_DIR, "assessment_bank.csv"))
             for _, r in df_q.iterrows():
                 cur.execute(
                     "INSERT INTO questions (ques, a, b, c, d, correct, hint, explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
