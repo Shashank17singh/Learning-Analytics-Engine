@@ -15,7 +15,7 @@ def play_assessment(conn):
 
     # Fetch all questions
     cur.execute(
-        "SELECT qno, ques, a, b, c, d, correct, review, explanation FROM questions"
+        "SELECT qno, ques, a, b, c, d, correct, explanation FROM questions"
     )
     all_questions = cur.fetchall()
 
@@ -40,10 +40,9 @@ def play_assessment(conn):
 
     score = 0
     total = len(questions)
-    reviews_used = 0
     start_time = time.time()
 
-    for i, (qno, ques, a, b, c, d, correct, review, explanation) in enumerate(
+    for i, (qno, ques, a, b, c, d, correct, explanation) in enumerate(
         questions, 1
     ):
         print(f"\nQ{i}: {ques}")
@@ -61,18 +60,11 @@ def play_assessment(conn):
         correct_clean = str(correct).strip().lower()
 
         while True:
-            ans = input("Your answer (a/b/c/d) or 'review': ").strip().lower()
-            if ans == "review":
-                reviews_used += 1
-                if review and review.strip():
-                    print(f"  [REVIEW] {review.strip()}")
-                else:
-                    print("  [REVIEW] No review available for this question.")
-                continue
-            elif ans in ["a", "b", "c", "d"] or ans in options_map.values():
+            ans = input("Your answer (a/b/c/d): ").strip().lower()
+            if ans in ["a", "b", "c", "d"] or ans in options_map.values():
                 break
             else:
-                print("  [!] Please enter a valid option (a, b, c, d) or 'review'.")
+                print("  [!] Please enter a valid option (a, b, c, d).")
 
         # Determine if answer is correct
         is_correct = False
@@ -113,7 +105,7 @@ def play_assessment(conn):
     print("\n" + "=" * 40)
     print(f"Assessment Completed! Final Score for {name}:")
     print(f"Score: {score}/{total} ({score_percentage:.2f}%)")
-    print(f"Time Taken: {time_taken_seconds} seconds | Reviews Used: {reviews_used}")
+    print(f"Time Taken: {time_taken_seconds} seconds")
     print(f"Status: {'PASSED [OK]' if passed else 'NEEDS IMPROVEMENT'}")
     print("=" * 40)
 
@@ -122,10 +114,10 @@ def play_assessment(conn):
         """
         INSERT INTO attempts (
             student_name, score, total_questions, score_percentage,
-            time_taken_seconds, reviews_used, attempt_date, passed
-        ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?)
+            time_taken_seconds, attempt_date, passed
+        ) VALUES (?, ?, ?, ?, ?, datetime('now'), ?)
     """,
-        (name, score, total, score_percentage, time_taken_seconds, reviews_used, passed),
+        (name, score, total, score_percentage, time_taken_seconds, passed),
     )
 
     # 2. Save to leaderboard

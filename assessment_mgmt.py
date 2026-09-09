@@ -42,24 +42,22 @@ def loadQuestions(conn):
                         continue
 
                 # Parse row based on column format
-                if len(row) >= 9 and row[0].strip().isdigit():
+                if len(row) >= 8 and row[0].strip().isdigit():
                     ques = row[1].strip()
                     a = row[2].strip()
                     b = row[3].strip()
                     c = row[4].strip()
                     d = row[5].strip()
                     correct = row[6].strip()
-                    review = row[7].strip() if len(row) > 7 else ""
-                    explanation = row[8].strip() if len(row) > 8 else ""
-                elif len(row) >= 8:
+                    explanation = row[7].strip() if len(row) > 7 else ""
+                elif len(row) >= 7:
                     ques = row[0].strip()
                     a = row[1].strip()
                     b = row[2].strip()
                     c = row[3].strip()
                     d = row[4].strip()
                     correct = row[5].strip()
-                    review = row[6].strip() if len(row) > 6 else ""
-                    explanation = row[7].strip() if len(row) > 7 else ""
+                    explanation = row[6].strip() if len(row) > 6 else ""
                 else:
                     continue
 
@@ -79,7 +77,7 @@ def loadQuestions(conn):
                     mapped_correct = correct
 
                 rows_to_insert.append(
-                    (ques, a, b, c, d, mapped_correct, review, explanation)
+                    (ques, a, b, c, d, mapped_correct, explanation)
                 )
 
             if not rows_to_insert:
@@ -87,7 +85,7 @@ def loadQuestions(conn):
                 return
 
             cur.executemany(
-                "INSERT INTO questions(ques, a, b, c, d, correct, review, explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO questions(ques, a, b, c, d, correct, explanation) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 rows_to_insert,
             )
             conn.commit()
@@ -116,7 +114,6 @@ def addQuestion(conn):
     c = input("Enter Option C: ").strip()
     d = input("Enter Option D: ").strip()
     correct = input("Enter correct answer (a/b/c/d or text): ").strip().lower()
-    review = input("Enter review (optional): ").strip()
     explanation = input("Enter explanation (optional): ").strip()
 
     # Map text to letter if applicable
@@ -132,8 +129,8 @@ def addQuestion(conn):
         correct = "d"
 
     cur.execute(
-        "INSERT INTO questions(ques, a, b, c, d, correct, review, explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        (ques, a, b, c, d, correct, review, explanation),
+        "INSERT INTO questions(ques, a, b, c, d, correct, explanation) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (ques, a, b, c, d, correct, explanation),
     )
     conn.commit()
     cur.close()
@@ -144,7 +141,7 @@ def viewQuestions(conn):
     """Display all stored questions in the database."""
     cur = conn.cursor()
     cur.execute(
-        "SELECT qno, ques, a, b, c, d, correct, review, explanation FROM questions ORDER BY qno ASC"
+        "SELECT qno, ques, a, b, c, d, correct, explanation FROM questions ORDER BY qno ASC"
     )
     questions = cur.fetchall()
     cur.close()
@@ -156,15 +153,13 @@ def viewQuestions(conn):
     print(f"\n{'=' * 60}")
     print(f"Total Questions: {len(questions)}")
     print(f"{'=' * 60}")
-    for qno, ques, a, b, c, d, correct, review, explanation in questions:
+    for qno, ques, a, b, c, d, correct, explanation in questions:
         print(f"\nQ{qno}: {ques}")
         print(f"  a) {a}")
         print(f"  b) {b}")
         print(f"  c) {c}")
         print(f"  d) {d}")
         print(f"  >> Correct: {correct}")
-        if review:
-            print(f"  >> Review: {review}")
         if explanation:
             print(f"  >> Explanation: {explanation}")
         print("-" * 60)
@@ -181,7 +176,7 @@ def updateQuestion(conn):
         return
 
     cur.execute(
-        "SELECT qno, ques, a, b, c, d, correct, review, explanation FROM questions WHERE qno = ?",
+        "SELECT qno, ques, a, b, c, d, correct, explanation FROM questions WHERE qno = ?",
         (qno,),
     )
     row = cur.fetchone()
@@ -190,7 +185,7 @@ def updateQuestion(conn):
         cur.close()
         return
 
-    _, old_ques, old_a, old_b, old_c, old_d, old_correct, old_review, old_explanation = (
+    _, old_ques, old_a, old_b, old_c, old_d, old_correct, old_explanation = (
         row
     )
     print("\n(Press Enter to keep current value)")
@@ -203,16 +198,13 @@ def updateQuestion(conn):
     new_correct = (
         input(f"Correct Answer [{old_correct}]: ").strip().lower() or old_correct
     )
-    new_review = input(f"Review [{old_review}]: ").strip()
-    if not new_review and old_review:
-        new_review = old_review
     new_explanation = input(f"Explanation [{old_explanation}]: ").strip()
     if not new_explanation and old_explanation:
         new_explanation = old_explanation
 
     cur.execute(
         """UPDATE questions
-           SET ques = ?, a = ?, b = ?, c = ?, d = ?, correct = ?, review = ?, explanation = ?
+           SET ques = ?, a = ?, b = ?, c = ?, d = ?, correct = ?, explanation = ?
            WHERE qno = ?""",
         (
             new_ques,
@@ -221,7 +213,6 @@ def updateQuestion(conn):
             new_c,
             new_d,
             new_correct,
-            new_review,
             new_explanation,
             qno,
         ),

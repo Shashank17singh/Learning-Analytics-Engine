@@ -68,32 +68,29 @@ def seed_sample_attempts(conn):
         if tier == "high":
             score = random.randint(8, 10)
             total = 10
-            reviews = random.randint(0, 1)
             time_sec = random.randint(50, 120)
         elif tier == "medium":
             score = random.randint(5, 7)
             total = 10
-            reviews = random.randint(1, 3)
             time_sec = random.randint(90, 180)
         else:
             score = random.randint(2, 4)
             total = 10
-            reviews = random.randint(3, 6)
             time_sec = random.randint(130, 240)
 
         score_per = (score / total) * 100.0
         passed = 1 if score_per >= 50.0 else 0
 
         records.append(
-            (name, score, total, score_per, time_sec, reviews, date_str, passed)
+            (name, score, total, score_per, time_sec, date_str, passed)
         )
 
     cur.executemany(
         """
         INSERT INTO attempts (
             student_name, score, total_questions, score_percentage,
-            time_taken_seconds, reviews_used, attempt_date, passed
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            time_taken_seconds, attempt_date, passed
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
     """,
         records,
     )
@@ -122,7 +119,6 @@ def init_db(conn):
         c TEXT,
         d TEXT,
         correct TEXT,
-        review TEXT,
         explanation TEXT
     )""")
     cur.execute("""
@@ -140,7 +136,6 @@ def init_db(conn):
         total_questions INTEGER,
         score_percentage REAL,
         time_taken_seconds INTEGER,
-        reviews_used INTEGER,
         attempt_date TEXT,
         passed INTEGER
     )""")

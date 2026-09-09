@@ -42,9 +42,6 @@ def engineer_features(df):
     # Efficiency metric: how fast did the student answer correctly
     df["speed"] = df["score"] / df["time_taken_seconds"].replace(0, 1)
 
-    # Review dependency: what fraction of questions required reviews
-    df["review_ratio"] = df["reviews_used"] / df["total_questions"].replace(0, 1)
-
     # Binary speed flag relative to cohort median
     median_time = df["time_taken_seconds"].median()
     df["is_fast"] = (df["time_taken_seconds"] < median_time).astype(int)
@@ -67,10 +64,8 @@ def engineer_features(df):
 
 CLASSIFICATION_FEATURES = [
     "time_taken_seconds",
-    "reviews_used",
     "total_questions",
     "speed",
-    "review_ratio",
     "is_fast",
 ]
 
@@ -151,10 +146,8 @@ def train_classifiers(df):
 
 REGRESSION_FEATURES = [
     "time_taken_seconds",
-    "reviews_used",
     "total_questions",
     "speed",
-    "review_ratio",
 ]
 
 
@@ -201,7 +194,6 @@ def train_regression(df):
 CLUSTER_FEATURES = [
     "score_percentage",
     "time_taken_seconds",
-    "reviews_used",
 ]
 
 
@@ -227,7 +219,6 @@ def train_clustering(df, n_clusters=3):
         .agg(
             avg_score=("score_percentage", "mean"),
             avg_time=("time_taken_seconds", "mean"),
-            avg_reviews=("reviews_used", "mean"),
             count=("cluster", "size"),
         )
         .sort_values("avg_score", ascending=False)
@@ -325,7 +316,7 @@ def print_ml_report(conn):
     print(f"\n  Cluster Summary:")
     for _, row in cluster_results["cluster_summary"].iterrows():
         print(
-            f"    {row['segment']:<22} | n={int(row['count']):>3} | Avg Score: {row['avg_score']:.1f}% | Avg Time: {row['avg_time']:.0f}s | Avg Reviews: {row['avg_reviews']:.1f}"
+            f"    {row['segment']:<22} | n={int(row['count']):>3} | Avg Score: {row['avg_score']:.1f}% | Avg Time: {row['avg_time']:.0f}s"
         )
 
     print("=" * 65)
