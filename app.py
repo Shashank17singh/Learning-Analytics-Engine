@@ -623,7 +623,6 @@ else:
                             "total_questions",
                             "score_percentage",
                             "time_taken_seconds",
-                            "hints_used",
                             "passed",
                         ]
                     ],
