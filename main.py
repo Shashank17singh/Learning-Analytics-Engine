@@ -163,7 +163,7 @@ def main():
     init_db(conn)
 
     print("=" * 45)
-    print("   Quiz Management System & Data Science")
+    print("   Learning Analytics Engine & Data Science")
     print("=" * 45)
     while True:
         try:
@@ -188,7 +188,7 @@ Enter your choice (1-5) -> """).strip())
         elif choice == 4:
             ds_dashboard.dashboard_menu(conn)
         elif choice == 5:
-            print("\nThank you for using Quiz Management System. Goodbye!")
+            print("\nThank you for using Learning Analytics Engine. Goodbye!")
             conn.close()
             return
         else:

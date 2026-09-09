@@ -1,6 +1,6 @@
 <div align="center">
 
-# Quiz Management System
+# Learning Analytics Engine
 
 **An end-to-end Python assessment platform and Data Science Analytics dashboard for educational insights.**
 
@@ -73,7 +73,7 @@ graph TD
 ## Directory Structure
 
 ```
-Quiz-Management-System/
+Learning-Analytics-Engine/
 │
 ├── app.py                              # Modern Streamlit Web Application (Main Web Dashboard)
 ├── main.py                             # Main CLI Entry Point & Menu Router
@@ -102,8 +102,8 @@ Quiz-Management-System/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<YOUR_USERNAME>/Quiz-Management-System.git
-cd Quiz-Management-System
+git clone https://github.com/<YOUR_USERNAME>/Learning-Analytics-Engine.git
+cd Learning-Analytics-Engine
 ```
 
 ### 2. Install Dependencies
