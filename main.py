@@ -25,7 +25,7 @@ def seed_sample_attempts(conn):
     random.seed(42)
 
     names = [
-        "Shashank S.",
+        "Jane D.",
         "Priya S.",
         "Rohan V.",
         "Ananya M.",
