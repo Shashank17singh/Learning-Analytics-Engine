@@ -18,7 +18,7 @@ def ensure_charts_dir():
 
 
 def plot_score_distribution(df, save_dir):
-    """Plot histogram and KDE distribution of quiz scores with statistical lines."""
+    """Plot histogram and KDE distribution of assessment scores with statistical lines."""
     plt.figure(figsize=(9, 5))
     sns.set_theme(style="whitegrid")
 
@@ -95,7 +95,7 @@ def plot_time_vs_score(df, save_dir):
     )
 
     plt.title(
-        "Quiz Completion Time vs. Score Performance",
+        "Assessment Completion Time vs. Score Performance",
         fontsize=14,
         fontweight="bold",
         pad=12,
@@ -121,7 +121,7 @@ def plot_time_vs_score(df, save_dir):
 
 
 def plot_hint_impact(df, save_dir):
-    """Boxplot showing how hint usage impacts quiz scoring."""
+    """Boxplot showing how hint usage impacts assessment scoring."""
     plt.figure(figsize=(8, 5))
     sns.set_theme(style="whitegrid")
 

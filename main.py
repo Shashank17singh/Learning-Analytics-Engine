@@ -7,10 +7,10 @@ import admin
 import auth_utils
 import ds_dashboard
 import leaderboard
-import quiz
+import assessment_engine
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "qms.db")
+DB_PATH = os.path.join(BASE_DIR, "telemetry.db")
 
 
 def seed_sample_attempts(conn):
@@ -99,7 +99,7 @@ def seed_sample_attempts(conn):
     )
     conn.commit()
     print(
-        f"[+] Loaded {len(records)} historical quiz attempts for Data Science & ML analysis."
+        f"[+] Loaded {len(records)} historical assessment attempts for Data Science & ML analysis."
     )
 
 
@@ -170,7 +170,7 @@ def main():
             choice = int(input("""
 Main Menu
 1) Login (Admin)
-2) Play Quiz
+2) Take Assessment
 3) Show Leaderboard
 4) Data Science & Analytics Dashboard
 5) Exit
@@ -182,7 +182,7 @@ Enter your choice (1-5) -> """).strip())
         if choice == 1:
             admin.auth(conn)
         elif choice == 2:
-            quiz.play_quiz(conn)
+            assessment_engine.play_assessment(conn)
         elif choice == 3:
             leaderboard.show_leaderboard(conn)
         elif choice == 4:

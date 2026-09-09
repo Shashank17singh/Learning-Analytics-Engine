@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def get_attempts_dataframe(conn):
-    """Extract quiz attempts data from SQLite into a Pandas DataFrame."""
+    """Extract assessment attempts data from SQLite into a Pandas DataFrame."""
     query = """
     SELECT 
         attempt_id,
@@ -30,7 +30,7 @@ def generate_eda_summary(conn):
     df = get_attempts_dataframe(conn)
 
     if df.empty:
-        print("\n[!] No quiz attempt data available to analyze.")
+        print("\n[!] No assessment attempt data available to analyze.")
         return None
 
     # Calculate key statistical metrics
@@ -78,7 +78,7 @@ def generate_eda_summary(conn):
     print("      DATA SCIENCE: EXPLORATORY DATA ANALYSIS (EDA) REPORT")
     print("=" * 65)
     print(f"Dataset Overview:")
-    print(f"  - Total Quiz Attempts   : {total_attempts}")
+    print(f"  - Total Assessment Attempts   : {total_attempts}")
     print(f"  - Unique Learners       : {unique_students}")
     print(f"  - Passed Attempts       : {pass_count} ({pass_rate:.1f}%)")
     print(f"  - Failed Attempts       : {fail_count} ({100 - pass_rate:.1f}%)")
@@ -126,7 +126,7 @@ def generate_eda_summary(conn):
     }
 
 
-def export_summary_csv(conn, output_filename="quiz_analytics_export.csv"):
+def export_summary_csv(conn, output_filename="assessment_analytics_export.csv"):
     """Export the enriched dataset to CSV for external BI and Tableau/PowerBI reporting."""
     df = get_attempts_dataframe(conn)
     if df.empty:

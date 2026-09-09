@@ -6,9 +6,9 @@ import sqlite3 as db
 def loadQuestions(conn):
     """Load questions from a CSV file using Python's standard csv module."""
     cur = conn.cursor()
-    filename = input("Enter CSV file path [default: quiz.csv]: ").strip()
+    filename = input("Enter CSV file path [default: assessment_engine.csv]: ").strip()
     if not filename:
-        filename = "quiz.csv"
+        filename = "assessment_engine.csv"
 
     # If file not found in current directory, check in the script's directory
     if not os.path.exists(filename):

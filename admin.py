@@ -1,7 +1,7 @@
 import sqlite3 as db
 
 import auth_utils
-import quizmgmt
+import assessment_mgmt
 
 
 def auth(conn):
@@ -33,7 +33,7 @@ def manageAdmin(conn, username):
         try:
             choice = int(input("""
 --- Admin Dashboard ---
-1) Manage Quiz Questions
+1) Manage Assessment Questions
 2) Create New Admin
 3) Change Password
 4) Logout
@@ -43,7 +43,7 @@ Enter your choice -> """).strip())
             continue
 
         if choice == 1:
-            quiz_management_menu(conn)
+            assessment_management_menu(conn)
         elif choice == 2:
             createNewAdmin(conn)
         elif choice == 3:
@@ -108,12 +108,12 @@ def changeAdminPassword(conn, un):
     cur.close()
 
 
-def quiz_management_menu(conn):
-    """Quiz question management menu with View, Add, Update, Delete, and CSV Load."""
+def assessment_management_menu(conn):
+    """Assessment question management menu with View, Add, Update, Delete, and CSV Load."""
     while True:
         try:
             choice = int(input("""
---- Quiz Management ---
+--- Assessment Management ---
 1) Load Questions from CSV
 2) Add Question
 3) View All Questions
@@ -126,15 +126,15 @@ Enter your choice -> """).strip())
             continue
 
         if choice == 1:
-            quizmgmt.loadQuestions(conn)
+            assessment_mgmt.loadQuestions(conn)
         elif choice == 2:
-            quizmgmt.addQuestion(conn)
+            assessment_mgmt.addQuestion(conn)
         elif choice == 3:
-            quizmgmt.viewQuestions(conn)
+            assessment_mgmt.viewQuestions(conn)
         elif choice == 4:
-            quizmgmt.updateQuestion(conn)
+            assessment_mgmt.updateQuestion(conn)
         elif choice == 5:
-            quizmgmt.deleteQuestion(conn)
+            assessment_mgmt.deleteQuestion(conn)
         elif choice == 6:
             break
         else:

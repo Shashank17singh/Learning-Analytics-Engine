@@ -16,7 +16,7 @@
 
 ## Overview
 
-Developed as a highly robust Data Science and Software Engineering portfolio project, this repository implements a dual-layer architecture. It features a fully operational assessment engine for conducting quizzes and a comprehensive analytics pipeline that transforms raw relational assessment logs into actionable pedagogical insights using Pandas, Scikit-learn, and Streamlit.
+Developed as a highly robust Data Science and Software Engineering portfolio project, this repository implements a dual-layer architecture. It features a fully operational assessment engine for conducting assessmentzes and a comprehensive analytics pipeline that transforms raw relational assessment logs into actionable pedagogical insights using Pandas, Scikit-learn, and Streamlit.
 
 ---
 
@@ -54,7 +54,7 @@ graph TD
 
 | Capability | Description |
 |---|---|
-| **Assessment Engine** | A secure platform supporting candidate registration, timed quizzes, hints, and leaderboard rankings. |
+| **Assessment Engine** | A secure platform supporting candidate registration, timed assessmentzes, hints, and leaderboard rankings. |
 | **Exploratory Data Analysis** | Automated descriptive statistics, competency segmentation, and statistical correlations (e.g., hints requested vs. final score). |
 | **Machine Learning** | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation). |
 | **Interactive Dashboard** | Provides a modern, reactive interface to interact with real-time cohort analytics, histograms, and correlation heatmaps. |
@@ -78,15 +78,15 @@ Learning-Analytics-Engine/
 ├── app.py                              # Modern Streamlit Web Application (Main Web Dashboard)
 ├── main.py                             # Main CLI Entry Point & Menu Router
 ├── admin.py                            # Secure Admin Authentication & Role Management
-├── quizmgmt.py                         # Quiz Question CRUD & Robust CSV Loader
-├── quiz.py                             # Interactive Quiz Taking Engine (Timing & Hints)
+├── assessment_mgmt.py                         # Assessment Question CRUD & Robust CSV Loader
+├── assessment_engine.py                             # Interactive Assessment Taking Engine (Timing & Hints)
 ├── leaderboard.py                      # Real-Time Ranked Leaderboard Module
 ├── analytics.py                        # EDA & Descriptive Statistics (Pandas, NumPy)
 ├── visualizer.py                       # Visual Dashboards & Charts (Matplotlib, Seaborn)
 ├── ml_models.py                        # Scikit-learn Modeling Pipelines
 │
-├── Quiz_Data_Science_Analysis.ipynb    # Complete Interactive Jupyter Notebook
-├── quiz.csv                            # Bulk Question Bank (100+ Curated Questions)
+├── Learning_Analytics_EDA.ipynb    # Complete Interactive Jupyter Notebook
+├── assessment_engine.csv                            # Bulk Question Bank (100+ Curated Questions)
 ├── qms.db                              # SQLite3 Database
 └── README.md                           # You are here
 ```
