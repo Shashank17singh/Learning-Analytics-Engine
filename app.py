@@ -17,14 +17,14 @@ import ml_models
 # PAGE CONFIGURATION (NO SIDEBAR, FULL BROWSER APP LAYOUT)
 # -------------------------------------------------------------
 st.set_page_config(
-    page_title="Quiz Assessment & Analytics Portal",
+    page_title="Assessment Assessment & Analytics Portal",
     page_icon="",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "qms.db")
+DB_PATH = os.path.join(BASE_DIR, "telemetry.db")
 
 
 def get_db_connection():
@@ -86,7 +86,7 @@ def init_db(conn):
         try:
             import pandas as pd
 
-            df_q = pd.read_csv(os.path.join(BASE_DIR, "quiz.csv"))
+            df_q = pd.read_csv(os.path.join(BASE_DIR, "assessment_engine.csv"))
             for _, r in df_q.iterrows():
                 cur.execute(
                     "INSERT INTO questions (ques, a, b, c, d, correct, hint, explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -397,14 +397,14 @@ else:
                     "No questions available right now. Please contact the administrator."
                 )
             else:
-                if "student_quiz_started" not in st.session_state:
-                    st.session_state.student_quiz_started = False
-                if "quiz_start_time" not in st.session_state:
-                    st.session_state.quiz_start_time = 0
-                if "quiz_set" not in st.session_state:
-                    st.session_state.quiz_set = None
+                if "student_assessment_started" not in st.session_state:
+                    st.session_state.student_assessment_started = False
+                if "assessment_start_time" not in st.session_state:
+                    st.session_state.assessment_start_time = 0
+                if "assessment_set" not in st.session_state:
+                    st.session_state.assessment_set = None
 
-                if not st.session_state.student_quiz_started:
+                if not st.session_state.student_assessment_started:
                     total_available = len(all_questions)
                     q_options = (
                         [5, 10, 15, 20, 25]
@@ -426,20 +426,20 @@ else:
                         type="primary",
                         use_container_width=True,
                     ):
-                        st.session_state.student_quiz_started = True
-                        st.session_state.quiz_start_time = time.time()
+                        st.session_state.student_assessment_started = True
+                        st.session_state.assessment_start_time = time.time()
                         # Randomize questions so a new unique set appears every single time!
-                        st.session_state.quiz_set = random.sample(
+                        st.session_state.assessment_set = random.sample(
                             all_questions, min(num_questions_chosen, total_available)
                         )
                         st.rerun()
                 else:
-                    quiz_set = st.session_state.get("quiz_set", all_questions[:10])
+                    assessment_set = st.session_state.get("assessment_set", all_questions[:10])
                     user_choices = {}
 
                     with st.form("student_assessment_form"):
                         st.markdown(
-                            f"**Answering {len(quiz_set)} Randomized Questions:**"
+                            f"**Answering {len(assessment_set)} Randomized Questions:**"
                         )
                         for idx, (
                             qno,
@@ -451,7 +451,7 @@ else:
                             correct,
                             hint,
                             explanation,
-                        ) in enumerate(quiz_set, 1):
+                        ) in enumerate(assessment_set, 1):
                             st.markdown(f"**Q{idx}. {ques}**")
                             opts = [
                                 f"a) {a}",
@@ -486,10 +486,10 @@ else:
 
                     if submit_assessment:
                         duration = max(
-                            1, int(time.time() - st.session_state.quiz_start_time)
+                            1, int(time.time() - st.session_state.assessment_start_time)
                         )
                         correct_count = 0
-                        total_q = len(quiz_set)
+                        total_q = len(assessment_set)
                         hints_used_count = sum(
                             1
                             for qno in user_choices
@@ -584,8 +584,8 @@ else:
                         col_res3.metric("Duration", f"{duration}s")
                         col_res4.metric("Status", "Passed " if passed else "Completed ")
 
-                        st.session_state.student_quiz_started = False
-                        st.session_state.quiz_set = None
+                        st.session_state.student_assessment_started = False
+                        st.session_state.assessment_set = None
                         if st.button(" Take Another Assessment"):
                             st.rerun()
 
@@ -1149,7 +1149,7 @@ else:
 
             with q_tab2:
                 uploaded_csv = st.file_uploader(
-                    "Upload CSV Question File (e.g. quiz.csv):", type=["csv"]
+                    "Upload CSV Question File (e.g. assessment_engine.csv):", type=["csv"]
                 )
                 if uploaded_csv is not None:
                     try:

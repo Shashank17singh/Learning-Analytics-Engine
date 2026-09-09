@@ -3,10 +3,10 @@ import sqlite3 as db
 import time
 
 
-def play_quiz(conn):
+def play_assessment(conn):
     cur = conn.cursor()
     print("\n" + "=" * 40)
-    print("           START QUIZ")
+    print("           START ASSESSMENT")
     print("=" * 40)
 
     name = input("Enter your name: ").strip()
@@ -111,7 +111,7 @@ def play_quiz(conn):
     passed = 1 if score_percentage >= 50.0 else 0
 
     print("\n" + "=" * 40)
-    print(f"Quiz Completed! Final Score for {name}:")
+    print(f"Assessment Completed! Final Score for {name}:")
     print(f"Score: {score}/{total} ({score_percentage:.2f}%)")
     print(f"Time Taken: {time_taken_seconds} seconds | Hints Used: {hints_used}")
     print(f"Status: {'PASSED [OK]' if passed else 'NEEDS IMPROVEMENT'}")

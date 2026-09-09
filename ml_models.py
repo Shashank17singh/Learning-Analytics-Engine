@@ -1,5 +1,5 @@
 """
-ml_models.py — Machine Learning Models for Quiz Assessment Analytics
+ml_models.py — Machine Learning Models for Assessment Assessment Analytics
 =====================================================================
 Implements Classification, Regression, and Clustering using Scikit-learn
 to demonstrate applied Data Science on learner performance data.
