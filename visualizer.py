@@ -120,16 +120,16 @@ def plot_time_vs_score(df, save_dir):
     return out_path
 
 
-def plot_hint_impact(df, save_dir):
-    """Boxplot showing how hint usage impacts assessment scoring."""
+def plot_review_impact(df, save_dir):
+    """Boxplot showing how review usage impacts assessment scoring."""
     plt.figure(figsize=(8, 5))
     sns.set_theme(style="whitegrid")
 
     sns.boxplot(
         data=df,
-        x="hints_used",
+        x="reviews_used",
         y="score_percentage",
-        hue="hints_used",
+        hue="reviews_used",
         legend=False,
         palette="Blues_r",
         showmeans=True,
@@ -142,14 +142,14 @@ def plot_hint_impact(df, save_dir):
     )
 
     plt.title(
-        "Impact of Hint Usage on Learner Scores", fontsize=14, fontweight="bold", pad=12
+        "Impact of Review Usage on Learner Scores", fontsize=14, fontweight="bold", pad=12
     )
-    plt.xlabel("Number of Hints Requested", fontsize=11)
+    plt.xlabel("Number of Reviews Requested", fontsize=11)
     plt.ylabel("Score Percentage (%)", fontsize=11)
     plt.ylim(-5, 105)
     plt.tight_layout()
 
-    out_path = os.path.join(save_dir, "hint_impact_boxplot.png")
+    out_path = os.path.join(save_dir, "review_impact_boxplot.png")
     plt.savefig(out_path, dpi=300)
     plt.close()
     return out_path
@@ -207,8 +207,8 @@ def generate_all_charts(conn):
     p2 = plot_time_vs_score(df, charts_dir)
     print(f"  [+] Saved Time vs Score Plot: {os.path.basename(p2)}")
 
-    p3 = plot_hint_impact(df, charts_dir)
-    print(f"  [+] Saved Hint Impact Boxplot: {os.path.basename(p3)}")
+    p3 = plot_review_impact(df, charts_dir)
+    print(f"  [+] Saved Review Impact Boxplot: {os.path.basename(p3)}")
 
     p4 = plot_performance_tiers(df, charts_dir)
     print(f"  [+] Saved Performance Tiers Chart: {os.path.basename(p4)}")

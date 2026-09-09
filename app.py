@@ -50,7 +50,7 @@ def init_db(conn):
         c TEXT,
         d TEXT,
         correct TEXT,
-        hint TEXT,
+        review TEXT,
         explanation TEXT
     )""")
     cur.execute("""
@@ -68,7 +68,7 @@ def init_db(conn):
         total_questions INTEGER,
         score_percentage REAL,
         time_taken_seconds INTEGER,
-        hints_used INTEGER,
+        reviews_used INTEGER,
         attempt_date TEXT,
         passed INTEGER
     )""")
@@ -89,7 +89,7 @@ def init_db(conn):
             df_q = pd.read_csv(os.path.join(BASE_DIR, "assessment_bank.csv"))
             for _, r in df_q.iterrows():
                 cur.execute(
-                    "INSERT INTO questions (ques, a, b, c, d, correct, hint, explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO questions (ques, a, b, c, d, correct, review, explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         str(r.get("Question", "")),
                         str(r.get("Option1", "")),
@@ -97,7 +97,7 @@ def init_db(conn):
                         str(r.get("Option3", "")),
                         str(r.get("Option4", "")),
                         str(r.get("CorrectAnswer", "")),
-                        str(r.get("hint", "")),
+                        str(r.get("review", "")),
                         str(r.get("explanation", "")),
                     ),
                 )
@@ -112,14 +112,14 @@ def init_db(conn):
             score = random.randint(3, 10)
             score_per = (score / 10) * 100
             time_sec = random.randint(30, 200)
-            hints = random.randint(0, 4)
+            reviews = random.randint(0, 4)
             passed = 1 if score_per >= 50 else 0
             cur.execute(
                 """
-                INSERT INTO attempts (student_name, score, total_questions, score_percentage, time_taken_seconds, hints_used, attempt_date, passed)
+                INSERT INTO attempts (student_name, score, total_questions, score_percentage, time_taken_seconds, reviews_used, attempt_date, passed)
                 VALUES (?, ?, 10, ?, ?, ?, datetime('now', '-' || abs(random() % 30) || ' days'), ?)
             """,
-                (f"demo_user_{i}", score, score_per, time_sec, hints, passed),
+                (f"demo_user_{i}", score, score_per, time_sec, reviews, passed),
             )
 
     conn.commit()
@@ -388,7 +388,7 @@ else:
             st.markdown("###  Active Assessment: General Knowledge & Data Foundations")
             cur = conn.cursor()
             cur.execute(
-                "SELECT qno, ques, a, b, c, d, correct, hint, explanation FROM questions ORDER BY qno ASC"
+                "SELECT qno, ques, a, b, c, d, correct, explanation FROM questions ORDER BY qno ASC"
             )
             all_questions = cur.fetchall()
 
@@ -449,7 +449,6 @@ else:
                             c,
                             d,
                             correct,
-                            hint,
                             explanation,
                         ) in enumerate(assessment_set, 1):
                             st.markdown(f"**Q{idx}. {ques}**")
@@ -490,10 +489,10 @@ else:
                         )
                         correct_count = 0
                         total_q = len(assessment_set)
-                        hints_used_count = sum(
+                        reviews_used_count = sum(
                             1
                             for qno in user_choices
-                            if st.session_state.get(f"hint_{qno}", False)
+                            if st.session_state.get(f"review_{qno}", False)
                         )
 
                         for qno, (
@@ -532,7 +531,7 @@ else:
                             """
                             INSERT INTO attempts (
                                 student_name, score, total_questions, score_percentage,
-                                time_taken_seconds, hints_used, attempt_date, passed
+                                time_taken_seconds, reviews_used, attempt_date, passed
                             ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?)
                         """,
                             (
@@ -541,7 +540,7 @@ else:
                                 total_q,
                                 score_percentage,
                                 duration,
-                                hints_used_count,
+                                reviews_used_count,
                                 passed,
                             ),
                         )
@@ -938,7 +937,7 @@ else:
                 with ml_sub_tabs[2]:
                     st.markdown("#### K-Means Clustering: Learner Segmentation")
                     st.caption(
-                        "Unsupervised grouping of learners by score, time, and hint usage"
+                        "Unsupervised grouping of learners by score, time, and review usage"
                     )
 
                     n_clusters = st.slider(
@@ -963,7 +962,7 @@ else:
                         "Count",
                         "Avg Score %",
                         "Avg Time (s)",
-                        "Avg Hints",
+                        "Avg Reviews",
                     ]
                     st.dataframe(
                         summary_display, use_container_width=True, hide_index=True
@@ -1025,9 +1024,9 @@ else:
                         "student_name",
                         "score_percentage",
                         "time_taken_seconds",
-                        "hints_used",
+                        "reviews_used",
                         "speed",
-                        "hint_ratio",
+                        "review_ratio",
                         "is_fast",
                         "attempt_number",
                         "score_improvement",
@@ -1039,8 +1038,8 @@ else:
                             "speed": st.column_config.NumberColumn(
                                 "Speed (Q/s)", format="%.4f"
                             ),
-                            "hint_ratio": st.column_config.NumberColumn(
-                                "Hint Ratio", format="%.2f"
+                            "review_ratio": st.column_config.NumberColumn(
+                                "Review Ratio", format="%.2f"
                             ),
                             "score_improvement": st.column_config.NumberColumn(
                                 "Score Δ", format="%.1f"
@@ -1052,9 +1051,9 @@ else:
                     numeric_cols = [
                         "score_percentage",
                         "time_taken_seconds",
-                        "hints_used",
+                        "reviews_used",
                         "speed",
-                        "hint_ratio",
+                        "review_ratio",
                         "attempt_number",
                         "score_improvement",
                     ]
@@ -1112,9 +1111,9 @@ else:
                         ax_daily2.legend(loc="upper right")
                         st.pyplot(fig_daily)
 
-                    st.markdown("** Hint Usage vs Pass Rate (GROUP BY Analysis):**")
-                    df_hints = analytics.get_hint_vs_passrate(conn)
-                    st.dataframe(df_hints, use_container_width=True, hide_index=True)
+                    st.markdown("** Review Usage vs Pass Rate (GROUP BY Analysis):**")
+                    df_reviews = analytics.get_review_vs_passrate(conn)
+                    st.dataframe(df_reviews, use_container_width=True, hide_index=True)
 
         # TAB 3: QUESTION BANK MANAGEMENT
         with admin_tabs[2]:
@@ -1129,7 +1128,7 @@ else:
                     q_c = st.text_input("Option C:")
                     q_d = st.text_input("Option D:")
                     q_corr = st.text_input("Correct Answer (a/b/c/d or option text):")
-                    q_hint = st.text_input("Hint (optional):")
+                    q_review = st.text_input("Review (optional):")
                     q_exp = st.text_area("Explanation (optional):")
 
                     if st.form_submit_button(
@@ -1138,8 +1137,8 @@ else:
                         if q_text.strip() and q_a.strip():
                             cur = conn.cursor()
                             cur.execute(
-                                "INSERT INTO questions (ques, a, b, c, d, correct, hint, explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                                (q_text, q_a, q_b, q_c, q_d, q_corr, q_hint, q_exp),
+                                "INSERT INTO questions (ques, a, b, c, d, correct, review, explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                (q_text, q_a, q_b, q_c, q_d, q_corr, q_review, q_exp),
                             )
                             conn.commit()
                             st.success("Question added successfully!")
@@ -1166,9 +1165,9 @@ else:
                                 correct = str(
                                     r.get("CorrectAnswer", r.get("correct", ""))
                                 ).strip()
-                                hint = (
-                                    str(r.get("hint", "")).strip()
-                                    if pd.notna(r.get("hint"))
+                                review = (
+                                    str(r.get("review", "")).strip()
+                                    if pd.notna(r.get("review"))
                                     else ""
                                 )
                                 exp = (
@@ -1177,10 +1176,10 @@ else:
                                     else ""
                                 )
                                 if ques:
-                                    rows.append((ques, a, b, c, d, correct, hint, exp))
+                                    rows.append((ques, a, b, c, d, correct, review, exp))
                             cur = conn.cursor()
                             cur.executemany(
-                                "INSERT INTO questions (ques, a, b, c, d, correct, hint, explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                "INSERT INTO questions (ques, a, b, c, d, correct, review, explanation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                 rows,
                             )
                             conn.commit()
