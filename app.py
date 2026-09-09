@@ -294,10 +294,10 @@ if not st.session_state.authenticated:
             )
             with st.form("register_form"):
                 reg_name = st.text_input(
-                    "Full Name:", placeholder="e.g. Jane Doe"
+                    "Full Name:", placeholder="e.g. Enter your Full Name"
                 ).strip()
                 reg_user = (
-                    st.text_input("Choose Username:", placeholder="e.g. jane_doe")
+                    st.text_input("Choose Username:", placeholder="e.g. Enter your User Name")
                     .strip()
                     .lower()
                 )
@@ -697,7 +697,7 @@ else:
                 )
 
                 # KPIs
-                k1, k2, k3, k4, k5 = st.columns(5)
+                k1, k2, k3, k4 = st.columns(4)
                 tot = len(df_cohort)
                 pass_cnt = int(df_cohort["passed"].sum())
                 k1.metric("Total Attempts", tot)
@@ -706,9 +706,6 @@ else:
                 k4.metric(
                     "Avg Completion Time",
                     f"{df_cohort['time_taken_seconds'].mean():.0f}s",
-                )
-                k5.metric(
-                    "Avg Hints Requested", f"{df_cohort['hints_used'].mean():.1f}"
                 )
 
                 st.divider()
@@ -773,25 +770,6 @@ else:
 
                 row2_col1, row2_col2 = st.columns(2)
                 with row2_col1:
-                    fig3, ax3 = plt.subplots(figsize=(7, 4.5))
-                    sns.boxplot(
-                        data=df_cohort,
-                        x="hints_used",
-                        y="score_percentage",
-                        hue="hints_used",
-                        legend=False,
-                        palette="Blues_r",
-                        showmeans=True,
-                        ax=ax3,
-                    )
-                    ax3.set_title(
-                        "Hint Requests Impact on Score Spread", fontweight="bold"
-                    )
-                    ax3.set_xlabel("Hints Requested")
-                    ax3.set_ylabel("Score %")
-                    st.pyplot(fig3)
-
-                with row2_col2:
                     fig4, ax4 = plt.subplots(figsize=(7, 4.5))
                     t_counts = df_cohort["Performance Tier"].value_counts()
                     ax4.pie(
