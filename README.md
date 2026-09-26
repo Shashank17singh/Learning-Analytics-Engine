@@ -16,7 +16,7 @@
 
 ## Overview
 
-Architected a dual-layer architecture. It features a fully operational assessment engine for conducting assessmentzes and a comprehensive analytics pipeline that transforms raw relational assessment logs into actionable pedagogical insights using Pandas, Scikit-learn, and Streamlit.
+Built an unsupervised K-Means clustering pipeline to segment student learning patterns and performance metrics. Designed the architecture to scale via SQLite, leveraging Seaborn for deep exploratory data analysis and deploying the interactive analytics engine via Streamlit.
 
 ---
 
