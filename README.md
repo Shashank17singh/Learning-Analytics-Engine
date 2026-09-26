@@ -16,7 +16,7 @@
 
 ## Overview
 
-Developed as a highly robust Data Science and Software Engineering portfolio project, this repository implements a dual-layer architecture. It features a fully operational assessment engine for conducting assessmentzes and a comprehensive analytics pipeline that transforms raw relational assessment logs into actionable pedagogical insights using Pandas, Scikit-learn, and Streamlit.
+Architected a dual-layer architecture. It features a fully operational assessment engine for conducting assessmentzes and a comprehensive analytics pipeline that transforms raw relational assessment logs into actionable pedagogical insights using Pandas, Scikit-learn, and Streamlit.
 
 ---
 
