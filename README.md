@@ -129,3 +129,9 @@ The app will open automatically in your browser at `http://localhost:8501`.
 1. **End-to-End Tracking:** User actions (reviews taken, time elapsed) are captured in SQLite and analyzed dynamically using Pandas and Seaborn.
 2. **Statistical Rigor:** Computes standard deviation, IQR, and Pearson correlation coefficients to identify conceptual bottlenecks.
 3. **Predictive Modeling:** Trains Random Forest and Logistic Regression models on-the-fly to predict student success based on behavioral telemetry.
+
+
+---
+
+## Deployment
+- **Dashboard URL:** https://learning-analytics-engine.streamlit.app/
