@@ -102,7 +102,7 @@ Learning-Analytics-Engine/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<YOUR_USERNAME>/Learning-Analytics-Engine.git
+git clone https://github.com/Shashank17singh/Learning-Analytics-Engine.git
 cd Learning-Analytics-Engine
 ```
 
