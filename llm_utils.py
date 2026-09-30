@@ -3,6 +3,7 @@ import os
 
 import google.generativeai as genai
 from groq import Groq
+import streamlit as st
 
 
 def generate_groq_questions(topic: str, count: int = 5) -> list:
@@ -48,7 +49,11 @@ def generate_groq_questions(topic: str, count: int = 5) -> list:
         return []
 
 def generate_gemini_questions(topic: str, count: int = 5) -> list:
-    api_key = os.getenv("GEMINI_API_KEY")
+    try:
+        api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
+    except Exception:
+        api_key = os.getenv("GEMINI_API_KEY")
+        
     if not api_key:
         return []
     
