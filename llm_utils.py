@@ -62,7 +62,6 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
         return []
 
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-1.5-flash")
 
     prompt = f"""
     Generate exactly {count} multiple-choice questions about the topic '{topic}'.
@@ -78,22 +77,43 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
     - "explanation": string (why it is correct)
     """
 
-    try:
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.GenerationConfig(
-                response_mime_type="application/json", temperature=0.7
-            ),
-        )
-        response_text = response.text.strip()
-        if response_text.startswith("```json"):
-            response_text = response_text[7:]
-        if response_text.endswith("```"):
-            response_text = response_text[:-3]
+    models_to_try = [
+        "gemini-1.5-flash", 
+        "gemini-1.5-flash-latest", 
+        "gemini-2.0-flash-exp",
+        "gemini-1.5-pro", 
+        "gemini-1.5-pro-latest",
+        "gemini-1.5-flash-8b"
+    ]
+    
+    last_error = None
+    for model_name in models_to_try:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(
+                prompt,
+                generation_config=genai.GenerationConfig(
+                    response_mime_type="application/json", temperature=0.7
+                ),
+            )
+            response_text = response.text.strip()
+            if response_text.startswith("```json"):
+                response_text = response_text[7:]
+            if response_text.endswith("```"):
+                response_text = response_text[:-3]
 
-        data = json.loads(response_text.strip())
-        return data
-    except Exception as e:  # noqa: BLE001
-        st.error(f"Google Generative AI API Error: {str(e)}")
-        print(f"Error generating questions from Gemini: {e}")
-        return []
+            data = json.loads(response_text.strip())
+            return data
+        except Exception as e:  # noqa: BLE001
+            last_error = e
+            if "404" in str(e):
+                continue
+            else:
+                st.error(f"Google Generative AI API Error ({model_name}): {str(e)}")
+                print(f"Error generating questions from Gemini ({model_name}): {e}")
+                return []
+
+    if last_error:
+        st.error(f"Google Generative AI API Error: {str(last_error)}")
+        print(f"Error generating questions from Gemini (all models failed): {last_error}")
+    return []

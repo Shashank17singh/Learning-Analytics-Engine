@@ -93,14 +93,14 @@ st.markdown(
         font-weight: 700;
         color: #1E3A8A;
     }
-    /* Fix tab text clipping when emojis are removed */
+    /* Fix tab text clipping */
     div[data-testid="stTabs"] button {
+        height: auto !important;
+        padding-top: 10px !important;
         padding-bottom: 10px !important;
-        min-height: 52px !important;
     }
     div[data-testid="stTabs"] button p {
         line-height: 1.5 !important;
-        margin-bottom: 2px !important;
     }
 </style>
 """,
