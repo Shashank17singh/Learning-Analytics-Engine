@@ -132,17 +132,6 @@ if st.session_state.user_role != "admin":
         if not st.session_state.get("student_assessment_started", False):
             st.info("Dynamic Exam Generation powered by Generative AI")
             
-            ai_provider = st.radio("Select AI Provider:", ["Groq (Fast)", "Gemini (Reliable JSON)"], horizontal=True)
-            st.session_state.ai_provider = ai_provider
-            
-            if "Groq" in ai_provider:
-                api_key_input = st.text_input("Groq API Key (optional if set in env):", type="password", key="groq_key")
-                if api_key_input:
-                    os.environ["GROQ_API_KEY"] = api_key_input
-            else:
-                api_key_input = st.text_input("Gemini API Key (optional if set in env):", type="password", key="gemini_key")
-                if api_key_input:
-                    os.environ["GEMINI_API_KEY"] = api_key_input
 
             # Load extensive domains catalog
             try:
@@ -182,16 +171,13 @@ if st.session_state.user_role != "admin":
                 st.session_state.student_assessment_started = True
                 st.session_state.assessment_start_time = time.time()
                 
-                provider = st.session_state.get("ai_provider", "Groq")
+                provider = "Gemini"
                 topic_for_gen = st.session_state.get("custom_topic", "General")
                 if not topic_for_gen.strip():
                     topic_for_gen = "General Knowledge"
                 
-                with st.spinner(f"🤖 {provider.split()[0]} is generating your custom exam on '{topic_for_gen}'..."):
-                    if "Groq" in provider:
-                        gen_qs = llm_utils.generate_groq_questions(topic_for_gen, num_questions_chosen)
-                    else:
-                        gen_qs = llm_utils.generate_gemini_questions(topic_for_gen, num_questions_chosen)
+                with st.spinner(f"🤖 {provider} is generating your custom exam on '{topic_for_gen}'..."):
+                    gen_qs = llm_utils.generate_gemini_questions(topic_for_gen, num_questions_chosen)
                 
                 if gen_qs:
                     mapped_qs = [
