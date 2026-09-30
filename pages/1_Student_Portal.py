@@ -98,17 +98,18 @@ st.markdown(
     
     
     /* Fix tab text clipping completely */
-    div[data-testid="stTabs"] button[data-baseweb="tab"] {
+    .stTabs button {
         height: 50px !important;
         min-height: 50px !important;
-        padding-top: 10px !important;
-        padding-bottom: 10px !important;
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
         overflow: visible !important;
     }
-    div[data-testid="stTabs"] button[data-baseweb="tab"] div {
+    .stTabs button * {
         overflow: visible !important;
-        display: flex !important;
-        align-items: center !important;
+        font-size: 15px !important;
+        line-height: 1.8 !important;
+        padding-top: 4px !important;
     }
 </style>
 """,
