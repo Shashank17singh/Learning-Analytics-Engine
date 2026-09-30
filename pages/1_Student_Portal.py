@@ -129,167 +129,93 @@ if st.session_state.user_role != "admin":
     # TAB 1: TAKE ASSESSMENT
     with student_tabs[0]:
         st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
-        cur = conn.cursor()
-
         if not st.session_state.get("student_assessment_started", False):
-            cur.execute(
-                "SELECT DISTINCT domain FROM questions WHERE domain IS NOT NULL AND domain != ''"
-            )
-            domains = [r[0] for r in cur.fetchall()]
-            if not domains:
-                domains = ["General"]
-
-            use_ai = st.toggle("Generate Custom Exam with Generative AI", value=False)
+            st.info("Dynamic Exam Generation powered by Generative AI")
             
-            if use_ai:
-                ai_provider = st.radio("Select AI Provider:", ["Groq (Fast)", "Gemini (Reliable JSON)"], horizontal=True)
-                st.session_state.ai_provider = ai_provider
-                
-                if "Groq" in ai_provider:
-                    st.info("Powered by Groq! Ensure GROQ_API_KEY is set in your environment variables, or paste it below.")
-                    api_key_input = st.text_input("Groq API Key (optional if set in env):", type="password", key="groq_key")
-                    if api_key_input:
-                        os.environ["GROQ_API_KEY"] = api_key_input
-                else:
-                    st.info("Powered by Google Gemini 1.5 Flash! Ensure GEMINI_API_KEY is set in your environment variables, or paste it below.")
-                    api_key_input = st.text_input("Gemini API Key (optional if set in env):", type="password", key="gemini_key")
-                    if api_key_input:
-                        os.environ["GEMINI_API_KEY"] = api_key_input
+            ai_provider = st.radio("Select AI Provider:", ["Groq (Fast)", "Gemini (Reliable JSON)"], horizontal=True)
+            st.session_state.ai_provider = ai_provider
+            
+            if "Groq" in ai_provider:
+                api_key_input = st.text_input("Groq API Key (optional if set in env):", type="password", key="groq_key")
+                if api_key_input:
+                    os.environ["GROQ_API_KEY"] = api_key_input
+            else:
+                api_key_input = st.text_input("Gemini API Key (optional if set in env):", type="password", key="gemini_key")
+                if api_key_input:
+                    os.environ["GEMINI_API_KEY"] = api_key_input
 
-                # Load extensive domains catalog
+            # Load extensive domains catalog
+            try:
                 with open('domains_catalog.json', 'r') as f:
                     ai_domains_catalog = json.load(f)
-                
-                col_aid, col_ais = st.columns(2)
-                with col_aid:
-                    ai_domain = st.selectbox("Search/Select Broad Domain:", list(ai_domains_catalog.keys()))
-                
-                with col_ais:
-                    ai_subject = st.selectbox("Search/Select Specific Subject:", ai_domains_catalog[ai_domain])
-                
-                if ai_subject == "Custom Topic...":
-                    custom_topic = st.text_input("Type your completely custom topic here:", value="")
-                else:
-                    custom_topic = f"{ai_domain} - {ai_subject}"
-
-                selected_domain = "AI Generated"
-                selected_subject = custom_topic
-                st.session_state.use_ai = True
-                st.session_state.custom_topic = custom_topic
-                
-                # Fetch questions when Start Assessment is clicked (handled below)
-                all_questions = [] # Placeholder to prevent errors
+            except FileNotFoundError:
+                ai_domains_catalog = {"General": ["General Knowledge", "Custom Topic..."]}
+            
+            col_aid, col_ais = st.columns(2)
+            with col_aid:
+                ai_domain = st.selectbox("Search/Select Broad Domain:", list(ai_domains_catalog.keys()))
+            
+            with col_ais:
+                ai_subject = st.selectbox("Search/Select Specific Subject:", ai_domains_catalog.get(ai_domain, ["Custom Topic..."]))
+            
+            if ai_subject == "Custom Topic...":
+                custom_topic = st.text_input("Type your completely custom topic here:", value="")
             else:
-                st.session_state.use_ai = False
-                col_d, col_s = st.columns(2)
-                with col_d:
-                    selected_domain = st.selectbox("Select Domain:", domains)
+                custom_topic = f"{ai_domain} - {ai_subject}"
 
-                cur.execute(
-                    "SELECT DISTINCT subject FROM questions WHERE domain = ? AND subject IS NOT NULL AND subject != ''",
-                    (selected_domain,),
-                )
-                subjects = [r[0] for r in cur.fetchall()]
-                if not subjects:
-                    subjects = ["General"]
-
-                with col_s:
-                    selected_subject = st.selectbox("Select Subject:", subjects)
-
-                cur.execute(
-                    "SELECT qno, ques, a, b, c, d, correct, explanation FROM questions WHERE domain = ? AND subject = ? ORDER BY qno ASC",
-                    (selected_domain, selected_subject),
-                )
-                all_questions = cur.fetchall()
-
-            st.session_state.selected_domain = selected_domain
-            st.session_state.selected_subject = selected_subject
-        else:
-            selected_domain = st.session_state.get("selected_domain", "General")
-            selected_subject = st.session_state.get("selected_subject", "General")
-            cur.execute(
-                "SELECT qno, ques, a, b, c, d, correct, explanation FROM questions WHERE domain = ? AND subject = ? ORDER BY qno ASC",
-                (selected_domain, selected_subject),
+            st.session_state.selected_domain = ai_domain
+            st.session_state.selected_subject = ai_subject if ai_subject != "Custom Topic..." else "Custom"
+            st.session_state.custom_topic = custom_topic
+            
+            q_options = [5, 10, 15, 20, 25]
+            num_questions_chosen = st.select_slider(
+                " Choose Number of Questions to Attempt:",
+                options=q_options,
+                value=10,
             )
-            all_questions = cur.fetchall()
 
-        if not all_questions:
-            st.warning(
-                "No questions available right now. Please contact the administrator."
-            )
-        else:
-            if "student_assessment_started" not in st.session_state:
-                st.session_state.student_assessment_started = False
-            if "assessment_start_time" not in st.session_state:
-                st.session_state.assessment_start_time = 0
-            if "assessment_set" not in st.session_state:
-                st.session_state.assessment_set = None
-
-            if not st.session_state.student_assessment_started:
-                total_available = len(all_questions)
-                q_options = (
-                    [5, 10, 15, 20, 25]
-                    if total_available >= 25
-                    else (
-                        [5, 10, 15]
-                        if total_available >= 15
-                        else [min(5, total_available), total_available]
-                    )
-                )
-                num_questions_chosen = st.select_slider(
-                    " Choose Number of Questions to Attempt:",
-                    options=q_options,
-                    value=10 if 10 in q_options else q_options[-1],
-                )
-
-                if st.button(
-                    "Start Assessment Now ",
-                    type="primary",
-                    use_container_width=True,
-                ):
-                    st.session_state.student_assessment_started = True
-                    st.session_state.assessment_start_time = time.time()
-                    
-                    if st.session_state.get("use_ai", False):
-                        provider = st.session_state.get("ai_provider", "Groq")
-                        custom_topic = st.session_state.get("custom_topic", "General")
-                        
-                        with st.spinner(f"🤖 {provider.split()[0]} is generating your custom exam..."):
-                            if "Groq" in provider:
-                                gen_qs = llm_utils.generate_groq_questions(custom_topic, num_questions_chosen)
-                            else:
-                                gen_qs = llm_utils.generate_gemini_questions(custom_topic, num_questions_chosen)
-                        
-                        if gen_qs:
-                            # Format Groq JSON to match DB tuple format
-                            mapped_qs = [
-                                (
-                                    q.get("qno", i),
-                                    q.get("ques", ""),
-                                    q.get("a", ""),
-                                    q.get("b", ""),
-                                    q.get("c", ""),
-                                    q.get("d", ""),
-                                    q.get("correct", ""),
-                                    q.get("explanation", "")
-                                )
-                                for i, q in enumerate(gen_qs, 1)
-                            ]
-                            st.session_state.assessment_set = mapped_qs
-                        else:
-                            st.error(f"{provider.split()[0]} failed to generate questions. Ensure API Key is valid.")
-                            st.session_state.student_assessment_started = False
-                            st.stop()
+            if st.button(
+                "Start Assessment Now ",
+                type="primary",
+                use_container_width=True,
+            ):
+                st.session_state.student_assessment_started = True
+                st.session_state.assessment_start_time = time.time()
+                
+                provider = st.session_state.get("ai_provider", "Groq")
+                topic_for_gen = st.session_state.get("custom_topic", "General")
+                if not topic_for_gen.strip():
+                    topic_for_gen = "General Knowledge"
+                
+                with st.spinner(f"🤖 {provider.split()[0]} is generating your custom exam on '{topic_for_gen}'..."):
+                    if "Groq" in provider:
+                        gen_qs = llm_utils.generate_groq_questions(topic_for_gen, num_questions_chosen)
                     else:
-                        st.session_state.assessment_set = random.sample(
-                            all_questions, min(num_questions_chosen, total_available)
+                        gen_qs = llm_utils.generate_gemini_questions(topic_for_gen, num_questions_chosen)
+                
+                if gen_qs:
+                    mapped_qs = [
+                        (
+                            q.get("qno", i),
+                            q.get("ques", ""),
+                            q.get("a", ""),
+                            q.get("b", ""),
+                            q.get("c", ""),
+                            q.get("d", ""),
+                            q.get("correct", ""),
+                            q.get("explanation", "")
                         )
+                        for i, q in enumerate(gen_qs, 1)
+                    ]
+                    st.session_state.assessment_set = mapped_qs
                     st.rerun()
-            else:
-                assessment_set = st.session_state.get(
-                    "assessment_set", all_questions[:10]
-                )
-                user_choices = {}
+                else:
+                    st.error(f"{provider.split()[0]} failed to generate questions. Ensure API Key is valid and try again.")
+                    st.session_state.student_assessment_started = False
+                    st.stop()
+        else:
+            assessment_set = st.session_state.get("assessment_set", [])
+            user_choices = {}
 
                 with st.form("student_assessment_form"):
                     st.markdown(
