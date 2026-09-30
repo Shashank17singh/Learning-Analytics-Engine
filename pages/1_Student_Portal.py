@@ -92,6 +92,16 @@ st.markdown(
         font-weight: 700;
         color: #1E3A8A;
     }
+    
+    /* Fix tab text clipping when emojis are removed */
+    button[data-baseweb="tab"] {
+        padding-bottom: 8px !important;
+        min-height: 50px !important;
+    }
+    button[data-baseweb="tab"] div[data-testid="stMarkdownContainer"] p {
+        line-height: 1.5 !important;
+        margin-bottom: 2px !important;
+    }
 </style>
 """,
     unsafe_allow_html=True,
@@ -120,9 +130,9 @@ conn = get_db_connection()
 if st.session_state.user_role != "admin":
     student_tabs = st.tabs(
         [
-            "📝 Take Assessment",
-            "📊 My Performance & Analytics",
-            "🏆 Hall of Fame (Leaderboard)",
+            " Take Assessment",
+            " My Performance & Analytics",
+            " Hall of Fame (Leaderboard)",
         ]
     )
 
