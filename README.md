@@ -16,7 +16,7 @@
 
 ## Overview
 
-Built an unsupervised K-Means clustering pipeline to segment student learning patterns and performance metrics. Designed the architecture to scale via SQLite, leveraging Seaborn for deep exploratory data analysis and deploying the interactive analytics engine via Streamlit.
+The **Learning Analytics Engine** is a comprehensive educational platform that merges real-time assessment delivery with advanced data science and machine learning capabilities. It allows students to take AI-generated, customized quizzes while administrators gain deep insights into cohort performance through interactive, predictive analytics. The platform leverages unsupervised K-Means clustering to segment learners, regression for score prediction, and Seaborn for rich exploratory data analysis.
 
 ---
 
@@ -24,9 +24,14 @@ Built an unsupervised K-Means clustering pipeline to segment student learning pa
 
 ```mermaid
 graph TD
+    subgraph "External Services"
+    I[Google Gemini API]
+    end
+
     subgraph "Application Layer"
-    A[Admin Portal] -->|Manage| B(SQLite Database)
-    C[Student Portal] -->|Take Assessment| B
+    A[Admin Portal] -->|Manage| B[(SQLite Database)]
+    C[Student Portal] -->|Save Results| B
+    C <-->|Generate Custom Questions| I
     end
     
     subgraph "Data Science & Analytics Layer"
@@ -44,29 +49,35 @@ graph TD
     classDef io fill:#f9f0ff,stroke:#8a2be2,stroke-width:2px,color:#000;
     classDef core fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
     classDef logic fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#000;
+    classDef ext fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000;
     
     class A,C,H io;
     class B,E core;
     class D,F,G logic;
+    class I ext;
 ```
+
+---
 
 ## Features
 
 | Capability | Description |
 |---|---|
-| **Assessment Engine** | A secure platform supporting candidate registration, timed assessmentzes, reviews, and leaderboard rankings. |
-| **Exploratory Data Analysis** | Automated descriptive statistics, competency segmentation, and statistical correlations (e.g., reviews requested vs. final score). |
+| **Assessment Engine** | A secure platform supporting candidate registration, timed assessments, performance tracking, and real-time leaderboard rankings. |
+| **AI-Powered Questions** | Dynamically generates custom, on-the-fly multiple-choice questions across diverse subjects utilizing Google's Gemini Large Language Models. |
+| **Exploratory Data Analysis** | Automated descriptive statistics, competency segmentation, and statistical correlations (e.g., time elapsed vs. final score). |
 | **Machine Learning** | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation). |
-| **Interactive Dashboard** | Provides a modern, reactive interface to interact with real-time cohort analytics, histograms, and correlation heatmaps. |
+| **Interactive Dashboard** | Provides a modern, reactive admin interface to interact with real-time cohort analytics, histograms, and correlation heatmaps. |
 
 ---
 
 ## Tech Stack
 
-**Machine Learning & Analytics** - Scikit-Learn · Pandas · NumPy
-**Software Engineering** - Python · SQLite3 
-**Visualizations** - Matplotlib · Seaborn · Streamlit
-**Environment** - Jupyter Notebooks · Git
+- **Machine Learning & Analytics:** Scikit-Learn · Pandas · NumPy
+- **Software Engineering:** Python · SQLite3 
+- **LLM Integrations:** Google Gemini API
+- **Visualizations:** Matplotlib · Seaborn · Streamlit
+- **Environment:** Jupyter Notebooks · Git
 
 ---
 
@@ -75,21 +86,20 @@ graph TD
 ```
 Learning-Analytics-Engine/
 │
-├── app.py                              # Modern Streamlit Web Application (Main Web Dashboard)
+├── app.py                              # Main Streamlit Web Application (Authentication & Routing)
 ├── pages/                              # Streamlit Multi-Page Components
-│   ├── 1_Student_Portal.py             # Interactive Assessment Taking Engine & Learner Dashboard
+│   ├── 1_Student_Portal.py             # Interactive Assessment Engine & Student Dashboard
 │   └── 2_Admin_Portal.py               # Secure Admin Auth, User Management & Analytics
 ├── auth_utils.py                       # Secure Authentication & Password Hashing
 ├── db_utils.py                         # SQLite3 Database Connections & Schema Initialization
-├── llm_utils.py                        # Groq & Gemini Integrations for Content Generation
-├── analytics.py                        # EDA & Descriptive Statistics (Pandas, NumPy)
-├── ml_models.py                        # Scikit-learn Modeling Pipelines
+├── llm_utils.py                        # Gemini API Integrations for Content Generation
+├── analytics.py                        # EDA & Descriptive Statistics Logic
+├── ml_models.py                        # Scikit-learn Modeling Pipelines (Clustering, Regression)
 │
-├── Learning_Analytics_EDA.ipynb        # Complete Interactive Jupyter Notebook
-├── assessment_bank.csv                 # Bulk Question Bank (100+ Curated Questions)
-├── domains_catalog.json                # Pre-defined domains catalog
-├── telemetry.db                        # SQLite3 Database (Generated)
-└── README.md                           # You are here
+├── Learning_Analytics_EDA.ipynb        # Comprehensive Jupyter Notebook for offline EDA
+├── domains_catalog.json                # Pre-defined assessment domains & subjects catalog
+├── telemetry.db                        # SQLite3 Database (Generated upon execution)
+└── README.md                           # Project Documentation
 ```
 
 ---
@@ -99,6 +109,7 @@ Learning-Analytics-Engine/
 ### Prerequisites
 
 - Python 3.11+
+- An active [Google Gemini API Key](https://aistudio.google.com/)
 
 ### 1. Clone the Repository
 
@@ -113,9 +124,18 @@ cd Learning-Analytics-Engine
 pip install -r requirements.txt
 ```
 
-### 3. Launch the Dashboard
+### 3. Configure API Keys
 
-Once the dependencies are installed, launch the Streamlit app to interact with the assessment engine and analytics platform.
+The app requires an API key for generating AI-powered assessment questions. Create a `.streamlit/secrets.toml` file in the project root and add your Gemini API key:
+
+```toml
+GEMINI_API_KEY="your-gemini-api-key"
+```
+*(Alternatively, you can export `GEMINI_API_KEY` as an environment variable in your terminal).*
+
+### 4. Launch the Dashboard
+
+Once the dependencies are installed and the API key is configured, launch the Streamlit app:
 
 ```bash
 streamlit run app.py
@@ -125,14 +145,15 @@ The app will open automatically in your browser at `http://localhost:8501`.
 
 ---
 
-## Key Analytics Workflows
+## Key Workflows
 
-1. **End-to-End Tracking:** User actions (reviews taken, time elapsed) are captured in SQLite and analyzed dynamically using Pandas and Seaborn.
-2. **Statistical Rigor:** Computes standard deviation, IQR, and Pearson correlation coefficients to identify conceptual bottlenecks.
-3. **Predictive Modeling:** Trains Random Forest and Logistic Regression models on-the-fly to predict student success based on behavioral telemetry.
-
+1. **Dynamic Content Generation:** Generates real-time, topic-specific assessments via the Gemini API based on student preferences.
+2. **End-to-End Tracking:** Student actions (time taken, accuracy, domain chosen) are captured in SQLite and analyzed dynamically using Pandas.
+3. **Statistical Rigor:** Computes standard deviation, IQR, and Pearson correlation coefficients to identify conceptual bottlenecks.
+4. **Predictive Modeling:** Trains Random Forest and Logistic Regression models on-the-fly to predict student success based on behavioral telemetry.
 
 ---
 
 ## Deployment
-- **Dashboard URL:** https://learning-analytics-engine.streamlit.app/
+
+- **Dashboard URL:** [https://learning-analytics-engine.streamlit.app/](https://learning-analytics-engine.streamlit.app/)
