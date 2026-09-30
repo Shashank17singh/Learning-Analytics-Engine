@@ -91,35 +91,22 @@ st.markdown(
     }
 
     
+    
     /* Fix tab text clipping completely */
-    div[data-testid="stTabs"] {
-        overflow: visible !important;
-    }
-    div[data-testid="stTabs"] button {
+    button[role="tab"] {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
         height: auto !important;
-        min-height: 48px !important;
-        padding-top: 10px !important;
-        padding-bottom: 10px !important;
         overflow: visible !important;
     }
-    div[data-testid="stTabs"] button p {
+    button[role="tab"] div, button[role="tab"] p, button[role="tab"] span {
         overflow: visible !important;
-        white-space: normal !important;
-        line-height: 1.5 !important;
-        padding-top: 5px !important;
-        padding-bottom: 5px !important;
-        word-break: keep-all !important;
-        margin-top: 5px !important;
-        display: block !important;
+        line-height: 1.6 !important;
     }
     div[data-baseweb="tab-list"] {
         overflow: visible !important;
-    }
-    div[data-baseweb="tab"] {
-        overflow: visible !important;
-    }
-    div[data-baseweb="tab"] > div {
-        overflow: visible !important;
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
     }
 </style>
 """,
