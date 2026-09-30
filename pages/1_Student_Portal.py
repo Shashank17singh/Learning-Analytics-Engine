@@ -130,8 +130,6 @@ if st.session_state.user_role != "admin":
     with student_tabs[0]:
         st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
         if not st.session_state.get("student_assessment_started", False):
-            st.info("Dynamic Exam Generation powered by Generative AI")
-            
 
             # Load extensive domains catalog
             try:
