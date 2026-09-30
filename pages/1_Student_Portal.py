@@ -196,11 +196,14 @@ if st.session_state.user_role != "admin":
                 value=10,
             )
 
-            if st.button(
-                "Start Assessment Now ",
-                type="primary",
-                width="stretch",
-            ):
+            st.write("")
+            _, center_col, _ = st.columns([1, 2, 1])
+            with center_col:
+                if st.button(
+                    "Start Assessment Now ",
+                    type="primary",
+                    use_container_width=True,
+                ):
                 st.session_state.student_assessment_started = True
                 st.session_state.assessment_start_time = time.time()
 
