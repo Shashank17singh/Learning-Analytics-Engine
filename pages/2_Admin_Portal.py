@@ -120,7 +120,6 @@ admin_tabs = st.tabs(
     [
         " Cohort Analytics & BI Dashboard",
         " ML & Predictive Analytics",
-        " Question Bank Management",
         " Registered Accounts",
         " Leaderboard",
     ]
@@ -559,123 +558,8 @@ with admin_tabs[1]:
             df_reviews = analytics.get_review_vs_passrate(conn)
             st.dataframe(df_reviews, use_container_width=True, hide_index=True)
 
-# TAB 3: QUESTION BANK MANAGEMENT
+# TAB 3: REGISTERED ACCOUNTS
 with admin_tabs[2]:
-    st.markdown("###  Manage Assessment Question Bank")
-    q_tab1, q_tab2 = st.tabs([" Add Single Question", " Bulk CSV Upload"])
-
-    with q_tab1:
-        with st.form("admin_add_q"):
-            col1, col2 = st.columns(2)
-            with col1:
-                q_domain = st.text_input(
-                    "Domain (e.g. Computer Science):", value="General"
-                )
-            with col2:
-                q_subject = st.text_input("Subject (e.g. Python):", value="General")
-            q_text = st.text_area("Question Prompt:")
-            q_a = st.text_input("Option A:")
-            q_b = st.text_input("Option B:")
-            q_c = st.text_input("Option C:")
-            q_d = st.text_input("Option D:")
-            q_corr = st.text_input("Correct Answer (a/b/c/d or option text):")
-            q_review = st.text_input("Review (optional):")
-            q_exp = st.text_area("Explanation (optional):")
-
-            if st.form_submit_button("Add Question to Repository", type="primary"):
-                if q_text.strip() and q_a.strip():
-                    cur = conn.cursor()
-                    cur.execute(
-                        "INSERT INTO questions (ques, a, b, c, d, correct, review, explanation, domain, subject) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        (
-                            q_text,
-                            q_a,
-                            q_b,
-                            q_c,
-                            q_d,
-                            q_corr,
-                            q_review,
-                            q_exp,
-                            q_domain,
-                            q_subject,
-                        ),
-                    )
-                    conn.commit()
-                    st.success("Question added successfully!")
-                else:
-                    st.error("Question and Option A are required.")
-
-    with q_tab2:
-        uploaded_csv = st.file_uploader(
-            "Upload CSV Question File (e.g. assessment_engine.csv):", type=["csv"]
-        )
-        if uploaded_csv is not None:
-            try:
-                df_up = pd.read_csv(uploaded_csv)
-                st.write(f"Preview ({len(df_up)} questions detected):")
-                st.dataframe(df_up.head(3))
-                if st.button("Confirm Bulk Import", type="primary"):
-                    rows = []
-                    for _, r in df_up.iterrows():
-                        ques = str(r.get("Question", r.get("ques", ""))).strip()
-                        a = str(r.get("Option1", r.get("a", ""))).strip()
-                        b = str(r.get("Option2", r.get("b", ""))).strip()
-                        c = str(r.get("Option3", r.get("c", ""))).strip()
-                        d = str(r.get("Option4", r.get("d", ""))).strip()
-                        correct = str(
-                            r.get("CorrectAnswer", r.get("correct", ""))
-                        ).strip()
-                        review = (
-                            str(r.get("review", "")).strip()
-                            if pd.notna(r.get("review"))
-                            else ""
-                        )
-                        exp = (
-                            str(r.get("explanation", "")).strip()
-                            if pd.notna(r.get("explanation"))
-                            else ""
-                        )
-                        domain = str(
-                            r.get("domain", r.get("Domain", "General"))
-                        ).strip()
-                        subject = str(
-                            r.get("subject", r.get("Subject", "General"))
-                        ).strip()
-                        if ques:
-                            rows.append(
-                                (
-                                    ques,
-                                    a,
-                                    b,
-                                    c,
-                                    d,
-                                    correct,
-                                    review,
-                                    exp,
-                                    domain,
-                                    subject,
-                                )
-                            )
-                    cur = conn.cursor()
-                    cur.executemany(
-                        "INSERT INTO questions (ques, a, b, c, d, correct, review, explanation, domain, subject) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        rows,
-                    )
-                    conn.commit()
-                    st.success(f"Loaded {len(rows)} questions into repository!")
-            except Exception as e:
-                st.error(f"Failed to parse CSV: {e}")
-
-    st.divider()
-    st.markdown("#### Current Questions in Repository")
-    df_questions = pd.read_sql_query(
-        "SELECT qno as 'ID', domain as 'Domain', subject as 'Subject', ques as 'Question', a as 'A', b as 'B', c as 'C', d as 'D', correct as 'Correct Answer' FROM questions ORDER BY qno ASC",
-        conn,
-    )
-    st.dataframe(df_questions, use_container_width=True)
-
-# TAB 4: REGISTERED ACCOUNTS
-with admin_tabs[3]:
     st.markdown("###  Registered Users & Student Accounts")
     df_users = pd.read_sql_query(
         "SELECT username as 'Username', role as 'Role', status as 'Status' FROM login",
@@ -683,8 +567,8 @@ with admin_tabs[3]:
     )
     st.dataframe(df_users, use_container_width=True)
 
-# TAB 5: LEADERBOARD
-with admin_tabs[4]:
+# TAB 4: LEADERBOARD
+with admin_tabs[3]:
     st.markdown("###  Full Assessment Leaderboard")
     cur = conn.cursor()
     cur.execute("PRAGMA table_info(leaderboard)")
