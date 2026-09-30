@@ -84,6 +84,7 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
         "gemini-1.5-pro",
         "gemini-1.5-pro-latest",
         "gemini-1.5-flash-8b",
+        "gemini-1.0-pro",
         "gemini-pro",
     ]
 
@@ -91,7 +92,7 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
     for model_name in models_to_try:
         try:
             model = genai.GenerativeModel(model_name)
-            if model_name == "gemini-pro":
+            if "pro" in model_name and "1.5" not in model_name:
                 response = model.generate_content(
                     prompt,
                     generation_config=genai.GenerationConfig(temperature=0.7),
@@ -120,21 +121,37 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
                 return []
 
     try:
+        all_models = list(genai.list_models())
         available_models = [
             m.name
-            for m in genai.list_models()
+            for m in all_models
             if "generateContent" in m.supported_generation_methods
         ]
-        if available_models:
-            first_model = available_models[0].replace("models/", "")
-            model = genai.GenerativeModel(first_model)
-            response = model.generate_content(prompt)
-            response_text = response.text.strip()
-            response_text = response_text.removeprefix("```json")
-            response_text = response_text.removesuffix("```")
-            return json.loads(response_text.strip())
+
+        if not available_models:
+            model_names = [m.name for m in all_models]
+            msg = f"Your API Key has no models supporting generateContent. Available: {', '.join(model_names)}"
+            st.error(msg)
+            print(msg)
+            return []
+
+        first_model = available_models[0].replace("models/", "")
+        model = genai.GenerativeModel(first_model)
+
+        response = model.generate_content(prompt)
+        response_text = response.text.strip()
+        response_text = response_text.removeprefix("```json")
+        response_text = response_text.removesuffix("```")
+        return json.loads(response_text.strip())
+
     except Exception as e:  # noqa: BLE001
-        print(f"Fallback model discovery failed: {e}")
+        try:
+            model_names = [m.name for m in genai.list_models()]
+            print(
+                f"Fallback model discovery failed: {e}. Available models: {model_names}"
+            )
+        except Exception:  # noqa: BLE001
+            print(f"Fallback model discovery failed completely: {e}")
 
     if last_error:
         st.error(f"Google Generative AI API Error: {last_error!s}")

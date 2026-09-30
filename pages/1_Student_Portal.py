@@ -122,9 +122,9 @@ conn = get_db_connection()
 if st.session_state.user_role != "admin":
     student_tabs = st.tabs(
         [
-            " Take Assessment",
-            " My Performance & Analytics",
-            " Hall of Fame (Leaderboard)",
+            "📝 Take Assessment",
+            "📊 My Performance & Analytics",
+            "🏆 Hall of Fame (Leaderboard)",
         ]
     )
 
