@@ -169,9 +169,12 @@ if not st.session_state.authenticated:
                 login_pwd = st.text_input(
                     "Password:", type="password", placeholder="Enter your password"
                 ).strip()
-                btn_login = st.form_submit_button(
-                    "Sign In ", type="primary", width="stretch"
-                )
+                st.write("")
+                _, btn_col1, _ = st.columns([1, 2, 1])
+                with btn_col1:
+                    btn_login = st.form_submit_button(
+                        "Sign In ", type="primary", use_container_width=True
+                    )
 
                 if btn_login:
                     if not login_user or not login_pwd:
@@ -231,9 +234,12 @@ if not st.session_state.authenticated:
                 reg_pwd2 = st.text_input(
                     "Confirm Password:", type="password", placeholder="Retype password"
                 ).strip()
-                btn_register = st.form_submit_button(
-                    "Create Account ", type="primary", width="stretch"
-                )
+                st.write("")
+                _, btn_col2, _ = st.columns([1, 2, 1])
+                with btn_col2:
+                    btn_register = st.form_submit_button(
+                        "Create Account ", type="primary", use_container_width=True
+                    )
 
                 if btn_register:
                     if not reg_name or not reg_user or not reg_pwd:
