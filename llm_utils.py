@@ -78,14 +78,14 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
     """
 
     models_to_try = [
-        "gemini-1.5-flash", 
-        "gemini-1.5-flash-latest", 
+        "gemini-1.5-flash",
+        "gemini-1.5-flash-latest",
         "gemini-2.0-flash-exp",
-        "gemini-1.5-pro", 
+        "gemini-1.5-pro",
         "gemini-1.5-pro-latest",
-        "gemini-1.5-flash-8b"
+        "gemini-1.5-flash-8b",
     ]
-    
+
     last_error = None
     for model_name in models_to_try:
         try:
@@ -97,10 +97,8 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
                 ),
             )
             response_text = response.text.strip()
-            if response_text.startswith("```json"):
-                response_text = response_text[7:]
-            if response_text.endswith("```"):
-                response_text = response_text[:-3]
+            response_text = response_text.removeprefix("```json")
+            response_text = response_text.removesuffix("```")
 
             data = json.loads(response_text.strip())
             return data
@@ -109,11 +107,13 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
             if "404" in str(e):
                 continue
             else:
-                st.error(f"Google Generative AI API Error ({model_name}): {str(e)}")
+                st.error(f"Google Generative AI API Error ({model_name}): {e!s}")
                 print(f"Error generating questions from Gemini ({model_name}): {e}")
                 return []
 
     if last_error:
-        st.error(f"Google Generative AI API Error: {str(last_error)}")
-        print(f"Error generating questions from Gemini (all models failed): {last_error}")
+        st.error(f"Google Generative AI API Error: {last_error!s}")
+        print(
+            f"Error generating questions from Gemini (all models failed): {last_error}"
+        )
     return []
