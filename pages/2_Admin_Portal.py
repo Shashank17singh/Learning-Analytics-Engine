@@ -227,7 +227,7 @@ with admin_tabs[0]:
                 autopct="%1.1f%%",
                 startangle=140,
                 colors=["#99ff99", "#66b3ff", "#ff9999"],
-                wedgeprops=dict(width=0.4, edgecolor="white"),
+                wedgeprops={"width": 0.4, "edgecolor": "white"},
             )
             ax4.set_title("Cohort Competency Breakdown", fontweight="bold")
             st.pyplot(fig4)
