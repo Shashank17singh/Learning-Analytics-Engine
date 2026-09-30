@@ -76,18 +76,19 @@ graph TD
 Learning-Analytics-Engine/
 │
 ├── app.py                              # Modern Streamlit Web Application (Main Web Dashboard)
-├── main.py                             # Main CLI Entry Point & Menu Router
-├── admin.py                            # Secure Admin Authentication & Role Management
-├── assessment_mgmt.py                         # Assessment Question CRUD & Robust CSV Loader
-├── assessment_engine.py                             # Interactive Assessment Taking Engine (Timing & Reviews)
-├── leaderboard.py                      # Real-Time Ranked Leaderboard Module
+├── pages/                              # Streamlit Multi-Page Components
+│   ├── 1_Student_Portal.py             # Interactive Assessment Taking Engine & Learner Dashboard
+│   └── 2_Admin_Portal.py               # Secure Admin Auth, User Management & Analytics
+├── auth_utils.py                       # Secure Authentication & Password Hashing
+├── db_utils.py                         # SQLite3 Database Connections & Schema Initialization
+├── llm_utils.py                        # Groq & Gemini Integrations for Content Generation
 ├── analytics.py                        # EDA & Descriptive Statistics (Pandas, NumPy)
-├── visualizer.py                       # Visual Dashboards & Charts (Matplotlib, Seaborn)
 ├── ml_models.py                        # Scikit-learn Modeling Pipelines
 │
-├── Learning_Analytics_EDA.ipynb    # Complete Interactive Jupyter Notebook
-├── assessment_engine.csv                            # Bulk Question Bank (100+ Curated Questions)
-├── qms.db                              # SQLite3 Database
+├── Learning_Analytics_EDA.ipynb        # Complete Interactive Jupyter Notebook
+├── assessment_bank.csv                 # Bulk Question Bank (100+ Curated Questions)
+├── domains_catalog.json                # Pre-defined domains catalog
+├── telemetry.db                        # SQLite3 Database (Generated)
 └── README.md                           # You are here
 ```
 

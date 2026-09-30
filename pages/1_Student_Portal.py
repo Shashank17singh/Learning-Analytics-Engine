@@ -1,18 +1,19 @@
-import random
 import json
+import os
+import random
 import time
 
 import pandas as pd
 import streamlit as st
 
-from db_utils import get_db_connection, init_db
 import llm_utils
+from db_utils import get_db_connection, init_db
 
 # -------------------------------------------------------------
 # PAGE CONFIGURATION (NO SIDEBAR, FULL BROWSER APP LAYOUT)
 # -------------------------------------------------------------
 st.set_page_config(
-    page_title="Assessment Assessment & Analytics Portal",
+    page_title="Assessment & Analytics Portal",
     page_icon="",
     layout="wide",
     initial_sidebar_state="collapsed",

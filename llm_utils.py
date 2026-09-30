@@ -1,7 +1,9 @@
-import os
 import json
-from groq import Groq
+import os
+
 import google.generativeai as genai
+from groq import Groq
+
 
 def generate_groq_questions(topic: str, count: int = 5) -> list:
     api_key = os.getenv("GROQ_API_KEY")
