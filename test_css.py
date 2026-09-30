@@ -1,6 +1,4 @@
 import pathlib
-import time
-import requests
 
 css_to_add = """
     /* Fix tab text clipping completely */
