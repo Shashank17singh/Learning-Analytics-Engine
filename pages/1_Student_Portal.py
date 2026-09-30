@@ -98,20 +98,13 @@ st.markdown(
     
     
     /* Global fix for Streamlit button/tab text clipping */
-    button {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        height: auto !important;
-        min-height: 48px !important;
-        padding-top: 8px !important;
-        padding-bottom: 8px !important;
-    }
-    button * {
-        margin: 0 !important;
-        padding: 0 !important;
-        line-height: 1.5 !important;
+    button, button * {
         overflow: visible !important;
+    }
+    button p {
+        padding-top: 8px !important;
+        margin-top: 2px !important;
+        line-height: normal !important;
     }
 </style>
 """,
