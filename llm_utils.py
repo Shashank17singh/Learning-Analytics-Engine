@@ -84,18 +84,26 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
         "gemini-1.5-pro",
         "gemini-1.5-pro-latest",
         "gemini-1.5-flash-8b",
+        "gemini-pro",
     ]
 
     last_error = None
     for model_name in models_to_try:
         try:
             model = genai.GenerativeModel(model_name)
-            response = model.generate_content(
-                prompt,
-                generation_config=genai.GenerationConfig(
-                    response_mime_type="application/json", temperature=0.7
-                ),
-            )
+            if model_name == "gemini-pro":
+                response = model.generate_content(
+                    prompt,
+                    generation_config=genai.GenerationConfig(temperature=0.7),
+                )
+            else:
+                response = model.generate_content(
+                    prompt,
+                    generation_config=genai.GenerationConfig(
+                        response_mime_type="application/json", temperature=0.7
+                    ),
+                )
+
             response_text = response.text.strip()
             response_text = response_text.removeprefix("```json")
             response_text = response_text.removesuffix("```")
@@ -110,6 +118,23 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
                 st.error(f"Google Generative AI API Error ({model_name}): {e!s}")
                 print(f"Error generating questions from Gemini ({model_name}): {e}")
                 return []
+
+    try:
+        available_models = [
+            m.name
+            for m in genai.list_models()
+            if "generateContent" in m.supported_generation_methods
+        ]
+        if available_models:
+            first_model = available_models[0].replace("models/", "")
+            model = genai.GenerativeModel(first_model)
+            response = model.generate_content(prompt)
+            response_text = response.text.strip()
+            response_text = response_text.removeprefix("```json")
+            response_text = response_text.removesuffix("```")
+            return json.loads(response_text.strip())
+    except Exception as e:  # noqa: BLE001
+        print(f"Fallback model discovery failed: {e}")
 
     if last_error:
         st.error(f"Google Generative AI API Error: {last_error!s}")
