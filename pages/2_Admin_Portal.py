@@ -236,7 +236,7 @@ with admin_tabs[0]:
             st.pyplot(fig4)
 
         st.markdown("#### Complete Cohort Attempt Records")
-        st.dataframe(df_cohort, use_container_width=True)
+        st.dataframe(df_cohort, width="stretch")
         csv_bytes = df_cohort.to_csv(index=False).encode("utf-8")
         st.download_button(
             " Export Cohort Data to CSV",
@@ -298,7 +298,7 @@ with admin_tabs[1]:
                     )
                 st.dataframe(
                     pd.DataFrame(metrics_data),
-                    use_container_width=True,
+                    width="stretch",
                     hide_index=True,
                 )
 
@@ -416,7 +416,7 @@ with admin_tabs[1]:
                 "Avg Time (s)",
                 "Avg Reviews",
             ]
-            st.dataframe(summary_display, use_container_width=True, hide_index=True)
+            st.dataframe(summary_display, width="stretch", hide_index=True)
 
             clust_col1, clust_col2 = st.columns(2)
 
@@ -481,7 +481,7 @@ with admin_tabs[1]:
             ]
             st.dataframe(
                 df_feat[feature_cols].head(50),
-                use_container_width=True,
+                width="stretch",
                 column_config={
                     "speed": st.column_config.NumberColumn(
                         "Speed (Q/s)", format="%.4f"
@@ -529,7 +529,7 @@ with admin_tabs[1]:
 
             st.markdown("** Top Performers (GROUP BY + HAVING + ORDER BY):**")
             df_top = analytics.get_top_performers(conn)
-            st.dataframe(df_top, use_container_width=True, hide_index=True)
+            st.dataframe(df_top, width="stretch", hide_index=True)
 
             st.markdown("** Daily Attempt Trends (DATE + GROUP BY):**")
             df_daily = analytics.get_daily_trends(conn)
@@ -559,7 +559,7 @@ with admin_tabs[1]:
 
             st.markdown("** Review Usage vs Pass Rate (GROUP BY Analysis):**")
             df_reviews = analytics.get_review_vs_passrate(conn)
-            st.dataframe(df_reviews, use_container_width=True, hide_index=True)
+            st.dataframe(df_reviews, width="stretch", hide_index=True)
 
 # TAB 3: REGISTERED ACCOUNTS
 with admin_tabs[2]:
@@ -568,7 +568,7 @@ with admin_tabs[2]:
         "SELECT username as 'Username', role as 'Role', status as 'Status' FROM login",
         conn,
     )
-    st.dataframe(df_users, use_container_width=True)
+    st.dataframe(df_users, width="stretch")
 
 # TAB 4: LEADERBOARD
 with admin_tabs[3]:
@@ -581,4 +581,4 @@ with admin_tabs[3]:
         f"SELECT name as 'Candidate', score as 'Score', [{t_col}] as 'Total', scoreper as 'Score %' FROM leaderboard ORDER BY scoreper DESC",
         conn,
     )
-    st.dataframe(df_admin_lb, use_container_width=True)
+    st.dataframe(df_admin_lb, width="stretch")

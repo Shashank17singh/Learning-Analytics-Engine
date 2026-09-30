@@ -146,7 +146,7 @@ if not st.session_state.authenticated:
                     "Password:", type="password", placeholder="Enter your password"
                 ).strip()
                 btn_login = st.form_submit_button(
-                    "Sign In ", type="primary", use_container_width=True
+                    "Sign In ", type="primary", width="stretch"
                 )
 
                 if btn_login:
@@ -208,7 +208,7 @@ if not st.session_state.authenticated:
                     "Confirm Password:", type="password", placeholder="Retype password"
                 ).strip()
                 btn_register = st.form_submit_button(
-                    "Create Account ", type="primary", use_container_width=True
+                    "Create Account ", type="primary", width="stretch"
                 )
 
                 if btn_register:
