@@ -89,6 +89,20 @@ st.markdown(
         font-weight: 700;
         color: #1E3A8A;
     }
+
+    /* Fix tab text clipping */
+    div[data-testid="stTabs"] button {
+        height: auto !important;
+        min-height: 3rem !important;
+    }
+    div[data-testid="stTabs"] button p {
+        overflow: visible !important;
+        white-space: normal !important;
+        line-height: 1.5 !important;
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+        word-break: keep-all !important;
+    }
 </style>
 """,
     unsafe_allow_html=True,
