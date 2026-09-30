@@ -85,8 +85,15 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
                 response_mime_type="application/json", temperature=0.7
             ),
         )
-        data = json.loads(response.text)
+        response_text = response.text.strip()
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+
+        data = json.loads(response_text.strip())
         return data
     except Exception as e:  # noqa: BLE001
+        st.error(f"Google Generative AI API Error: {str(e)}")
         print(f"Error generating questions from Gemini: {e}")
         return []
