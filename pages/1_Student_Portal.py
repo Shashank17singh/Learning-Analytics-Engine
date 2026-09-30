@@ -1,6 +1,4 @@
 import json
-import os
-import random
 import time
 
 import pandas as pd
@@ -92,8 +90,6 @@ st.markdown(
         font-weight: 700;
         color: #1E3A8A;
     }
-    
-    /* Fix tab text clipping when emojis are removed */
     button[data-baseweb="tab"] {
         padding-bottom: 8px !important;
         min-height: 50px !important;
@@ -140,30 +136,40 @@ if st.session_state.user_role != "admin":
     with student_tabs[0]:
         st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
         if not st.session_state.get("student_assessment_started", False):
-
             # Load extensive domains catalog
             try:
-                with open('domains_catalog.json', 'r') as f:
+                with open("domains_catalog.json", "r") as f:
                     ai_domains_catalog = json.load(f)
             except FileNotFoundError:
-                ai_domains_catalog = {"General": ["General Knowledge", "Custom Topic..."]}
-            
+                ai_domains_catalog = {
+                    "General": ["General Knowledge", "Custom Topic..."]
+                }
+
             col_aid, col_ais = st.columns(2)
             with col_aid:
-                ai_domain = st.selectbox("Search/Select Broad Domain:", list(ai_domains_catalog.keys()))
-            
+                ai_domain = st.selectbox(
+                    "Search/Select Broad Domain:", list(ai_domains_catalog.keys())
+                )
+
             with col_ais:
-                ai_subject = st.selectbox("Search/Select Specific Subject:", ai_domains_catalog.get(ai_domain, ["Custom Topic..."]))
-            
+                ai_subject = st.selectbox(
+                    "Search/Select Specific Subject:",
+                    ai_domains_catalog.get(ai_domain, ["Custom Topic..."]),
+                )
+
             if ai_subject == "Custom Topic...":
-                custom_topic = st.text_input("Type your completely custom topic here:", value="")
+                custom_topic = st.text_input(
+                    "Type your completely custom topic here:", value=""
+                )
             else:
                 custom_topic = f"{ai_domain} - {ai_subject}"
 
             st.session_state.selected_domain = ai_domain
-            st.session_state.selected_subject = ai_subject if ai_subject != "Custom Topic..." else "Custom"
+            st.session_state.selected_subject = (
+                ai_subject if ai_subject != "Custom Topic..." else "Custom"
+            )
             st.session_state.custom_topic = custom_topic
-            
+
             q_options = [5, 10, 15, 20, 25]
             num_questions_chosen = st.select_slider(
                 " Choose Number of Questions to Attempt:",
@@ -178,15 +184,19 @@ if st.session_state.user_role != "admin":
             ):
                 st.session_state.student_assessment_started = True
                 st.session_state.assessment_start_time = time.time()
-                
+
                 provider = "Gemini"
                 topic_for_gen = st.session_state.get("custom_topic", "General")
                 if not topic_for_gen.strip():
                     topic_for_gen = "General Knowledge"
-                
-                with st.spinner(f"🤖 {provider} is generating your custom exam on '{topic_for_gen}'..."):
-                    gen_qs = llm_utils.generate_gemini_questions(topic_for_gen, num_questions_chosen)
-                
+
+                with st.spinner(
+                    f"🤖 {provider} is generating your custom exam on '{topic_for_gen}'..."
+                ):
+                    gen_qs = llm_utils.generate_gemini_questions(
+                        topic_for_gen, num_questions_chosen
+                    )
+
                 if gen_qs:
                     mapped_qs = [
                         (
@@ -197,14 +207,16 @@ if st.session_state.user_role != "admin":
                             q.get("c", ""),
                             q.get("d", ""),
                             q.get("correct", ""),
-                            q.get("explanation", "")
+                            q.get("explanation", ""),
                         )
                         for i, q in enumerate(gen_qs, 1)
                     ]
                     st.session_state.assessment_set = mapped_qs
                     st.rerun()
                 else:
-                    st.error(f"{provider.split()[0]} failed to generate questions. Ensure API Key is valid and try again.")
+                    st.error(
+                        f"{provider.split()[0]} failed to generate questions. Ensure API Key is valid and try again."
+                    )
                     st.session_state.student_assessment_started = False
                     st.stop()
         else:
@@ -301,6 +313,7 @@ if st.session_state.user_role != "admin":
                 passed = 1 if score_percentage >= 50.0 else 0
 
                 # Save attempt
+                cur = conn.cursor()
                 cur.execute(
                     """
                     INSERT INTO attempts (

@@ -2,17 +2,17 @@ import json
 import os
 
 import google.generativeai as genai
-from groq import Groq
 import streamlit as st
+from groq import Groq
 
 
 def generate_groq_questions(topic: str, count: int = 5) -> list:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         return []
-    
+
     client = Groq(api_key=api_key)
-    
+
     prompt = f"""
     Generate exactly {count} multiple-choice questions about the topic '{topic}'.
     Return the response strictly as a JSON array of objects. Do not include markdown formatting or backticks around the JSON.
@@ -26,13 +26,16 @@ def generate_groq_questions(topic: str, count: int = 5) -> list:
     - "correct": string (the exact text of the correct option)
     - "explanation": string (why it is correct)
     """
-    
+
     try:
         completion = client.chat.completions.create(
             model="llama3-8b-8192",
             messages=[
-                {"role": "system", "content": "You are a helpful AI that strictly outputs raw JSON arrays."},
-                {"role": "user", "content": prompt}
+                {
+                    "role": "system",
+                    "content": "You are a helpful AI that strictly outputs raw JSON arrays.",
+                },
+                {"role": "user", "content": prompt},
             ],
             temperature=0.7,
         )
@@ -41,25 +44,26 @@ def generate_groq_questions(topic: str, count: int = 5) -> list:
             response_text = response_text[7:]
         if response_text.endswith("`"):
             response_text = response_text[:-3]
-        
+
         data = json.loads(response_text.strip())
         return data
     except Exception as e:
         print(f"Error generating questions from Groq: {e}")
         return []
 
+
 def generate_gemini_questions(topic: str, count: int = 5) -> list:
     try:
         api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
     except Exception:
         api_key = os.getenv("GEMINI_API_KEY")
-        
+
     if not api_key:
         return []
-    
+
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    
+    model = genai.GenerativeModel("gemini-1.5-flash")
+
     prompt = f"""
     Generate exactly {count} multiple-choice questions about the topic '{topic}'.
     Return the response strictly as a JSON array of objects.
@@ -73,14 +77,13 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
     - "correct": string (the exact text of the correct option)
     - "explanation": string (why it is correct)
     """
-    
+
     try:
         response = model.generate_content(
             prompt,
             generation_config=genai.GenerationConfig(
-                response_mime_type="application/json",
-                temperature=0.7
-            )
+                response_mime_type="application/json", temperature=0.7
+            ),
         )
         data = json.loads(response.text)
         return data
