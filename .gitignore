@@ -19,4 +19,4 @@ test_*.db
 scratch/
 
 # Database (contains user credentials — do not commit)
-qms.db
+telemetry.db
