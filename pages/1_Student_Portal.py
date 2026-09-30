@@ -93,23 +93,6 @@ st.markdown(
         font-weight: 700;
         color: #1E3A8A;
     }
-    /* Fix tab text clipping */
-    button[data-baseweb="tab"],
-    div[data-testid="stTabs"] button {
-        padding-top: 14px !important;
-        padding-bottom: 14px !important;
-        overflow: visible !important;
-        min-height: 0 !important;
-        height: auto !important;
-    }
-    button[data-baseweb="tab"] p,
-    div[data-testid="stTabs"] button p {
-        overflow: visible !important;
-        line-height: 1.8 !important;
-        text-overflow: unset !important;
-        white-space: nowrap !important;
-    }
-
 </style>
 """,
     unsafe_allow_html=True,
@@ -192,7 +175,7 @@ if st.session_state.user_role != "admin":
             if st.button(
                 "Start Assessment Now ",
                 type="primary",
-                use_container_width=True,
+                width="stretch",
             ):
                 st.session_state.student_assessment_started = True
                 st.session_state.assessment_start_time = time.time()
@@ -232,7 +215,11 @@ if st.session_state.user_role != "admin":
                     st.session_state.student_assessment_started = False
                     st.stop()
         else:
-            assessment_set = st.session_state.get("assessment_set", [])
+            assessment_set = st.session_state.get("assessment_set")
+            if not assessment_set:
+                st.warning("No questions loaded. Please start a new assessment.")
+                st.session_state.student_assessment_started = False
+                st.rerun()
             user_choices = {}
 
             with st.form("student_assessment_form"):
@@ -278,7 +265,7 @@ if st.session_state.user_role != "admin":
                 submit_assessment = st.form_submit_button(
                     " Finish & Submit Assessment",
                     type="primary",
-                    use_container_width=True,
+                    width="stretch",
                 )
 
             if submit_assessment:
@@ -424,7 +411,7 @@ if st.session_state.user_role != "admin":
                         "passed",
                     ]
                 ],
-                use_container_width=True,
+                width="stretch",
                 column_config={
                     "score_percentage": st.column_config.ProgressColumn(
                         "Score %", format="%.1f%%", min_value=0, max_value=100
@@ -459,7 +446,7 @@ if st.session_state.user_role != "admin":
                 for i in range(len(df_lb))
             ]
             df_lb.insert(0, "Rank", ranks)
-            st.dataframe(df_lb, use_container_width=True)
+            st.dataframe(df_lb, width="stretch")
         else:
             st.info("Leaderboard is currently empty.")
 
