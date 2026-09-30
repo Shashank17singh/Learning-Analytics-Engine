@@ -217,156 +217,156 @@ if st.session_state.user_role != "admin":
             assessment_set = st.session_state.get("assessment_set", [])
             user_choices = {}
 
-                with st.form("student_assessment_form"):
-                    st.markdown(
-                        f"**Answering {len(assessment_set)} Randomized Questions:**"
+            with st.form("student_assessment_form"):
+                st.markdown(
+                    f"**Answering {len(assessment_set)} Randomized Questions:**"
+                )
+                for idx, (
+                    qno,
+                    ques,
+                    a,
+                    b,
+                    c,
+                    d,
+                    correct,
+                    explanation,
+                ) in enumerate(assessment_set, 1):
+                    st.markdown(f"**Q{idx}. {ques}**")
+                    opts = [
+                        f"a) {a}",
+                        f"b) {b}",
+                        f"c) {c}",
+                        f"d) {d}",
+                    ]
+                    c_val = st.radio(
+                        f"Select answer for Q{idx}:",
+                        opts,
+                        key=f"sq_{qno}",
+                        index=None,
+                        label_visibility="collapsed",
                     )
-                    for idx, (
-                        qno,
-                        ques,
-                        a,
-                        b,
-                        c,
-                        d,
-                        correct,
-                        explanation,
-                    ) in enumerate(assessment_set, 1):
-                        st.markdown(f"**Q{idx}. {ques}**")
-                        opts = [
-                            f"a) {a}",
-                            f"b) {b}",
-                            f"c) {c}",
-                            f"d) {d}",
-                        ]
-                        c_val = st.radio(
-                            f"Select answer for Q{idx}:",
-                            opts,
-                            key=f"sq_{qno}",
-                            index=None,
-                            label_visibility="collapsed",
-                        )
-                        user_choices[qno] = (
-                            c_val,
-                            correct,
-                            a,
-                            b,
-                            c,
-                            d,
-                            explanation,
-                        )
-
-                        st.write("")
-
-                    submit_assessment = st.form_submit_button(
-                        " Finish & Submit Assessment",
-                        type="primary",
-                        use_container_width=True,
-                    )
-
-                if submit_assessment:
-                    duration = max(
-                        1, int(time.time() - st.session_state.assessment_start_time)
-                    )
-                    correct_count = 0
-                    total_q = len(assessment_set)
-                    reviews_used_count = sum(
-                        1
-                        for qno in user_choices
-                        if st.session_state.get(f"review_{qno}", False)
-                    )
-
-                    for qno, (
+                    user_choices[qno] = (
                         c_val,
                         correct,
                         a,
                         b,
                         c,
                         d,
-                        exp,
-                    ) in user_choices.items():
-                        if c_val:
-                            letter = c_val[0].lower()
-                            opt_map = {
-                                "a": str(a).strip().lower(),
-                                "b": str(b).strip().lower(),
-                                "c": str(c).strip().lower(),
-                                "d": str(d).strip().lower(),
-                            }
-                            clean_corr = str(correct).strip().lower()
+                        explanation,
+                    )
 
-                            if letter in ["a", "b", "c", "d"]:
-                                if (
-                                    letter == clean_corr
-                                    or opt_map.get(letter) == clean_corr
-                                ):
-                                    correct_count += 1
-                            elif c_val == clean_corr:
+                    st.write("")
+
+                submit_assessment = st.form_submit_button(
+                    " Finish & Submit Assessment",
+                    type="primary",
+                    use_container_width=True,
+                )
+
+            if submit_assessment:
+                duration = max(
+                    1, int(time.time() - st.session_state.assessment_start_time)
+                )
+                correct_count = 0
+                total_q = len(assessment_set)
+                reviews_used_count = sum(
+                    1
+                    for qno in user_choices
+                    if st.session_state.get(f"review_{qno}", False)
+                )
+
+                for qno, (
+                    c_val,
+                    correct,
+                    a,
+                    b,
+                    c,
+                    d,
+                    exp,
+                ) in user_choices.items():
+                    if c_val:
+                        letter = c_val[0].lower()
+                        opt_map = {
+                            "a": str(a).strip().lower(),
+                            "b": str(b).strip().lower(),
+                            "c": str(c).strip().lower(),
+                            "d": str(d).strip().lower(),
+                        }
+                        clean_corr = str(correct).strip().lower()
+
+                        if letter in ["a", "b", "c", "d"]:
+                            if (
+                                letter == clean_corr
+                                or opt_map.get(letter) == clean_corr
+                            ):
                                 correct_count += 1
+                        elif c_val == clean_corr:
+                            correct_count += 1
 
-                    score_percentage = (correct_count / total_q) * 100.0
-                    passed = 1 if score_percentage >= 50.0 else 0
+                score_percentage = (correct_count / total_q) * 100.0
+                passed = 1 if score_percentage >= 50.0 else 0
 
-                    # Save attempt
-                    cur.execute(
-                        """
-                        INSERT INTO attempts (
-                            student_name, score, total_questions, score_percentage,
-                            time_taken_seconds, reviews_used, attempt_date, passed, domain, subject
-                        ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
-                        """,
-                        (
-                            st.session_state.username,
-                            correct_count,
-                            total_q,
-                            score_percentage,
-                            duration,
-                            reviews_used_count,
-                            passed,
-                            st.session_state.get("selected_domain", "General"),
-                            st.session_state.get("selected_subject", "General"),
-                        ),
+                # Save attempt
+                cur.execute(
+                    """
+                    INSERT INTO attempts (
+                        student_name, score, total_questions, score_percentage,
+                        time_taken_seconds, reviews_used, attempt_date, passed, domain, subject
+                    ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
+                    """,
+                    (
+                        st.session_state.username,
+                        correct_count,
+                        total_q,
+                        score_percentage,
+                        duration,
+                        reviews_used_count,
+                        passed,
+                        st.session_state.get("selected_domain", "General"),
+                        st.session_state.get("selected_subject", "General"),
+                    ),
+                )
+
+                # Save leaderboard
+                cur.execute("PRAGMA table_info(leaderboard)")
+                cols = [r[1] for r in cur.fetchall()]
+                t_col = "total_questions" if "total_questions" in cols else "limit"
+                cur.execute(
+                    f"INSERT INTO leaderboard (name, score, [{t_col}], scoreper) VALUES (?, ?, ?, ?)",
+                    (
+                        st.session_state.username,
+                        correct_count,
+                        total_q,
+                        score_percentage,
+                    ),
+                )
+                conn.commit()
+
+                if score_percentage >= 75.0:
+                    st.balloons()
+                    st.success(
+                        f" **Outstanding Performance, {st.session_state.username.title()}!** You scored **{correct_count} out of {total_q}** ({score_percentage:.1f}%)."
+                    )
+                elif score_percentage >= 50.0:
+                    st.balloons()
+                    st.success(
+                        f" **Great Job, {st.session_state.username.title()}!** You successfully completed the assessment with **{correct_count}/{total_q}** ({score_percentage:.1f}%)."
+                    )
+                else:
+                    st.success(
+                        f" **Assessment Completed Successfully!** Good effort, **{st.session_state.username.title()}**! Score: **{correct_count}/{total_q}** ({score_percentage:.1f}%)."
                     )
 
-                    # Save leaderboard
-                    cur.execute("PRAGMA table_info(leaderboard)")
-                    cols = [r[1] for r in cur.fetchall()]
-                    t_col = "total_questions" if "total_questions" in cols else "limit"
-                    cur.execute(
-                        f"INSERT INTO leaderboard (name, score, [{t_col}], scoreper) VALUES (?, ?, ?, ?)",
-                        (
-                            st.session_state.username,
-                            correct_count,
-                            total_q,
-                            score_percentage,
-                        ),
-                    )
-                    conn.commit()
+                col_res1, col_res2, col_res3, col_res4 = st.columns(4)
+                col_res1.metric("Your Score", f"{correct_count} / {total_q}")
+                col_res2.metric("Accuracy", f"{score_percentage:.1f}%")
+                col_res3.metric("Duration", f"{duration}s")
+                col_res4.metric("Status", "Passed " if passed else "Completed ")
 
-                    if score_percentage >= 75.0:
-                        st.balloons()
-                        st.success(
-                            f" **Outstanding Performance, {st.session_state.username.title()}!** You scored **{correct_count} out of {total_q}** ({score_percentage:.1f}%)."
-                        )
-                    elif score_percentage >= 50.0:
-                        st.balloons()
-                        st.success(
-                            f" **Great Job, {st.session_state.username.title()}!** You successfully completed the assessment with **{correct_count}/{total_q}** ({score_percentage:.1f}%)."
-                        )
-                    else:
-                        st.success(
-                            f" **Assessment Completed Successfully!** Good effort, **{st.session_state.username.title()}**! Score: **{correct_count}/{total_q}** ({score_percentage:.1f}%)."
-                        )
-
-                    col_res1, col_res2, col_res3, col_res4 = st.columns(4)
-                    col_res1.metric("Your Score", f"{correct_count} / {total_q}")
-                    col_res2.metric("Accuracy", f"{score_percentage:.1f}%")
-                    col_res3.metric("Duration", f"{duration}s")
-                    col_res4.metric("Status", "Passed " if passed else "Completed ")
-
-                    st.session_state.student_assessment_started = False
-                    st.session_state.assessment_set = None
-                    if st.button(" Take Another Assessment"):
-                        st.rerun()
+                st.session_state.student_assessment_started = False
+                st.session_state.assessment_set = None
+                if st.button(" Take Another Assessment"):
+                    st.rerun()
 
     # TAB 2: MY PERFORMANCE & ANALYTICS
     with student_tabs[1]:
