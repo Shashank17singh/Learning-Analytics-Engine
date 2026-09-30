@@ -94,10 +94,17 @@ st.markdown(
         color: #1E3A8A;
     }
 
-    /* Fix tab text clipping */
+    
+    /* Fix tab text clipping completely */
+    div[data-testid="stTabs"] {
+        overflow: visible !important;
+    }
     div[data-testid="stTabs"] button {
         height: auto !important;
-        min-height: 3rem !important;
+        min-height: 48px !important;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+        overflow: visible !important;
     }
     div[data-testid="stTabs"] button p {
         overflow: visible !important;
@@ -106,6 +113,17 @@ st.markdown(
         padding-top: 5px !important;
         padding-bottom: 5px !important;
         word-break: keep-all !important;
+        margin-top: 5px !important;
+        display: block !important;
+    }
+    div[data-baseweb="tab-list"] {
+        overflow: visible !important;
+    }
+    div[data-baseweb="tab"] {
+        overflow: visible !important;
+    }
+    div[data-baseweb="tab"] > div {
+        overflow: visible !important;
     }
 </style>
 """,
