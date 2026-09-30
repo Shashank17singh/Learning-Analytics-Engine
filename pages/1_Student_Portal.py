@@ -93,6 +93,16 @@ st.markdown(
         font-weight: 700;
         color: #1E3A8A;
     }
+    /* Fix tab text clipping */
+    button[data-baseweb="tab"] {
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+        overflow: visible !important;
+    }
+    button[data-baseweb="tab"] p {
+        overflow: visible !important;
+        line-height: 1.6 !important;
+    }
 
 </style>
 """,
