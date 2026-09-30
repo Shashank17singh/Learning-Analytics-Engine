@@ -206,19 +206,19 @@ if st.session_state.user_role != "admin":
                 ):
                     st.session_state.student_assessment_started = True
                     st.session_state.assessment_start_time = time.time()
-    
+
                     provider = "Gemini"
                     topic_for_gen = st.session_state.get("custom_topic", "General")
                     if not topic_for_gen.strip():
                         topic_for_gen = "General Knowledge"
-    
+
                     with st.spinner(
                         f"🤖 {provider} is generating your custom exam on '{topic_for_gen}'..."
                     ):
                         gen_qs = llm_utils.generate_gemini_questions(
                             topic_for_gen, num_questions_chosen
                         )
-    
+
                     if gen_qs:
                         mapped_qs = [
                             (
