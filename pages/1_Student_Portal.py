@@ -33,7 +33,10 @@ st.markdown(
     [data-testid="stSidebar"] {
         display: none !important;
     }
-    [data-testid="stSidebarCollapsedControl"] {
+    [data-testid="stSidebarNav"] {
+        display: none !important;
+    }
+    [data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"] {
         display: none !important;
     }
     .block-container {
@@ -90,11 +93,12 @@ st.markdown(
         font-weight: 700;
         color: #1E3A8A;
     }
-    button[data-baseweb="tab"] {
-        padding-bottom: 8px !important;
-        min-height: 50px !important;
+    /* Fix tab text clipping when emojis are removed */
+    div[data-testid="stTabs"] button {
+        padding-bottom: 10px !important;
+        min-height: 52px !important;
     }
-    button[data-baseweb="tab"] div[data-testid="stMarkdownContainer"] p {
+    div[data-testid="stTabs"] button p {
         line-height: 1.5 !important;
         margin-bottom: 2px !important;
     }

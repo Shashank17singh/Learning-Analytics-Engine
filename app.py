@@ -29,7 +29,10 @@ st.markdown(
     [data-testid="stSidebar"] {
         display: none !important;
     }
-    [data-testid="stSidebarCollapsedControl"] {
+    [data-testid="stSidebarNav"] {
+        display: none !important;
+    }
+    [data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"] {
         display: none !important;
     }
     .block-container {
