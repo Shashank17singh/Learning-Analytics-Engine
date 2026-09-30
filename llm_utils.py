@@ -47,7 +47,7 @@ def generate_groq_questions(topic: str, count: int = 5) -> list:
 
         data = json.loads(response_text.strip())
         return data
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Error generating questions from Groq: {e}")
         return []
 
@@ -55,7 +55,7 @@ def generate_groq_questions(topic: str, count: int = 5) -> list:
 def generate_gemini_questions(topic: str, count: int = 5) -> list:
     try:
         api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
-    except Exception:
+    except Exception:  # noqa: BLE001
         api_key = os.getenv("GEMINI_API_KEY")
 
     if not api_key:
@@ -87,6 +87,6 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
         )
         data = json.loads(response.text)
         return data
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Error generating questions from Gemini: {e}")
         return []
