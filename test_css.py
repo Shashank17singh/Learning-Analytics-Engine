@@ -44,13 +44,13 @@ files = [
 for f in files:
     p = pathlib.Path(f)
     content = p.read_text(encoding="utf-8")
-    
+
     # Remove old fix
     start = content.find("/* Fix tab text clipping */")
     if start != -1:
         end = content.find("</style>", start)
         content = content[:start] + content[end:]
-        
+
     # Inject new fix
     content = content.replace("</style>", css_to_add)
     p.write_text(content, encoding="utf-8")
