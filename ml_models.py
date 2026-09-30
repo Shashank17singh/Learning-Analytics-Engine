@@ -15,10 +15,18 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.metrics import (accuracy_score, classification_report,
-                             confusion_matrix, f1_score, mean_absolute_error,
-                             mean_squared_error, precision_score, r2_score,
-                             recall_score, silhouette_score)
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+    silhouette_score,
+)
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.preprocessing import StandardScaler
 
@@ -313,7 +321,7 @@ def print_ml_report(conn):
     print("\n--- 3. CLUSTERING: K-Means Learner Segmentation ---")
     cluster_results = train_clustering(df)
     print(f"  Silhouette Score: {cluster_results['silhouette_score']:.4f}")
-    print(f"\n  Cluster Summary:")
+    print("\n  Cluster Summary:")
     for _, row in cluster_results["cluster_summary"].iterrows():
         print(
             f"    {row['segment']:<22} | n={int(row['count']):>3} | Avg Score: {row['avg_score']:.1f}% | Avg Time: {row['avg_time']:.0f}s"

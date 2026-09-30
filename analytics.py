@@ -1,5 +1,3 @@
-import sqlite3
-
 import numpy as np
 import pandas as pd
 
@@ -77,13 +75,13 @@ def generate_eda_summary(conn):
     print("\n" + "=" * 65)
     print("      DATA SCIENCE: EXPLORATORY DATA ANALYSIS (EDA) REPORT")
     print("=" * 65)
-    print(f"Dataset Overview:")
+    print("Dataset Overview:")
     print(f"  - Total Assessment Attempts   : {total_attempts}")
     print(f"  - Unique Learners       : {unique_students}")
     print(f"  - Passed Attempts       : {pass_count} ({pass_rate:.1f}%)")
     print(f"  - Failed Attempts       : {fail_count} ({100 - pass_rate:.1f}%)")
     print("-" * 65)
-    print(f"Score Distribution Metrics (NumPy / Pandas):")
+    print("Score Distribution Metrics (NumPy / Pandas):")
     print(f"  - Mean Score            : {mean_score:.2f}%")
     print(f"  - Median Score          : {median_score:.2f}%")
     print(f"  - Standard Deviation    : {std_score:.2f}%")
@@ -94,20 +92,20 @@ def generate_eda_summary(conn):
         f"  - Min / Max Score       : {float(np.min(scores)):.1f}% / {float(np.max(scores)):.1f}%"
     )
     print("-" * 65)
-    print(f"Behavioral & Engagement Metrics:")
+    print("Behavioral & Engagement Metrics:")
     print(
         f"  - Avg Time Taken        : {mean_time:.1f} sec (~{mean_time / 60:.1f} mins)"
     )
     print(f"  - Median Time Taken     : {median_time:.1f} sec")
     print(f"  - Avg Reviews Requested   : {mean_reviews:.1f} reviews / attempt")
     print("-" * 65)
-    print(f"Statistical Correlations (Pearson's r):")
+    print("Statistical Correlations (Pearson's r):")
     print(f"  - Time vs Score Corr    : {corr_time_score:+.3f}")
     print(
         f"  - Reviews vs Score Corr   : {corr_reviews_score:+.3f} (Negative: more reviews -> lower score)"
     )
     print("-" * 65)
-    print(f"Learner Performance Tiers:")
+    print("Learner Performance Tiers:")
     for tier, count in tier_counts.items():
         pct = (count / total_attempts) * 100
         print(f"  - {tier:<26}: {count:>3} attempts ({pct:4.1f}%)")

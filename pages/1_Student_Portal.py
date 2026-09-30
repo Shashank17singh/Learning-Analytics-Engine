@@ -1,0 +1,520 @@
+import random
+import json
+import time
+
+import pandas as pd
+import streamlit as st
+
+from db_utils import get_db_connection, init_db
+import llm_utils
+
+# -------------------------------------------------------------
+# PAGE CONFIGURATION (NO SIDEBAR, FULL BROWSER APP LAYOUT)
+# -------------------------------------------------------------
+st.set_page_config(
+    page_title="Assessment Assessment & Analytics Portal",
+    page_icon="",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
+
+# Initialize database on app startup
+_init_conn = get_db_connection()
+init_db(_init_conn)
+_init_conn.close()
+
+# -------------------------------------------------------------
+# CUSTOM CSS: REMOVES SIDEBAR & ADDS MODERN PORTAL STYLING
+# -------------------------------------------------------------
+st.markdown(
+    """
+<style>
+    /* Completely hide sidebar and collapse button */
+    [data-testid="stSidebar"] {
+        display: none !important;
+    }
+    [data-testid="stSidebarCollapsedControl"] {
+        display: none !important;
+    }
+    .block-container {
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
+        max-width: 1200px;
+    }
+    /* Modern Header */
+    .portal-navbar {
+        background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
+        padding: 18px 24px;
+        border-radius: 12px;
+        color: white;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
+    }
+    .portal-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        margin: 0;
+        color: white;
+    }
+    .portal-subtitle {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin: 0;
+        color: #DBEAFE;
+    }
+    .badge-iitk {
+        background-color: #FEF3C7;
+        color: #92400E;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: inline-block;
+        margin-left: 10px;
+    }
+    .auth-card {
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        max-width: 480px;
+        margin: 0 auto;
+    }
+    div[data-testid="stMetricValue"] {
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: #1E3A8A;
+    }
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
+# -------------------------------------------------------------
+# SESSION STATE INITIALIZATION
+# -------------------------------------------------------------
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+if "username" not in st.session_state:
+    st.session_state.username = ""
+if "user_role" not in st.session_state:
+    st.session_state.user_role = ""
+
+
+if not st.session_state.authenticated or st.session_state.user_role == "admin":
+    st.switch_page("app.py")
+    st.stop()
+
+conn = get_db_connection()
+
+# =========================================================
+# ROLE A: STUDENT DASHBOARD
+# =========================================================
+if st.session_state.user_role != "admin":
+    student_tabs = st.tabs(
+        [
+            " Take Assessment",
+            " My Performance & Analytics",
+            " Hall of Fame (Leaderboard)",
+        ]
+    )
+
+    # TAB 1: TAKE ASSESSMENT
+    with student_tabs[0]:
+        st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
+        cur = conn.cursor()
+
+        if not st.session_state.get("student_assessment_started", False):
+            cur.execute(
+                "SELECT DISTINCT domain FROM questions WHERE domain IS NOT NULL AND domain != ''"
+            )
+            domains = [r[0] for r in cur.fetchall()]
+            if not domains:
+                domains = ["General"]
+
+            use_ai = st.toggle("Generate Custom Exam with Generative AI", value=False)
+            
+            if use_ai:
+                ai_provider = st.radio("Select AI Provider:", ["Groq (Fast)", "Gemini (Reliable JSON)"], horizontal=True)
+                st.session_state.ai_provider = ai_provider
+                
+                if "Groq" in ai_provider:
+                    st.info("Powered by Groq! Ensure GROQ_API_KEY is set in your environment variables, or paste it below.")
+                    api_key_input = st.text_input("Groq API Key (optional if set in env):", type="password", key="groq_key")
+                    if api_key_input:
+                        os.environ["GROQ_API_KEY"] = api_key_input
+                else:
+                    st.info("Powered by Google Gemini 1.5 Flash! Ensure GEMINI_API_KEY is set in your environment variables, or paste it below.")
+                    api_key_input = st.text_input("Gemini API Key (optional if set in env):", type="password", key="gemini_key")
+                    if api_key_input:
+                        os.environ["GEMINI_API_KEY"] = api_key_input
+
+                # Load extensive domains catalog
+                with open('domains_catalog.json', 'r') as f:
+                    ai_domains_catalog = json.load(f)
+                
+                col_aid, col_ais = st.columns(2)
+                with col_aid:
+                    ai_domain = st.selectbox("Search/Select Broad Domain:", list(ai_domains_catalog.keys()))
+                
+                with col_ais:
+                    ai_subject = st.selectbox("Search/Select Specific Subject:", ai_domains_catalog[ai_domain])
+                
+                if ai_subject == "Custom Topic...":
+                    custom_topic = st.text_input("Type your completely custom topic here:", value="")
+                else:
+                    custom_topic = f"{ai_domain} - {ai_subject}"
+
+                selected_domain = "AI Generated"
+                selected_subject = custom_topic
+                st.session_state.use_ai = True
+                st.session_state.custom_topic = custom_topic
+                
+                # Fetch questions when Start Assessment is clicked (handled below)
+                all_questions = [] # Placeholder to prevent errors
+            else:
+                st.session_state.use_ai = False
+                col_d, col_s = st.columns(2)
+                with col_d:
+                    selected_domain = st.selectbox("Select Domain:", domains)
+
+                cur.execute(
+                    "SELECT DISTINCT subject FROM questions WHERE domain = ? AND subject IS NOT NULL AND subject != ''",
+                    (selected_domain,),
+                )
+                subjects = [r[0] for r in cur.fetchall()]
+                if not subjects:
+                    subjects = ["General"]
+
+                with col_s:
+                    selected_subject = st.selectbox("Select Subject:", subjects)
+
+                cur.execute(
+                    "SELECT qno, ques, a, b, c, d, correct, explanation FROM questions WHERE domain = ? AND subject = ? ORDER BY qno ASC",
+                    (selected_domain, selected_subject),
+                )
+                all_questions = cur.fetchall()
+
+            st.session_state.selected_domain = selected_domain
+            st.session_state.selected_subject = selected_subject
+        else:
+            selected_domain = st.session_state.get("selected_domain", "General")
+            selected_subject = st.session_state.get("selected_subject", "General")
+            cur.execute(
+                "SELECT qno, ques, a, b, c, d, correct, explanation FROM questions WHERE domain = ? AND subject = ? ORDER BY qno ASC",
+                (selected_domain, selected_subject),
+            )
+            all_questions = cur.fetchall()
+
+        if not all_questions:
+            st.warning(
+                "No questions available right now. Please contact the administrator."
+            )
+        else:
+            if "student_assessment_started" not in st.session_state:
+                st.session_state.student_assessment_started = False
+            if "assessment_start_time" not in st.session_state:
+                st.session_state.assessment_start_time = 0
+            if "assessment_set" not in st.session_state:
+                st.session_state.assessment_set = None
+
+            if not st.session_state.student_assessment_started:
+                total_available = len(all_questions)
+                q_options = (
+                    [5, 10, 15, 20, 25]
+                    if total_available >= 25
+                    else (
+                        [5, 10, 15]
+                        if total_available >= 15
+                        else [min(5, total_available), total_available]
+                    )
+                )
+                num_questions_chosen = st.select_slider(
+                    " Choose Number of Questions to Attempt:",
+                    options=q_options,
+                    value=10 if 10 in q_options else q_options[-1],
+                )
+
+                if st.button(
+                    "Start Assessment Now ",
+                    type="primary",
+                    use_container_width=True,
+                ):
+                    st.session_state.student_assessment_started = True
+                    st.session_state.assessment_start_time = time.time()
+                    
+                    if st.session_state.get("use_ai", False):
+                        provider = st.session_state.get("ai_provider", "Groq")
+                        custom_topic = st.session_state.get("custom_topic", "General")
+                        
+                        with st.spinner(f"🤖 {provider.split()[0]} is generating your custom exam..."):
+                            if "Groq" in provider:
+                                gen_qs = llm_utils.generate_groq_questions(custom_topic, num_questions_chosen)
+                            else:
+                                gen_qs = llm_utils.generate_gemini_questions(custom_topic, num_questions_chosen)
+                        
+                        if gen_qs:
+                            # Format Groq JSON to match DB tuple format
+                            mapped_qs = [
+                                (
+                                    q.get("qno", i),
+                                    q.get("ques", ""),
+                                    q.get("a", ""),
+                                    q.get("b", ""),
+                                    q.get("c", ""),
+                                    q.get("d", ""),
+                                    q.get("correct", ""),
+                                    q.get("explanation", "")
+                                )
+                                for i, q in enumerate(gen_qs, 1)
+                            ]
+                            st.session_state.assessment_set = mapped_qs
+                        else:
+                            st.error(f"{provider.split()[0]} failed to generate questions. Ensure API Key is valid.")
+                            st.session_state.student_assessment_started = False
+                            st.stop()
+                    else:
+                        st.session_state.assessment_set = random.sample(
+                            all_questions, min(num_questions_chosen, total_available)
+                        )
+                    st.rerun()
+            else:
+                assessment_set = st.session_state.get(
+                    "assessment_set", all_questions[:10]
+                )
+                user_choices = {}
+
+                with st.form("student_assessment_form"):
+                    st.markdown(
+                        f"**Answering {len(assessment_set)} Randomized Questions:**"
+                    )
+                    for idx, (
+                        qno,
+                        ques,
+                        a,
+                        b,
+                        c,
+                        d,
+                        correct,
+                        explanation,
+                    ) in enumerate(assessment_set, 1):
+                        st.markdown(f"**Q{idx}. {ques}**")
+                        opts = [
+                            f"a) {a}",
+                            f"b) {b}",
+                            f"c) {c}",
+                            f"d) {d}",
+                        ]
+                        c_val = st.radio(
+                            f"Select answer for Q{idx}:",
+                            opts,
+                            key=f"sq_{qno}",
+                            index=None,
+                            label_visibility="collapsed",
+                        )
+                        user_choices[qno] = (
+                            c_val,
+                            correct,
+                            a,
+                            b,
+                            c,
+                            d,
+                            explanation,
+                        )
+
+                        st.write("")
+
+                    submit_assessment = st.form_submit_button(
+                        " Finish & Submit Assessment",
+                        type="primary",
+                        use_container_width=True,
+                    )
+
+                if submit_assessment:
+                    duration = max(
+                        1, int(time.time() - st.session_state.assessment_start_time)
+                    )
+                    correct_count = 0
+                    total_q = len(assessment_set)
+                    reviews_used_count = sum(
+                        1
+                        for qno in user_choices
+                        if st.session_state.get(f"review_{qno}", False)
+                    )
+
+                    for qno, (
+                        c_val,
+                        correct,
+                        a,
+                        b,
+                        c,
+                        d,
+                        exp,
+                    ) in user_choices.items():
+                        if c_val:
+                            letter = c_val[0].lower()
+                            opt_map = {
+                                "a": str(a).strip().lower(),
+                                "b": str(b).strip().lower(),
+                                "c": str(c).strip().lower(),
+                                "d": str(d).strip().lower(),
+                            }
+                            clean_corr = str(correct).strip().lower()
+
+                            if letter in ["a", "b", "c", "d"]:
+                                if (
+                                    letter == clean_corr
+                                    or opt_map.get(letter) == clean_corr
+                                ):
+                                    correct_count += 1
+                            elif c_val == clean_corr:
+                                correct_count += 1
+
+                    score_percentage = (correct_count / total_q) * 100.0
+                    passed = 1 if score_percentage >= 50.0 else 0
+
+                    # Save attempt
+                    cur.execute(
+                        """
+                        INSERT INTO attempts (
+                            student_name, score, total_questions, score_percentage,
+                            time_taken_seconds, reviews_used, attempt_date, passed, domain, subject
+                        ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
+                        """,
+                        (
+                            st.session_state.username,
+                            correct_count,
+                            total_q,
+                            score_percentage,
+                            duration,
+                            reviews_used_count,
+                            passed,
+                            st.session_state.get("selected_domain", "General"),
+                            st.session_state.get("selected_subject", "General"),
+                        ),
+                    )
+
+                    # Save leaderboard
+                    cur.execute("PRAGMA table_info(leaderboard)")
+                    cols = [r[1] for r in cur.fetchall()]
+                    t_col = "total_questions" if "total_questions" in cols else "limit"
+                    cur.execute(
+                        f"INSERT INTO leaderboard (name, score, [{t_col}], scoreper) VALUES (?, ?, ?, ?)",
+                        (
+                            st.session_state.username,
+                            correct_count,
+                            total_q,
+                            score_percentage,
+                        ),
+                    )
+                    conn.commit()
+
+                    if score_percentage >= 75.0:
+                        st.balloons()
+                        st.success(
+                            f" **Outstanding Performance, {st.session_state.username.title()}!** You scored **{correct_count} out of {total_q}** ({score_percentage:.1f}%)."
+                        )
+                    elif score_percentage >= 50.0:
+                        st.balloons()
+                        st.success(
+                            f" **Great Job, {st.session_state.username.title()}!** You successfully completed the assessment with **{correct_count}/{total_q}** ({score_percentage:.1f}%)."
+                        )
+                    else:
+                        st.success(
+                            f" **Assessment Completed Successfully!** Good effort, **{st.session_state.username.title()}**! Score: **{correct_count}/{total_q}** ({score_percentage:.1f}%)."
+                        )
+
+                    col_res1, col_res2, col_res3, col_res4 = st.columns(4)
+                    col_res1.metric("Your Score", f"{correct_count} / {total_q}")
+                    col_res2.metric("Accuracy", f"{score_percentage:.1f}%")
+                    col_res3.metric("Duration", f"{duration}s")
+                    col_res4.metric("Status", "Passed " if passed else "Completed ")
+
+                    st.session_state.student_assessment_started = False
+                    st.session_state.assessment_set = None
+                    if st.button(" Take Another Assessment"):
+                        st.rerun()
+
+    # TAB 2: MY PERFORMANCE & ANALYTICS
+    with student_tabs[1]:
+        st.markdown(
+            f"###  Personal Learning Analytics for: **{st.session_state.username.title()}**"
+        )
+        df_my = pd.read_sql_query(
+            "SELECT * FROM attempts WHERE LOWER(TRIM(student_name)) = ? ORDER BY attempt_date DESC",
+            conn,
+            params=(st.session_state.username.lower(),),
+        )
+
+        if df_my.empty:
+            st.info(
+                "You haven't completed any assessments yet. Take an assessment in Tab 1 to see your personal learning analytics here!"
+            )
+        else:
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("Total Assessments", len(df_my))
+            m2.metric("Average Score", f"{df_my['score_percentage'].mean():.1f}%")
+            m3.metric("Highest Score", f"{df_my['score_percentage'].max():.1f}%")
+            m4.metric(
+                "Success Rate", f"{(df_my['passed'].sum() / len(df_my)) * 100:.1f}%"
+            )
+
+            st.divider()
+            st.markdown("#### Assessment History")
+            st.dataframe(
+                df_my[
+                    [
+                        "attempt_date",
+                        "score",
+                        "total_questions",
+                        "score_percentage",
+                        "time_taken_seconds",
+                        "passed",
+                    ]
+                ],
+                use_container_width=True,
+                column_config={
+                    "score_percentage": st.column_config.ProgressColumn(
+                        "Score %", format="%.1f%%", min_value=0, max_value=100
+                    ),
+                    "passed": st.column_config.CheckboxColumn("Passed"),
+                },
+            )
+
+    # TAB 3: LEADERBOARD
+    with student_tabs[2]:
+        st.markdown("###  Real-Time Hall of Fame")
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(leaderboard)")
+        cols = [r[1] for r in cur.fetchall()]
+        t_col = "total_questions" if "total_questions" in cols else "limit"
+
+        df_lb = pd.read_sql_query(
+            f"SELECT name as 'Student', score as 'Score', [{t_col}] as 'Total', scoreper as 'Score %' FROM leaderboard ORDER BY scoreper DESC, score DESC LIMIT 50",
+            conn,
+        )
+        if not df_lb.empty:
+            ranks = [
+                (
+                    " 1st"
+                    if i == 0
+                    else " 2nd"
+                    if i == 1
+                    else " 3rd"
+                    if i == 2
+                    else f"{i + 1}th"
+                )
+                for i in range(len(df_lb))
+            ]
+            df_lb.insert(0, "Rank", ranks)
+            st.dataframe(df_lb, use_container_width=True)
+        else:
+            st.info("Leaderboard is currently empty.")
+
+# =========================================================
