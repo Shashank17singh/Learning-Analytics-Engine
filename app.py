@@ -93,19 +93,21 @@ st.markdown(
     
     
     
-    /* Fix tab text clipping completely */
-    .stTabs button {
-        height: 50px !important;
-        min-height: 50px !important;
-        padding-top: 12px !important;
-        padding-bottom: 12px !important;
-        overflow: visible !important;
+    /* Global fix for Streamlit button/tab text clipping */
+    button {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: auto !important;
+        min-height: 48px !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
     }
-    .stTabs button * {
+    button * {
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1.5 !important;
         overflow: visible !important;
-        font-size: 15px !important;
-        line-height: 1.8 !important;
-        padding-top: 4px !important;
     }
 </style>
 """,
