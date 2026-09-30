@@ -204,43 +204,43 @@ if st.session_state.user_role != "admin":
                     type="primary",
                     use_container_width=True,
                 ):
-                st.session_state.student_assessment_started = True
-                st.session_state.assessment_start_time = time.time()
-
-                provider = "Gemini"
-                topic_for_gen = st.session_state.get("custom_topic", "General")
-                if not topic_for_gen.strip():
-                    topic_for_gen = "General Knowledge"
-
-                with st.spinner(
-                    f"🤖 {provider} is generating your custom exam on '{topic_for_gen}'..."
-                ):
-                    gen_qs = llm_utils.generate_gemini_questions(
-                        topic_for_gen, num_questions_chosen
-                    )
-
-                if gen_qs:
-                    mapped_qs = [
-                        (
-                            q.get("qno", i),
-                            q.get("ques", ""),
-                            q.get("a", ""),
-                            q.get("b", ""),
-                            q.get("c", ""),
-                            q.get("d", ""),
-                            q.get("correct", ""),
-                            q.get("explanation", ""),
+                    st.session_state.student_assessment_started = True
+                    st.session_state.assessment_start_time = time.time()
+    
+                    provider = "Gemini"
+                    topic_for_gen = st.session_state.get("custom_topic", "General")
+                    if not topic_for_gen.strip():
+                        topic_for_gen = "General Knowledge"
+    
+                    with st.spinner(
+                        f"🤖 {provider} is generating your custom exam on '{topic_for_gen}'..."
+                    ):
+                        gen_qs = llm_utils.generate_gemini_questions(
+                            topic_for_gen, num_questions_chosen
                         )
-                        for i, q in enumerate(gen_qs, 1)
-                    ]
-                    st.session_state.assessment_set = mapped_qs
-                    st.rerun()
-                else:
-                    st.error(
-                        f"{provider.split()[0]} failed to generate questions. Ensure API Key is valid and try again."
-                    )
-                    st.session_state.student_assessment_started = False
-                    st.stop()
+    
+                    if gen_qs:
+                        mapped_qs = [
+                            (
+                                q.get("qno", i),
+                                q.get("ques", ""),
+                                q.get("a", ""),
+                                q.get("b", ""),
+                                q.get("c", ""),
+                                q.get("d", ""),
+                                q.get("correct", ""),
+                                q.get("explanation", ""),
+                            )
+                            for i, q in enumerate(gen_qs, 1)
+                        ]
+                        st.session_state.assessment_set = mapped_qs
+                        st.rerun()
+                    else:
+                        st.error(
+                            f"{provider.split()[0]} failed to generate questions. Ensure API Key is valid and try again."
+                        )
+                        st.session_state.student_assessment_started = False
+                        st.stop()
         else:
             assessment_set = st.session_state.get("assessment_set")
             if not assessment_set:
