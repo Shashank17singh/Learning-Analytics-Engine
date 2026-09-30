@@ -94,14 +94,20 @@ st.markdown(
         color: #1E3A8A;
     }
     /* Fix tab text clipping */
-    button[data-baseweb="tab"] {
-        padding-top: 12px !important;
-        padding-bottom: 12px !important;
+    button[data-baseweb="tab"],
+    div[data-testid="stTabs"] button {
+        padding-top: 14px !important;
+        padding-bottom: 14px !important;
         overflow: visible !important;
+        min-height: 0 !important;
+        height: auto !important;
     }
-    button[data-baseweb="tab"] p {
+    button[data-baseweb="tab"] p,
+    div[data-testid="stTabs"] button p {
         overflow: visible !important;
-        line-height: 1.6 !important;
+        line-height: 1.8 !important;
+        text-overflow: unset !important;
+        white-space: nowrap !important;
     }
 
 </style>
