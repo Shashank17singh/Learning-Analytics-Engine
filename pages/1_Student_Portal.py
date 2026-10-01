@@ -24,6 +24,23 @@ init_db(_init_conn)
 _init_conn.close()
 
 # -------------------------------------------------------------
+# HELPER FUNCTIONS
+# -------------------------------------------------------------
+def format_time_str(seconds):
+    if pd.isna(seconds):
+        return ""
+    s = int(seconds)
+    h = s // 3600
+    m = (s % 3600) // 60
+    s = s % 60
+    if h > 0:
+        return f"{h}h {m}m {s}s"
+    elif m > 0:
+        return f"{m}m {s}s"
+    else:
+        return f"{s}s"
+
+# -------------------------------------------------------------
 # CUSTOM CSS: REMOVES SIDEBAR & ADDS MODERN PORTAL STYLING
 # -------------------------------------------------------------
 st.markdown(
@@ -463,6 +480,7 @@ if st.session_state.user_role != "admin":
             st.markdown("#### Assessment History")
             df_my_display = df_my.copy()
             df_my_display["passed"] = df_my_display["passed"].apply(lambda x: "Passed" if x else "Failed")
+            df_my_display["time_taken_seconds"] = df_my_display["time_taken_seconds"].apply(format_time_str)
             st.dataframe(
                 df_my_display[
                     [
@@ -483,7 +501,7 @@ if st.session_state.user_role != "admin":
                     "score_percentage": st.column_config.NumberColumn(
                         "Score %", format="%.1f%%"
                     ),
-                    "time_taken_seconds": "Time Taken (s)",
+                    "time_taken_seconds": "Time Taken",
                     "passed": "Result",
                 },
             )
