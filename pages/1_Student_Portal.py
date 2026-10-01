@@ -703,7 +703,7 @@ if st.session_state.user_role != "admin":
         
         if df_filters.empty:
             st.info("You haven't taken any assessments yet. Complete an assessment to unlock its leaderboard!")
-            return
+            st.stop()
             
         col1, col2, col3 = st.columns(3)
         with col1:
