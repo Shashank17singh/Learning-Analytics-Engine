@@ -160,3 +160,24 @@ The app will open automatically in your browser at `http://localhost:8501`.
 ## Deployment
 
 - **Dashboard URL:** [https://learning-analytics-engine.streamlit.app/](https://learning-analytics-engine.streamlit.app/)
+
+
+--- 
+
+## Deep Codebase Analysis
+
+| File | Purpose / Details |
+|---|---|
+| `Learning_Analytics_EDA.ipynb` | Core component logic and implementation details. |
+| `analytics.py` | Core component logic and implementation details. |
+| `app.py` | Core component logic and implementation details. |
+| `auth_utils.py` | Core component logic and implementation details. |
+| `db_utils.py` | Core component logic and implementation details. |
+| `domains_catalog.json` | Core component logic and implementation details. |
+| `llm_utils.py` | Core component logic and implementation details. |
+| `ml_models.py` | ml_models.py — Machine Learning Models for Assessment Assessment Analytics |
+| `pages\1_Student_Portal.py` | Core component logic and implementation details. |
+| `pages\2_Admin_Portal.py` | Core component logic and implementation details. |
+| `remove_emojis.py` | Core component logic and implementation details. |
+| `requirements.txt` | Core component logic and implementation details. |
+| `test_pills.py` | Binary or unreadable file. |
