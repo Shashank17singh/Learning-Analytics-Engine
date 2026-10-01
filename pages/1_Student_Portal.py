@@ -232,21 +232,58 @@ if st.session_state.user_role != "admin":
             st.session_state.selected_subject = ai_subject
             st.session_state.custom_topic = custom_topic
 
-            q_options = [5, 10, 15, 20, 25]
+            exam_rules = {
+                "JEE Mains": {"q": 75, "cm": 4, "im": -1, "time": 180, "diff": "Hard"},
+                "JEE Advanced": {"q": 54, "cm": 3, "im": -1, "time": 180, "diff": "Hard"},
+                "BITSAT": {"q": 130, "cm": 3, "im": -1, "time": 180, "diff": "Medium"},
+                "GATE": {"q": 65, "cm": 1, "im": -0.33, "time": 180, "diff": "Hard"},
+                "NEET": {"q": 180, "cm": 4, "im": -1, "time": 200, "diff": "Medium"},
+                "CAT": {"q": 66, "cm": 3, "im": -1, "time": 120, "diff": "Hard"},
+                "GMAT": {"q": 80, "cm": 1, "im": 0, "time": 195, "diff": "Hard"},
+                "GRE": {"q": 80, "cm": 1, "im": 0, "time": 225, "diff": "Hard"},
+                "UPSC": {"q": 100, "cm": 2, "im": -0.66, "time": 120, "diff": "Hard"},
+                "NDA": {"q": 120, "cm": 2.5, "im": -0.83, "time": 150, "diff": "Medium"},
+                "CLAT": {"q": 120, "cm": 1, "im": -0.25, "time": 120, "diff": "Medium"}
+            }
             
-            col_q, col_diff = st.columns(2)
-            with col_q:
-                num_questions_chosen = st.select_slider(
-                    " Number of Questions:",
-                    options=q_options,
-                    value=10,
-                )
-            with col_diff:
-                difficulty_level = st.select_slider(
-                    " Select Difficulty:",
-                    options=["Easy", "Medium", "Hard"],
-                    value="Medium"
-                )
+            matched_exam = None
+            for ex, rules in exam_rules.items():
+                if ex in ai_subject or ex in ai_domain or ex in custom_topic:
+                    matched_exam = ex
+                    break
+            
+            if matched_exam:
+                st.info(f"🎓 **{matched_exam} Format Detected!** Applying official marking scheme and settings.")
+                q_val = exam_rules[matched_exam]['q']
+                if "Mock" not in ai_subject and "Mock" not in custom_topic:
+                    q_val = max(10, q_val // 3)
+                    st.caption(f"Note: Adjusted to {q_val} questions for a single subject section.")
+                
+                num_questions_chosen = q_val
+                cm_val = exam_rules[matched_exam]['cm']
+                im_val = exam_rules[matched_exam]['im']
+                time_val = exam_rules[matched_exam]['time']
+                difficulty_level = exam_rules[matched_exam]['diff']
+                
+                st.write(f"**Questions:** {q_val} | **Time Limit:** {time_val} mins | **Marking:** +{cm_val} / {im_val} | **Difficulty:** {difficulty_level}")
+            else:
+                q_options = [5, 10, 15, 20, 25, 30, 40, 50]
+                col_q, col_diff = st.columns(2)
+                with col_q:
+                    num_questions_chosen = st.select_slider(
+                        " Number of Questions:",
+                        options=q_options,
+                        value=10,
+                    )
+                with col_diff:
+                    difficulty_level = st.select_slider(
+                        " Select Difficulty:",
+                        options=["Easy", "Medium", "Hard"],
+                        value="Medium"
+                    )
+                cm_val = 1
+                im_val = 0
+                time_val = None
 
             st.write("")
             _, center_col, _ = st.columns([1, 2, 1])
@@ -259,6 +296,10 @@ if st.session_state.user_role != "admin":
                     st.session_state.student_assessment_started = True
                     st.session_state.assessment_start_time = time.time()
                     st.session_state.difficulty_level = difficulty_level
+                    st.session_state.cm_val = cm_val
+                    st.session_state.im_val = im_val
+                    st.session_state.time_limit_mins = time_val
+                    st.session_state.num_questions = num_questions_chosen
 
                     provider = "Gemini"
                     topic_for_gen = st.session_state.get("custom_topic", "General")
@@ -302,9 +343,15 @@ if st.session_state.user_role != "admin":
                 st.rerun()
             user_choices = {}
 
+            time_limit = st.session_state.get('time_limit_mins')
+            time_str = f" | ⏱️ Time Limit: {time_limit} mins" if time_limit else ""
+            cm_val = st.session_state.get('cm_val', 1)
+            im_val = st.session_state.get('im_val', 0)
+            mark_str = f" | 🎯 Marking: +{cm_val} / {im_val}" if cm_val != 1 or im_val != 0 else ""
+
             with st.form("student_assessment_form"):
                 st.markdown(
-                    f"**Answering {len(assessment_set)} Randomized Questions:**"
+                    f"**Answering {len(assessment_set)} Randomized Questions**{time_str}{mark_str}"
                 )
                 for idx, (
                     qno,
@@ -354,6 +401,8 @@ if st.session_state.user_role != "admin":
                     1, int(time.time() - st.session_state.assessment_start_time)
                 )
                 correct_count = 0
+                incorrect_count = 0
+                unattempted_count = 0
                 total_q = len(assessment_set)
                 reviews_used_count = sum(
                     1
@@ -371,38 +420,49 @@ if st.session_state.user_role != "admin":
                     exp,
                     ques,
                 ) in user_choices.items():
-                    is_correct = False
-                    if c_val:
-                        letter = c_val[0].lower()
-                        opt_map = {
-                            "a": str(a).strip().lower(),
-                            "b": str(b).strip().lower(),
-                            "c": str(c).strip().lower(),
-                            "d": str(d).strip().lower(),
-                        }
-                        clean_corr = str(correct).strip().lower()
+                    if c_val is None:
+                        unattempted_count += 1
+                        continue
 
-                        if letter in ["a", "b", "c", "d"]:
-                            if (
-                                letter == clean_corr
-                                or opt_map.get(letter) == clean_corr
-                            ):
-                                is_correct = True
-                        elif c_val == clean_corr:
+                    is_correct = False
+                    letter = c_val[0].lower()
+                    opt_map = {
+                        "a": str(a).strip().lower(),
+                        "b": str(b).strip().lower(),
+                        "c": str(c).strip().lower(),
+                        "d": str(d).strip().lower(),
+                    }
+                    clean_corr = str(correct).strip().lower()
+
+                    if letter in ["a", "b", "c", "d"]:
+                        if (
+                            letter == clean_corr
+                            or opt_map.get(letter) == clean_corr
+                        ):
                             is_correct = True
+                    elif c_val == clean_corr:
+                        is_correct = True
 
                     if is_correct:
                         correct_count += 1
                     else:
+                        incorrect_count += 1
                         st.session_state.setdefault("incorrect_answers", []).append({
                             "qno": qno,
                             "ques": ques,
-                            "selected": c_val if c_val else "No Answer Selected",
+                            "selected": c_val,
                             "correct": correct,
                             "explanation": exp
                         })
 
-                score_percentage = (correct_count / total_q) * 100.0
+                cm_val = st.session_state.get('cm_val', 1)
+                im_val = st.session_state.get('im_val', 0)
+                
+                raw_score = (correct_count * cm_val) + (incorrect_count * im_val)
+                max_possible_score = total_q * cm_val
+                
+                # Prevent negative percentage if they got heavily penalized
+                score_percentage = max(0.0, (raw_score / max_possible_score) * 100.0) if max_possible_score > 0 else 0.0
                 passed = 1 if score_percentage >= 50.0 else 0
 
                 # Save attempt
@@ -446,20 +506,20 @@ if st.session_state.user_role != "admin":
                 if score_percentage >= 75.0:
                     st.balloons()
                     st.success(
-                        f" **Outstanding Performance, {st.session_state.username.title()}!** You scored **{correct_count} out of {total_q}** ({score_percentage:.1f}%)."
+                        f" **Outstanding Performance, {st.session_state.username.title()}!** You scored **{raw_score:.2f} out of {max_possible_score}** ({score_percentage:.1f}%)."
                     )
                 elif score_percentage >= 50.0:
                     st.balloons()
                     st.success(
-                        f" **Great Job, {st.session_state.username.title()}!** You successfully completed the assessment with **{correct_count}/{total_q}** ({score_percentage:.1f}%)."
+                        f" **Great Job, {st.session_state.username.title()}!** You successfully completed the assessment with **{raw_score:.2f}/{max_possible_score}** ({score_percentage:.1f}%)."
                     )
                 else:
                     st.success(
-                        f" **Assessment Completed Successfully!** Good effort, **{st.session_state.username.title()}**! Score: **{correct_count}/{total_q}** ({score_percentage:.1f}%)."
+                        f" **Assessment Completed Successfully!** Good effort, **{st.session_state.username.title()}**! Score: **{raw_score:.2f}/{max_possible_score}** ({score_percentage:.1f}%)."
                     )
 
                 col_res1, col_res2, col_res3, col_res4 = st.columns(4)
-                col_res1.metric("Your Score", f"{correct_count} / {total_q}")
+                col_res1.metric("Your Score", f"{raw_score:.2f} / {max_possible_score}")
                 col_res2.metric("Accuracy", f"{score_percentage:.1f}%")
                 col_res3.metric("Duration", f"{duration}s")
                 col_res4.metric("Status", "Passed " if passed else "Completed ")
