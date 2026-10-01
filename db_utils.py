@@ -42,8 +42,15 @@ def init_db(conn):
         attempt_date TEXT,
         passed INTEGER,
         domain TEXT DEFAULT 'General',
-        subject TEXT DEFAULT 'General'
+        subject TEXT DEFAULT 'General',
+        difficulty TEXT DEFAULT 'Medium'
     )""")
+
+    # Handle schema migration for existing databases
+    cur.execute("PRAGMA table_info(attempts)")
+    columns = [col[1] for col in cur.fetchall()]
+    if 'difficulty' not in columns:
+        cur.execute("ALTER TABLE attempts ADD COLUMN difficulty TEXT DEFAULT 'Medium'")
 
     cur.execute("SELECT username FROM login WHERE username = 'admin'")
     if not cur.fetchone():

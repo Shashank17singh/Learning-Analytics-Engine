@@ -167,7 +167,7 @@ admin_tabs = st.tabs(
 with admin_tabs[0]:
     st.markdown("###  Assessment Cohort Analytics (Pandas & Seaborn)")
     df_cohort = pd.read_sql_query(
-        "SELECT * FROM attempts ORDER BY attempt_date DESC", conn
+        "SELECT * FROM attempts ORDER BY attempt_id ASC", conn
     )
 
     if df_cohort.empty:
@@ -294,6 +294,7 @@ with admin_tabs[0]:
                 "passed": "Result",
                 "domain": "Domain",
                 "subject": "Subject",
+                "difficulty": "Difficulty",
             },
         )
         csv_bytes = df_cohort.to_csv(index=False).encode("utf-8")
