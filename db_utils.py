@@ -11,7 +11,6 @@ def get_db_connection():
     Returns:
         psycopg2.extensions.connection: A connection object to the database, or None if the URL is missing.
     """
-    # Use st.secrets to get the Supabase URL
     db_url = st.secrets.get("DATABASE_URL", os.getenv("DATABASE_URL"))
     if not db_url:
         st.error("DATABASE_URL not found in secrets.")
@@ -66,7 +65,6 @@ def init_db(conn):
         difficulty TEXT DEFAULT 'Medium'
     )""")
 
-    # Handle schema migration for existing databases in PostgreSQL
     cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='attempts'")
     columns = [col[0] for col in cur.fetchall()]
     if 'difficulty' not in columns:

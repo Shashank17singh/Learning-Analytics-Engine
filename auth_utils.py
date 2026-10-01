@@ -41,7 +41,7 @@ def sync_session_state():
     if "user_role" not in st.session_state:
         st.session_state.user_role = ""
 
-    # Synchronously read cookie avoiding first-load rerun issues
+
     token = st.context.cookies.get("session_token")
     if token:
         try:
@@ -76,7 +76,7 @@ def login_user(username, role):
         json.dump({"username": username, "user_role": role}, f)
         
     cm = get_cookie_manager()
-    cm.set("session_token", token, max_age=86400) # 1 day
+    cm.set("session_token", token, max_age=86400)
 
 def logout_user():
     """

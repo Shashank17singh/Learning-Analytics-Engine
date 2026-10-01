@@ -31,14 +31,12 @@ def generate_eda_summary(conn):
         print("\n[!] No assessment attempt data available to analyze.")
         return None
 
-    # Calculate key statistical metrics
     total_attempts = len(df)
     unique_students = df["student_name"].nunique()
     pass_count = int(df["passed"].sum())
     fail_count = total_attempts - pass_count
     pass_rate = (pass_count / total_attempts) * 100
 
-    # Score stats (NumPy & Pandas)
     scores = df["score_percentage"].values
     mean_score = float(np.mean(scores))
     median_score = float(np.median(scores))
@@ -47,20 +45,16 @@ def generate_eda_summary(conn):
     q75 = float(np.percentile(scores, 75))
     iqr = q75 - q25
 
-    # Time stats
     times = df["time_taken_seconds"].values
     mean_time = float(np.mean(times))
     median_time = float(np.median(times))
 
-    # Reviews stats
     reviews = df["reviews_used"].values
     mean_reviews = float(np.mean(reviews))
 
-    # Correlation Matrix
     corr_time_score = float(df["time_taken_seconds"].corr(df["score_percentage"]))
     corr_reviews_score = float(df["reviews_used"].corr(df["score_percentage"]))
 
-    # Performance Segmentation
     df["performance_tier"] = pd.cut(
         df["score_percentage"],
         bins=[-np.inf, 49.99, 74.99, 100],

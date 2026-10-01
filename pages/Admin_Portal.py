@@ -205,7 +205,6 @@ with admin_tabs[0]:
 
         st.divider()
 
-        # Visual Grid (2x2)
         row1_col1, row1_col2 = st.columns(2)
         with row1_col1:
             fig1, ax1 = plt.subplots(figsize=(7, 4.5))
@@ -344,7 +343,6 @@ with admin_tabs[1]:
             if "error" in clf:
                 st.error(clf["error"])
             else:
-                # Metrics comparison table
                 metrics_data = []
                 for name, key in [
                     ("Logistic Regression", "logistic_regression"),
@@ -670,7 +668,6 @@ with admin_tabs[3]:
     df_all = pd.read_sql_query(query, conn, params=params)
 
     if not df_all.empty:
-        # Get best attempt per student
         idx = df_all.groupby('student_name')['score_percentage'].idxmax()
         df_admin_lb = df_all.loc[idx].sort_values(by=['score_percentage', 'score'], ascending=[False, False]).reset_index(drop=True)
         
