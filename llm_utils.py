@@ -90,3 +90,34 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
             st.error(f"Gemini API Error: {last_error!s}")
         print(f"All models failed. Last error: {last_error}")
     return []
+
+def explain_wrong_answer(question: str, selected_answer: str, correct_answer: str, base_explanation: str) -> str:
+    """Generate an explanation specifically addressing why the user's chosen answer is incorrect."""
+    try:
+        api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
+    except Exception:
+        api_key = os.getenv("GEMINI_API_KEY")
+
+    if not api_key:
+        return base_explanation
+
+    client = genai.Client(api_key=api_key)
+    prompt = f"""
+    Question: {question}
+    Correct Answer: {correct_answer}
+    Base Explanation: {base_explanation}
+    Student's Incorrect Selection: {selected_answer}
+
+    Provide a concise explanation (2-3 sentences) directly addressing why the student's selected answer is incorrect, and briefly reiterate why the correct answer is right.
+    """
+    
+    try:
+        response = client.models.generate_content(
+            model="gemini-3.8-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(temperature=0.7),
+        )
+        return response.text.strip()
+    except Exception:
+        return base_explanation
+
