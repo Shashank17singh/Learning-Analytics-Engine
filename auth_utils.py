@@ -12,11 +12,17 @@ def get_default_admin_password():
     return os.environ.get("ADMIN_PASSWORD", "admin123")
 
 import json
+import uuid
 from pathlib import Path
 import streamlit as st
+import extra_streamlit_components as stx
+
+@st.cache_resource
+def get_cookie_manager():
+    return stx.CookieManager(key="auth_cookie_manager")
 
 def sync_session_state():
-    """Sync session state from query params to survive F5 refreshes."""
+    """Sync session state from cookies to survive F5 refreshes."""
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
     if "username" not in st.session_state:
@@ -24,8 +30,8 @@ def sync_session_state():
     if "user_role" not in st.session_state:
         st.session_state.user_role = ""
 
-    # Re-hydrate from URL if available
-    token = st.query_params.get("session_token", None)
+    # Synchronously read cookie avoiding first-load rerun issues
+    token = st.context.cookies.get("session_token")
     if token:
         try:
             session_file = Path(f".session_{token}.json")
@@ -39,18 +45,18 @@ def sync_session_state():
             pass
 
 def login_user(username, role):
-    """Log the user in and persist the session."""
+    """Log the user in and persist the session via cookie."""
     st.session_state.authenticated = True
     st.session_state.username = username
     st.session_state.user_role = role
     
-    # Create a simple session file
-    import uuid
     token = str(uuid.uuid4())
-    st.query_params["session_token"] = token
     
     with open(f".session_{token}.json", "w") as f:
         json.dump({"username": username, "user_role": role}, f)
+        
+    cm = get_cookie_manager()
+    cm.set("session_token", token, max_age=86400) # 1 day
 
 def logout_user():
     """Log the user out and clear the session."""
@@ -58,12 +64,11 @@ def logout_user():
     st.session_state.username = ""
     st.session_state.user_role = ""
     
-    token = st.query_params.get("session_token", None)
+    cm = get_cookie_manager()
+    token = cm.get("session_token")
     if token:
         try:
             Path(f".session_{token}.json").unlink(missing_ok=True)
         except:
             pass
-    
-    if "session_token" in st.query_params:
-        del st.query_params["session_token"]
+        cm.delete("session_token")

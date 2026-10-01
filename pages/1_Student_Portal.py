@@ -290,7 +290,7 @@ if st.session_state.user_role != "admin":
                         break
                 
                 if matched_exam:
-                    st.info(f"🎓 **{matched_exam} Format Detected!** Applying official marking scheme and settings.")
+                    st.info(f" **{matched_exam} Format Detected!** Applying official marking scheme and settings.")
                     q_val = exam_rules[matched_exam]['q']
                     if "Mock" not in ai_subject and "Mock" not in custom_topic:
                         q_val = max(10, q_val // 3)
@@ -382,10 +382,10 @@ if st.session_state.user_role != "admin":
             user_choices = {}
 
             time_limit = st.session_state.get('time_limit_mins')
-            time_str = f" | ⏱️ Time Limit: {time_limit} mins" if time_limit else ""
+            time_str = f" |  Time Limit: {time_limit} mins" if time_limit else ""
             cm_val = st.session_state.get('cm_val', 1)
             im_val = st.session_state.get('im_val', 0)
-            mark_str = f" | 🎯 Marking: +{cm_val} / {im_val}" if cm_val != 1 or im_val != 0 else ""
+            mark_str = f" |  Marking: +{cm_val} / {im_val}" if cm_val != 1 or im_val != 0 else ""
 
             with st.form("student_assessment_form"):
                 st.markdown(
