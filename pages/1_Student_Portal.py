@@ -479,6 +479,7 @@ if st.session_state.user_role != "admin":
             st.divider()
             st.markdown("#### Assessment History")
             df_my_display = df_my.copy()
+            df_my_display["attempt_date"] = pd.to_datetime(df_my_display["attempt_date"])
             df_my_display["passed"] = df_my_display["passed"].apply(lambda x: "Passed" if x else "Failed")
             df_my_display["time_taken_seconds"] = df_my_display["time_taken_seconds"].apply(format_time_str)
             st.dataframe(
@@ -495,7 +496,7 @@ if st.session_state.user_role != "admin":
                 width="stretch",
                 hide_index=True,
                 column_config={
-                    "attempt_date": "Attempt Date",
+                    "attempt_date": st.column_config.DatetimeColumn("Attempt Date", format="DD-MM-YYYY HH:mm:ss"),
                     "score": "Score",
                     "total_questions": "Total Questions",
                     "score_percentage": st.column_config.NumberColumn(

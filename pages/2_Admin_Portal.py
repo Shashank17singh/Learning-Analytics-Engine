@@ -273,6 +273,7 @@ with admin_tabs[0]:
 
         st.markdown("#### Complete Cohort Attempt Records")
         df_cohort_display = df_cohort.copy()
+        df_cohort_display["attempt_date"] = pd.to_datetime(df_cohort_display["attempt_date"])
         df_cohort_display["passed"] = df_cohort_display["passed"].apply(lambda x: "Passed" if x else "Failed")
         df_cohort_display["time_taken_seconds"] = df_cohort_display["time_taken_seconds"].apply(format_time_str)
         st.dataframe(
@@ -289,7 +290,7 @@ with admin_tabs[0]:
                 ),
                 "time_taken_seconds": "Time Taken",
                 "reviews_used": "Reviews Used",
-                "attempt_date": "Attempt Date",
+                "attempt_date": st.column_config.DatetimeColumn("Attempt Date", format="DD-MM-YYYY HH:mm:ss"),
                 "passed": "Result",
                 "domain": "Domain",
                 "subject": "Subject",
