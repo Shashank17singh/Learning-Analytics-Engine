@@ -443,9 +443,13 @@ if st.session_state.user_role != "admin":
                 ],
                 width="stretch",
                 column_config={
+                    "attempt_date": "Attempt Date",
+                    "score": "Score",
+                    "total_questions": "Total Questions",
                     "score_percentage": st.column_config.ProgressColumn(
                         "Score %", format="%.1f%%", min_value=0, max_value=100
                     ),
+                    "time_taken_seconds": "Time Taken (s)",
                     "passed": st.column_config.CheckboxColumn("Passed"),
                 },
             )
