@@ -165,15 +165,30 @@ admin_tabs = st.tabs(
 
 # TAB 1: COHORT ANALYTICS & BI DASHBOARD
 with admin_tabs[0]:
-    st.markdown("###  Assessment Cohort Analytics")
-    df_cohort = pd.read_sql_query(
+    df_raw = pd.read_sql_query(
         "SELECT * FROM attempts ORDER BY attempt_id ASC", conn
     )
 
-    if df_cohort.empty:
+    if df_raw.empty:
+        st.markdown("###  Assessment Cohort Analytics")
         st.warning("No assessment attempt records found.")
     else:
-        df_cohort["passed"] = df_cohort["passed"].astype(bool)
+        students_list = ["All Students"] + sorted(df_raw["student_name"].dropna().unique().tolist())
+        selected_student = st.selectbox("View Analytics for:", students_list)
+        
+        if selected_student == "All Students":
+            st.markdown("###  Assessment Cohort Analytics")
+            df_cohort = df_raw.copy()
+            chart_prefix = "Cohort"
+        else:
+            st.markdown(f"###  Personal Analytics for: **{selected_student.title()}**")
+            df_cohort = df_raw[df_raw["student_name"] == selected_student].copy()
+            chart_prefix = "Personal"
+
+        if df_cohort.empty:
+            st.info(f"No records found for {selected_student}.")
+        else:
+            df_cohort["passed"] = df_cohort["passed"].astype(bool)
         df_cohort["Performance Tier"] = pd.cut(
             df_cohort["score_percentage"],
             bins=[-np.inf, 49.99, 74.99, 100],
@@ -189,7 +204,7 @@ with admin_tabs[0]:
         tot = len(df_cohort)
         pass_cnt = int(df_cohort["passed"].sum())
         k1.metric("Total Attempts", tot)
-        k2.metric("Cohort Pass Rate", f"{(pass_cnt / tot) * 100:.1f}%")
+        k2.metric(f"{chart_prefix} Pass Rate", f"{(pass_cnt / tot) * 100:.1f}%")
         k3.metric("Mean Score", f"{df_cohort['score_percentage'].mean():.1f}%")
         k4.metric(
             "Avg Completion Time",
@@ -222,7 +237,7 @@ with admin_tabs[0]:
                 label=f"Median: {df_cohort['score_percentage'].median():.1f}%",
             )
             ax1.set_title(
-                "Cohort Score Distribution (Histogram & KDE)", fontweight="bold"
+                f"{chart_prefix} Score Distribution (Histogram & KDE)", fontweight="bold"
             )
             ax1.set_xlabel("Score %")
             ax1.legend()
@@ -268,10 +283,10 @@ with admin_tabs[0]:
                 colors=["#99ff99", "#66b3ff", "#ff9999"],
                 wedgeprops={"width": 0.4, "edgecolor": "white"},
             )
-            ax4.set_title("Cohort Competency Breakdown", fontweight="bold")
+            ax4.set_title(f"{chart_prefix} Competency Breakdown", fontweight="bold")
             st.pyplot(fig4)
 
-        st.markdown("#### Complete Cohort Attempt Records")
+        st.markdown(f"#### Complete {chart_prefix} Attempt Records")
         df_cohort_display = df_cohort.copy()
         df_cohort_display["attempt_date"] = pd.to_datetime(df_cohort_display["attempt_date"])
         df_cohort_display["passed"] = df_cohort_display["passed"].apply(lambda x: "Passed" if x else "Failed")
@@ -307,7 +322,7 @@ with admin_tabs[0]:
 
 # TAB 2: ML & PREDICTIVE ANALYTICS (Scikit-learn)
 with admin_tabs[1]:
-    st.markdown("###  Machine Learning & Predictive Analytics (Scikit-learn)")
+    st.markdown("###  Machine Learning & Predictive Analytics")
     df_ml = pd.read_sql_query("SELECT * FROM attempts ORDER BY attempt_date ASC", conn)
 
     if df_ml.empty or len(df_ml) < 20:
