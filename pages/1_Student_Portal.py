@@ -111,15 +111,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+import auth_utils
+
 # -------------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # -------------------------------------------------------------
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-if "username" not in st.session_state:
-    st.session_state.username = ""
-if "user_role" not in st.session_state:
-    st.session_state.user_role = ""
+auth_utils.sync_session_state()
+
+# Logout Button UI
+col1, col2 = st.columns([8, 1])
+with col2:
+    if st.button("Logout", key="logout_btn", use_container_width=True):
+        auth_utils.logout_user()
+        st.switch_page("app.py")
 
 
 if not st.session_state.authenticated or st.session_state.user_role == "admin":
@@ -202,7 +206,7 @@ if st.session_state.user_role != "admin":
                         topic_for_gen = "General Knowledge"
 
                     with st.spinner(
-                        f"🤖 {provider} is generating your custom exam on '{topic_for_gen}'..."
+                        f"{provider} is generating your custom exam on '{topic_for_gen}'..."
                     ):
                         gen_qs = llm_utils.generate_gemini_questions(
                             topic_for_gen, num_questions_chosen
@@ -274,6 +278,7 @@ if st.session_state.user_role != "admin":
                         c,
                         d,
                         explanation,
+                        ques,
                     )
 
                     st.write("")
@@ -304,7 +309,9 @@ if st.session_state.user_role != "admin":
                     c,
                     d,
                     exp,
+                    ques,
                 ) in user_choices.items():
+                    is_correct = False
                     if c_val:
                         letter = c_val[0].lower()
                         opt_map = {
@@ -320,9 +327,20 @@ if st.session_state.user_role != "admin":
                                 letter == clean_corr
                                 or opt_map.get(letter) == clean_corr
                             ):
-                                correct_count += 1
+                                is_correct = True
                         elif c_val == clean_corr:
-                            correct_count += 1
+                            is_correct = True
+
+                    if is_correct:
+                        correct_count += 1
+                    else:
+                        st.session_state.setdefault("incorrect_answers", []).append({
+                            "qno": qno,
+                            "ques": ques,
+                            "selected": c_val if c_val else "No Answer Selected",
+                            "correct": correct,
+                            "explanation": exp
+                        })
 
                 score_percentage = (correct_count / total_q) * 100.0
                 passed = 1 if score_percentage >= 50.0 else 0
@@ -385,8 +403,25 @@ if st.session_state.user_role != "admin":
                 col_res3.metric("Duration", f"{duration}s")
                 col_res4.metric("Status", "Passed " if passed else "Completed ")
 
+                if st.session_state.get("incorrect_answers"):
+                    st.divider()
+                    st.markdown("### 🔍 Detailed Review of Incorrect Answers")
+                    st.info("Here is a breakdown of the questions you got wrong, including a specific explanation of why your chosen answer was incorrect.")
+                    
+                    for d in st.session_state.incorrect_answers:
+                        with st.expander(f"Question {d['qno']}: {d['ques']}"):
+                            st.markdown(f"❌ **Your Answer:** {d['selected']}")
+                            st.markdown(f"✅ **Correct Answer:** {d['correct']}")
+                            
+                            with st.spinner("Generating targeted explanation..."):
+                                targeted_exp = llm_utils.explain_wrong_answer(d['ques'], d['selected'], d['correct'], d['explanation'])
+                            
+                            st.markdown(f"**Explanation:** {targeted_exp}")
+
                 st.session_state.student_assessment_started = False
                 st.session_state.assessment_set = None
+                st.session_state.incorrect_answers = []
+                
                 if st.button(" Take Another Assessment"):
                     st.rerun()
 

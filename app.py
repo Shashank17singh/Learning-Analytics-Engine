@@ -111,12 +111,7 @@ st.markdown(
 # -------------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # -------------------------------------------------------------
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-if "username" not in st.session_state:
-    st.session_state.username = ""
-if "user_role" not in st.session_state:
-    st.session_state.user_role = ""
+auth_utils.sync_session_state()
 
 
 # -------------------------------------------------------------
@@ -180,9 +175,7 @@ if not st.session_state.authenticated:
                         row = cur.fetchone()
 
                         if row:
-                            st.session_state.authenticated = True
-                            st.session_state.username = row[0]
-                            st.session_state.user_role = row[1]
+                            auth_utils.login_user(row[0], row[1])
                             st.success(f"Welcome back, {row[0]}!")
                             st.rerun()
                         else:

@@ -113,15 +113,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+import auth_utils
+
 # -------------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # -------------------------------------------------------------
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-if "username" not in st.session_state:
-    st.session_state.username = ""
-if "user_role" not in st.session_state:
-    st.session_state.user_role = ""
+auth_utils.sync_session_state()
+
+# Logout Button UI
+col1, col2 = st.columns([8, 1])
+with col2:
+    if st.button("Logout", key="logout_btn", use_container_width=True):
+        auth_utils.logout_user()
+        st.switch_page("app.py")
 
 
 if not st.session_state.authenticated or st.session_state.user_role != "admin":
