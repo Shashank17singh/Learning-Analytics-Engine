@@ -208,7 +208,7 @@ with admin_tabs[0]:
         k3.metric("Mean Score", f"{df_cohort['score_percentage'].mean():.1f}%")
         k4.metric(
             "Avg Completion Time",
-            f"{df_cohort['time_taken_seconds'].mean():.0f}s",
+            format_time_str(df_cohort['time_taken_seconds'].mean()),
         )
 
         st.divider()
