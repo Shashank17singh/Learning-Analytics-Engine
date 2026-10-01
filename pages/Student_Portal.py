@@ -139,8 +139,6 @@ st.markdown(
         color: #1E3A8A;
     }
 
-    
-    
     /* Fix Streamlit tab and button text clipping */
     [data-testid="stTabs"] [role="tablist"] {
         padding-top: 15px !important;
@@ -216,7 +214,6 @@ if st.session_state.user_role != "admin":
                             page_text = page.extract_text()
                             if page_text:
                                 text += page_text + "\n"
-                        # Limit text to avoid blowing up context window
                         pdf_context = text[:30000] 
                         st.success(f"Successfully extracted {len(pdf_context)} characters from the PDF.")
                         
@@ -230,7 +227,6 @@ if st.session_state.user_role != "admin":
                     except Exception as e:
                         st.error(f"Error reading PDF: {e}")
             else:
-                # Load extensive domains catalog
                 try:
                     with open("domains_catalog.json", "r") as f:
                         ai_domains_catalog = json.load(f)
@@ -319,7 +315,6 @@ if st.session_state.user_role != "admin":
                 "CLAT": {"q": 120, "cm": 1, "im": -0.25, "time": 120, "diff": "Medium"}
             }
             if source_type == "Upload Study Material (PDF)" and not uploaded_file:
-                # Do not show exam configs if no file is uploaded yet
                 pass
             else:
                 matched_exam = None
@@ -508,7 +503,6 @@ if st.session_state.user_role != "admin":
                     c_val = None
                     if qtype == "numerical":
                         c_val = st.text_input(f"Your answer for Q{idx}:", key=f"sq_{qno}")
-                        # Keep it as string, empty means None
                         c_val = c_val.strip() if c_val.strip() else None
                     elif qtype == "multi_mcq":
                         opts = [f"{k}) {v}" for k, v in options.items() if v]
@@ -606,14 +600,11 @@ if st.session_state.user_role != "admin":
                         if str(c_val).strip() == str(correct).strip():
                             is_correct = True
                     elif qtype == "multi_mcq":
-                        # c_val is a list of strings like ["a) value", "b) value"]
-                        # correct is a list like ["a", "b"]
                         selected_letters = sorted([str(v).split(")")[0].strip().lower() for v in c_val])
                         correct_letters = sorted([str(c).strip().lower() for c in correct]) if isinstance(correct, list) else sorted([str(correct).strip().lower()])
                         if selected_letters == correct_letters:
                             is_correct = True
                     else: # single_mcq
-                        # c_val is a string like "a) value"
                         selected_letter = str(c_val).split(")")[0].strip().lower()
                         clean_corr = str(correct).strip().lower()
                         
@@ -643,7 +634,6 @@ if st.session_state.user_role != "admin":
                 raw_score = (correct_count * cm_val) + (incorrect_count * im_val)
                 max_possible_score = total_q * cm_val
                 
-                # Prevent negative percentage if they got heavily penalized
                 score_percentage = max(0.0, (raw_score / max_possible_score) * 100.0) if max_possible_score > 0 else 0.0
                 passed = 1 if score_percentage >= 50.0 else 0
 
@@ -677,7 +667,6 @@ if st.session_state.user_role != "admin":
                     ),
                 )
 
-                # Save leaderboard
                 cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='leaderboard'")
                 cols = [r[0] for r in cur.fetchall()]
                 t_col = "total_questions" if "total_questions" in cols else "total_questions"
@@ -761,7 +750,6 @@ if st.session_state.user_role != "admin":
 
             st.divider()
 
-            # Personal Visual Grid (2x2)
             df_my["Performance Tier"] = pd.cut(
                 df_my["score_percentage"],
                 bins=[-np.inf, 49.99, 74.99, 100],
@@ -881,7 +869,6 @@ if st.session_state.user_role != "admin":
                 },
             )
 
-    # TAB 3: LEADERBOARD
     with student_tabs[2]:
         st.markdown("###  Real-Time Hall of Fame")
         
@@ -959,4 +946,4 @@ if st.session_state.user_role != "admin":
         else:
             st.info("Leaderboard is currently empty for the selected filters.")
 
-# =========================================================
+
