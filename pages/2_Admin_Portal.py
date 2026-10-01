@@ -109,10 +109,11 @@ st.markdown(
     }
 
     /* Fix Streamlit tab text clipping.
-       Streamlit 1.64 Emotion class e1ac7blb3 (tab list) sets overflowY: clip
-       which clips the top of tall characters. Override it directly. */
-    .e1ac7blb3 {
-        overflow-y: visible !important;
+       The tab list has overflowY:clip with a tight height, clipping letter tops.
+       We can't override overflow (CSS spec converts visible→auto when paired
+       with overflow-x:auto). Instead, add padding inside the clip region. */
+    [role="tablist"] {
+        padding-top: 3px !important;
     }
 </style>
 """,
