@@ -165,7 +165,7 @@ admin_tabs = st.tabs(
 
 # TAB 1: COHORT ANALYTICS & BI DASHBOARD
 with admin_tabs[0]:
-    st.markdown("###  Assessment Cohort Analytics (Pandas & Seaborn)")
+    st.markdown("###  Assessment Cohort Analytics")
     df_cohort = pd.read_sql_query(
         "SELECT * FROM attempts ORDER BY attempt_id ASC", conn
     )
@@ -642,12 +642,61 @@ with admin_tabs[2]:
 # TAB 4: LEADERBOARD
 with admin_tabs[3]:
     st.markdown("###  Full Assessment Leaderboard")
-    cur = conn.cursor()
-    cur.execute("PRAGMA table_info(leaderboard)")
-    cols = [r[1] for r in cur.fetchall()]
-    t_col = "total_questions" if "total_questions" in cols else "limit"
-    df_admin_lb = pd.read_sql_query(
-        f"SELECT name as 'Candidate', score as 'Score', [{t_col}] as 'Total', scoreper as 'Score %' FROM leaderboard ORDER BY scoreper DESC",
-        conn,
-    )
-    st.dataframe(df_admin_lb, width="stretch", hide_index=True)
+    
+    df_filters = pd.read_sql_query("SELECT DISTINCT domain, subject, difficulty FROM attempts", conn)
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        domains = ["All"] + sorted(df_filters["domain"].dropna().unique().tolist())
+        selected_domain = st.selectbox("Filter by Domain", domains, key="admin_lb_domain")
+    with col2:
+        subjects = ["All"] + sorted(df_filters["subject"].dropna().unique().tolist())
+        selected_subject = st.selectbox("Filter by Subject", subjects, key="admin_lb_subject")
+    with col3:
+        difficulties = ["All"] + sorted(df_filters["difficulty"].dropna().unique().tolist())
+        selected_difficulty = st.selectbox("Filter by Difficulty", difficulties, key="admin_lb_diff")
+
+    query = "SELECT student_name, score, total_questions, score_percentage, domain, subject, difficulty FROM attempts WHERE 1=1"
+    params = []
+    if selected_domain != "All":
+        query += " AND domain = ?"
+        params.append(selected_domain)
+    if selected_subject != "All":
+        query += " AND subject = ?"
+        params.append(selected_subject)
+    if selected_difficulty != "All":
+        query += " AND difficulty = ?"
+        params.append(selected_difficulty)
+        
+    df_all = pd.read_sql_query(query, conn, params=params)
+
+    if not df_all.empty:
+        # Get best attempt per student
+        idx = df_all.groupby('student_name')['score_percentage'].idxmax()
+        df_admin_lb = df_all.loc[idx].sort_values(by=['score_percentage', 'score'], ascending=[False, False]).reset_index(drop=True)
+        
+        df_admin_lb.rename(columns={
+            "student_name": "Candidate",
+            "score": "Score",
+            "total_questions": "Total",
+            "score_percentage": "Score %",
+            "domain": "Domain",
+            "subject": "Subject",
+            "difficulty": "Difficulty"
+        }, inplace=True)
+        
+        ranks = [
+            (" 1st" if i == 0 else " 2nd" if i == 1 else " 3rd" if i == 2 else f"{i + 1}th")
+            for i in range(len(df_admin_lb))
+        ]
+        df_admin_lb.insert(0, "Rank", ranks)
+        st.dataframe(
+            df_admin_lb, 
+            width="stretch", 
+            hide_index=True,
+            column_config={
+                "Score %": st.column_config.NumberColumn("Score %", format="%.1f%%")
+            }
+        )
+    else:
+        st.info("Leaderboard is currently empty for the selected filters.")

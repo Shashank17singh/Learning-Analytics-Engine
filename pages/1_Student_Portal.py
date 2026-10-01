@@ -606,31 +606,63 @@ if st.session_state.user_role != "admin":
     # TAB 3: LEADERBOARD
     with student_tabs[2]:
         st.markdown("###  Real-Time Hall of Fame")
-        cur = conn.cursor()
-        cur.execute("PRAGMA table_info(leaderboard)")
-        cols = [r[1] for r in cur.fetchall()]
-        t_col = "total_questions" if "total_questions" in cols else "limit"
+        
+        df_filters = pd.read_sql_query("SELECT DISTINCT domain, subject, difficulty FROM attempts", conn)
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            domains = ["All"] + sorted(df_filters["domain"].dropna().unique().tolist())
+            selected_domain = st.selectbox("Filter by Domain", domains, key="lb_domain")
+        with col2:
+            subjects = ["All"] + sorted(df_filters["subject"].dropna().unique().tolist())
+            selected_subject = st.selectbox("Filter by Subject", subjects, key="lb_subject")
+        with col3:
+            difficulties = ["All"] + sorted(df_filters["difficulty"].dropna().unique().tolist())
+            selected_difficulty = st.selectbox("Filter by Difficulty", difficulties, key="lb_diff")
 
-        df_lb = pd.read_sql_query(
-            f"SELECT name as 'Student', score as 'Score', [{t_col}] as 'Total', scoreper as 'Score %' FROM leaderboard ORDER BY scoreper DESC, score DESC LIMIT 50",
-            conn,
-        )
-        if not df_lb.empty:
+        query = "SELECT student_name, score, total_questions, score_percentage, domain, subject, difficulty FROM attempts WHERE 1=1"
+        params = []
+        if selected_domain != "All":
+            query += " AND domain = ?"
+            params.append(selected_domain)
+        if selected_subject != "All":
+            query += " AND subject = ?"
+            params.append(selected_subject)
+        if selected_difficulty != "All":
+            query += " AND difficulty = ?"
+            params.append(selected_difficulty)
+            
+        df_all = pd.read_sql_query(query, conn, params=params)
+
+        if not df_all.empty:
+            # Get best attempt per student
+            idx = df_all.groupby('student_name')['score_percentage'].idxmax()
+            df_lb = df_all.loc[idx].sort_values(by=['score_percentage', 'score'], ascending=[False, False]).head(50).reset_index(drop=True)
+            
+            df_lb.rename(columns={
+                "student_name": "Student",
+                "score": "Score",
+                "total_questions": "Total",
+                "score_percentage": "Score %",
+                "domain": "Domain",
+                "subject": "Subject",
+                "difficulty": "Difficulty"
+            }, inplace=True)
+            
             ranks = [
-                (
-                    " 1st"
-                    if i == 0
-                    else " 2nd"
-                    if i == 1
-                    else " 3rd"
-                    if i == 2
-                    else f"{i + 1}th"
-                )
+                (" 1st" if i == 0 else " 2nd" if i == 1 else " 3rd" if i == 2 else f"{i + 1}th")
                 for i in range(len(df_lb))
             ]
             df_lb.insert(0, "Rank", ranks)
-            st.dataframe(df_lb, width="stretch", hide_index=True)
+            st.dataframe(
+                df_lb, 
+                width="stretch", 
+                hide_index=True,
+                column_config={
+                    "Score %": st.column_config.NumberColumn("Score %", format="%.1f%%")
+                }
+            )
         else:
-            st.info("Leaderboard is currently empty.")
+            st.info("Leaderboard is currently empty for the selected filters.")
 
 # =========================================================
