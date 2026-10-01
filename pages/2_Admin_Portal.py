@@ -255,8 +255,10 @@ with admin_tabs[0]:
             st.pyplot(fig4)
 
         st.markdown("#### Complete Cohort Attempt Records")
+        df_cohort_display = df_cohort.copy()
+        df_cohort_display["passed"] = df_cohort_display["passed"].apply(lambda x: "Passed" if x else "Failed")
         st.dataframe(
-            df_cohort,
+            df_cohort_display,
             width="stretch",
             hide_index=True,
             column_config={
@@ -270,7 +272,7 @@ with admin_tabs[0]:
                 "time_taken_seconds": "Time Taken (s)",
                 "reviews_used": "Reviews Used",
                 "attempt_date": "Attempt Date",
-                "passed": st.column_config.CheckboxColumn("Passed"),
+                "passed": "Result",
                 "domain": "Domain",
                 "subject": "Subject",
             },

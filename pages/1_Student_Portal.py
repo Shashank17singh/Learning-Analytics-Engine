@@ -461,8 +461,10 @@ if st.session_state.user_role != "admin":
 
             st.divider()
             st.markdown("#### Assessment History")
+            df_my_display = df_my.copy()
+            df_my_display["passed"] = df_my_display["passed"].apply(lambda x: "Passed" if x else "Failed")
             st.dataframe(
-                df_my[
+                df_my_display[
                     [
                         "attempt_date",
                         "score",
@@ -482,7 +484,7 @@ if st.session_state.user_role != "admin":
                         "Score %", format="%.1f%%", min_value=0, max_value=100
                     ),
                     "time_taken_seconds": "Time Taken (s)",
-                    "passed": st.column_config.CheckboxColumn("Passed"),
+                    "passed": "Result",
                 },
             )
 
