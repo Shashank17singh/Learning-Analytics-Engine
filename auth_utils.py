@@ -17,7 +17,6 @@ from pathlib import Path
 import streamlit as st
 import extra_streamlit_components as stx
 
-@st.cache_resource
 def get_cookie_manager():
     return stx.CookieManager(key="auth_cookie_manager")
 
