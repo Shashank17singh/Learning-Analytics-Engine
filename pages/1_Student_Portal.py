@@ -427,13 +427,12 @@ if st.session_state.user_role != "admin":
                         f"b) {b}",
                         f"c) {c}",
                         f"d) {d}",
-                        "Clear Selection"
                     ]
-                    c_val = st.radio(
+                    c_val = st.pills(
                         f"Select answer for Q{idx}:",
                         opts,
                         key=f"sq_{qno}",
-                        index=None,
+                        selection_mode="single",
                         label_visibility="collapsed",
                     )
                     user_choices[qno] = (
@@ -493,7 +492,7 @@ if st.session_state.user_role != "admin":
                     exp,
                     ques,
                 ) in user_choices.items():
-                    if c_val is None or c_val == "Clear Selection":
+                    if c_val is None:
                         unattempted_count += 1
                         continue
 
