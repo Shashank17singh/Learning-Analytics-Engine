@@ -301,13 +301,12 @@ if st.session_state.user_role != "admin":
                     st.session_state.time_limit_mins = time_val
                     st.session_state.num_questions = num_questions_chosen
 
-                    provider = "Gemini"
                     topic_for_gen = st.session_state.get("custom_topic", "General")
                     if not topic_for_gen.strip():
                         topic_for_gen = "General Knowledge"
 
                     with st.spinner(
-                        f"{provider} is generating your {difficulty_level.lower()} custom exam on '{topic_for_gen}'..."
+                        f"Preparing your {difficulty_level.lower()} assessment module on '{topic_for_gen}'..."
                     ):
                         gen_qs = llm_utils.generate_gemini_questions(
                             topic_for_gen, num_questions_chosen, difficulty_level
