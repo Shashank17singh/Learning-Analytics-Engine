@@ -305,22 +305,22 @@ if st.session_state.user_role != "admin":
                     st.write(f"**Questions:** {q_val} | **Time Limit:** {time_val} mins | **Marking:** +{cm_val} / {im_val} | **Difficulty:** {difficulty_level}")
                 else:
                     q_options = [5, 10, 15, 20, 25, 30, 40, 50]
-                col_q, col_diff = st.columns(2)
-                with col_q:
-                    num_questions_chosen = st.select_slider(
-                        " Number of Questions:",
-                        options=q_options,
-                        value=10,
-                    )
-                with col_diff:
-                    difficulty_level = st.select_slider(
-                        " Select Difficulty:",
-                        options=["Easy", "Medium", "Hard"],
-                        value="Medium"
-                    )
-                cm_val = 1
-                im_val = 0
-                time_val = None
+                    col_q, col_diff = st.columns(2)
+                    with col_q:
+                        num_questions_chosen = st.select_slider(
+                            " Number of Questions:",
+                            options=q_options,
+                            value=10,
+                        )
+                    with col_diff:
+                        difficulty_level = st.select_slider(
+                            " Select Difficulty:",
+                            options=["Easy", "Medium", "Hard"],
+                            value="Medium"
+                        )
+                    cm_val = 1
+                    im_val = 0
+                    time_val = None
 
             st.write("")
             _, center_col, _ = st.columns([1, 2, 1])
