@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 
 
-def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Medium", context: str = None) -> list:
+def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Medium", context: str = None, exam_format: str = "Standard") -> list:
     try:
         api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
     except Exception:  # noqa: BLE001
@@ -22,20 +22,55 @@ def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Med
     if context:
         context_prompt = f"The questions MUST be based strictly on the following source material provided by the student:\n\n{context}\n\n"
 
+    format_instructions = ""
+    
+    # Categorize exams by their question format requirements
+    multi_and_numerical_exams = ["JEE Advanced"]
+    mcq_and_numerical_exams = ["JEE Mains", "GATE", "CAT", "BITSAT"] # Note: CAT has TITA (Type In The Answer) which is numerical/text. BITSAT has some numericals in some variants, but mostly MCQ.
+    
+    if exam_format in multi_and_numerical_exams:
+        format_instructions = """
+        Generate a mix of Single-Correct MCQs, Multi-Correct MCQs, and Numerical questions.
+        For Single-Correct MCQs ("type": "single_mcq"):
+        - "options": {"a": "...", "b": "...", "c": "...", "d": "..."}
+        - "correct": string (e.g., "a", "b", "c", or "d")
+        For Multi-Correct MCQs ("type": "multi_mcq"):
+        - "options": {"a": "...", "b": "...", "c": "...", "d": "..."}
+        - "correct": array of strings (e.g., ["a", "c"])
+        For Numerical/TITA questions ("type": "numerical"):
+        - "options": null
+        - "correct": string (the exact integer, decimal, or short text answer)
+        Each object must have "qno", "type", "ques", "options", "correct", and "explanation".
+        """
+    elif exam_format in mcq_and_numerical_exams:
+        format_instructions = """
+        Generate a mix of Single-Correct MCQs (approx 80%) and Numerical/TITA Answer Type questions (approx 20%).
+        For Single-Correct MCQs ("type": "single_mcq"):
+        - "options": {"a": "...", "b": "...", "c": "...", "d": "..."}
+        - "correct": string (e.g., "a", "b", "c", or "d")
+        For Numerical/TITA questions ("type": "numerical"):
+        - "options": null
+        - "correct": string (the exact integer, decimal, or short text answer)
+        Each object must have "qno", "type", "ques", "options", "correct", and "explanation".
+        """
+    else: # Default for Standard, NEET, CLAT, UPSC, NDA, etc.
+        format_instructions = """
+        Generate ONLY Single-Correct Multiple Choice questions.
+        Each object must have:
+        - "qno": integer
+        - "type": "single_mcq"
+        - "ques": string (the question)
+        - "options": {"a": "...", "b": "...", "c": "...", "d": "..."}
+        - "correct": string (e.g., "a", "b", "c", or "d")
+        - "explanation": string
+        """
+
     prompt = f"""
-    Generate exactly {count} multiple-choice questions about the topic '{topic}'.
+    Generate exactly {count} questions about the topic '{topic}'.
     {context_prompt}
     The difficulty level of the questions must be: {difficulty}.
     Return the response strictly as a JSON array of objects.
-    Each object must have exactly these keys:
-    - "qno": integer
-    - "ques": string (the question)
-    - "a": string (option A)
-    - "b": string (option B)
-    - "c": string (option C)
-    - "d": string (option D)
-    - "correct": string (the exact text of the correct option)
-    - "explanation": string (why it is correct)
+    {format_instructions}
     """
 
     models_to_try = [

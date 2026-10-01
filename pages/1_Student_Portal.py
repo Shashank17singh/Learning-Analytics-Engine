@@ -374,32 +374,17 @@ if st.session_state.user_role != "admin":
                         with st.spinner(
                             f"Preparing your {difficulty_level.lower()} assessment module on '{topic_for_gen}'..."
                         ):
+                            exam_fmt = matched_exam if 'matched_exam' in locals() and matched_exam else "Standard"
                             gen_qs = llm_utils.generate_gemini_questions(
-                                topic_for_gen, num_questions_chosen, difficulty_level, context=pdf_context
+                                topic_for_gen, num_questions_chosen, difficulty_level, context=pdf_context, exam_format=exam_fmt
                             )
     
                         if gen_qs:
-                            mapped_qs = [
-                                (
-                                    q.get("qno", i),
-                                    q.get("ques", ""),
-                                    q.get("a", ""),
-                                    q.get("b", ""),
-                                    q.get("c", ""),
-                                    q.get("d", ""),
-                                    q.get("correct", ""),
-                                    q.get("explanation", ""),
-                                )
-                                for i, q in enumerate(gen_qs, 1)
-                            ]
-                            st.session_state.assessment_set = mapped_qs
-                        st.rerun()
-                    else:
-                        st.error(
-                            "Failed to generate questions. Please try again."
-                        )
-                        st.session_state.student_assessment_started = False
-                        st.stop()
+                            st.session_state.assessment_set = gen_qs
+                            st.rerun()
+                        else:
+                            st.error("Failed to generate questions. Please try again.")
+                            st.session_state.student_assessment_started = False
         else:
             assessment_set = st.session_state.get("assessment_set")
             if not assessment_set:
@@ -418,40 +403,48 @@ if st.session_state.user_role != "admin":
                 st.markdown(
                     f"**Answering {len(assessment_set)} Randomized Questions**{time_str}{mark_str}"
                 )
-                for idx, (
-                    qno,
-                    ques,
-                    a,
-                    b,
-                    c,
-                    d,
-                    correct,
-                    explanation,
-                ) in enumerate(assessment_set, 1):
+                for idx, q_data in enumerate(assessment_set, 1):
+                    qno = q_data.get("qno", idx)
+                    ques = q_data.get("ques", "")
+                    qtype = q_data.get("type", "single_mcq")
+                    correct = q_data.get("correct", "")
+                    explanation = q_data.get("explanation", "")
+                    options = q_data.get("options", {})
+                    
                     st.markdown(f"**Q{idx}. {ques}**")
-                    opts = [
-                        f"a) {a}",
-                        f"b) {b}",
-                        f"c) {c}",
-                        f"d) {d}",
-                    ]
-                    c_val = st.pills(
-                        f"Select answer for Q{idx}:",
-                        opts,
-                        key=f"sq_{qno}",
-                        selection_mode="single",
-                        label_visibility="collapsed",
-                    )
-                    user_choices[qno] = (
-                        c_val,
-                        correct,
-                        a,
-                        b,
-                        c,
-                        d,
-                        explanation,
-                        ques,
-                    )
+                    
+                    c_val = None
+                    if qtype == "numerical":
+                        c_val = st.text_input(f"Your answer for Q{idx}:", key=f"sq_{qno}")
+                        # Keep it as string, empty means None
+                        c_val = c_val.strip() if c_val.strip() else None
+                    elif qtype == "multi_mcq":
+                        opts = [f"{k}) {v}" for k, v in options.items() if v]
+                        c_val = st.pills(
+                            f"Select answer(s) for Q{idx}:",
+                            opts,
+                            key=f"sq_{qno}",
+                            selection_mode="multi",
+                            label_visibility="collapsed",
+                        )
+                    else: # single_mcq
+                        opts = [f"{k}) {v}" for k, v in options.items() if v]
+                        c_val = st.pills(
+                            f"Select answer for Q{idx}:",
+                            opts,
+                            key=f"sq_{qno}",
+                            selection_mode="single",
+                            label_visibility="collapsed",
+                        )
+
+                    user_choices[qno] = {
+                        "type": qtype,
+                        "selected": c_val,
+                        "correct": correct,
+                        "options": options,
+                        "explanation": explanation,
+                        "ques": ques
+                    }
 
                     st.write("")
 
@@ -489,38 +482,42 @@ if st.session_state.user_role != "admin":
                     if st.session_state.get(f"review_{qno}", False)
                 )
 
-                for qno, (
-                    c_val,
-                    correct,
-                    a,
-                    b,
-                    c,
-                    d,
-                    exp,
-                    ques,
-                ) in user_choices.items():
-                    if c_val is None:
+                for qno, choice_data in user_choices.items():
+                    c_val = choice_data["selected"]
+                    qtype = choice_data["type"]
+                    correct = choice_data["correct"]
+                    options = choice_data["options"]
+                    exp = choice_data["explanation"]
+                    ques = choice_data["ques"]
+
+                    if c_val is None or (isinstance(c_val, list) and len(c_val) == 0) or c_val == "":
                         unattempted_count += 1
                         continue
 
                     is_correct = False
-                    letter = c_val[0].lower()
-                    opt_map = {
-                        "a": str(a).strip().lower(),
-                        "b": str(b).strip().lower(),
-                        "c": str(c).strip().lower(),
-                        "d": str(d).strip().lower(),
-                    }
-                    clean_corr = str(correct).strip().lower()
-
-                    if letter in ["a", "b", "c", "d"]:
-                        if (
-                            letter == clean_corr
-                            or opt_map.get(letter) == clean_corr
-                        ):
+                    
+                    if qtype == "numerical":
+                        if str(c_val).strip() == str(correct).strip():
                             is_correct = True
-                    elif c_val == clean_corr:
-                        is_correct = True
+                    elif qtype == "multi_mcq":
+                        # c_val is a list of strings like ["a) value", "b) value"]
+                        # correct is a list like ["a", "b"]
+                        selected_letters = sorted([str(v).split(")")[0].strip().lower() for v in c_val])
+                        correct_letters = sorted([str(c).strip().lower() for c in correct]) if isinstance(correct, list) else sorted([str(correct).strip().lower()])
+                        if selected_letters == correct_letters:
+                            is_correct = True
+                    else: # single_mcq
+                        # c_val is a string like "a) value"
+                        selected_letter = str(c_val).split(")")[0].strip().lower()
+                        clean_corr = str(correct).strip().lower()
+                        
+                        opt_map = {str(k).lower(): str(v).strip().lower() for k,v in options.items()}
+                        
+                        if selected_letter in opt_map:
+                            if selected_letter == clean_corr or opt_map.get(selected_letter) == clean_corr:
+                                is_correct = True
+                        elif str(c_val).strip().lower() == clean_corr:
+                            is_correct = True
 
                     if is_correct:
                         correct_count += 1
