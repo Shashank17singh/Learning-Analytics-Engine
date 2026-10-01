@@ -106,6 +106,30 @@ st.markdown(
         margin-top: 2px !important;
         line-height: normal !important;
     }
+
+    /* Fix Streamlit tab text clipping — tabs use baseweb with overflow:hidden */
+    [data-baseweb="tab-list"] {
+        overflow: visible !important;
+    }
+    [data-baseweb="tab"] {
+        overflow: visible !important;
+        padding-top: 6px !important;
+    }
+    [data-baseweb="tab"] * {
+        overflow: visible !important;
+    }
+    [data-baseweb="tab"] p,
+    [data-baseweb="tab"] span {
+        padding-top: 4px !important;
+        line-height: 1.5 !important;
+    }
+    /* Ensure the tab highlight/indicator doesn't shift */
+    [data-baseweb="tab-highlight"] {
+        margin-top: 0 !important;
+    }
+    div[data-testid="stTabs"] > div:first-child {
+        overflow: visible !important;
+    }
 </style>
 """,
     unsafe_allow_html=True,
