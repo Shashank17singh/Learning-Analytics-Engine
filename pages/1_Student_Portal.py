@@ -225,6 +225,7 @@ if st.session_state.user_role != "admin":
                 ):
                     st.session_state.student_assessment_started = True
                     st.session_state.assessment_start_time = time.time()
+                    st.session_state.difficulty_level = difficulty_level
 
                     provider = "Gemini"
                     topic_for_gen = st.session_state.get("custom_topic", "General")
@@ -377,8 +378,8 @@ if st.session_state.user_role != "admin":
                     """
                     INSERT INTO attempts (
                         student_name, score, total_questions, score_percentage,
-                        time_taken_seconds, reviews_used, attempt_date, passed, domain, subject
-                    ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?)
+                        time_taken_seconds, reviews_used, attempt_date, passed, domain, subject, difficulty
+                    ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?)
                     """,
                     (
                         st.session_state.username,
@@ -390,6 +391,7 @@ if st.session_state.user_role != "admin":
                         passed,
                         st.session_state.get("selected_domain", "General"),
                         st.session_state.get("selected_subject", "General"),
+                        st.session_state.get("difficulty_level", "Medium"),
                     ),
                 )
 
@@ -457,7 +459,7 @@ if st.session_state.user_role != "admin":
             f"###  Personal Learning Analytics for: **{st.session_state.username.title()}**"
         )
         df_my = pd.read_sql_query(
-            "SELECT * FROM attempts WHERE LOWER(TRIM(student_name)) = ? ORDER BY attempt_date DESC",
+            "SELECT * FROM attempts WHERE LOWER(TRIM(student_name)) = ? ORDER BY attempt_id ASC",
             conn,
             params=(st.session_state.username.lower(),),
         )
@@ -485,17 +487,20 @@ if st.session_state.user_role != "admin":
             st.dataframe(
                 df_my_display[
                     [
+                        "attempt_id",
                         "attempt_date",
                         "score",
                         "total_questions",
                         "score_percentage",
                         "time_taken_seconds",
                         "passed",
+                        "difficulty",
                     ]
                 ],
                 width="stretch",
                 hide_index=True,
                 column_config={
+                    "attempt_id": "Attempt ID",
                     "attempt_date": st.column_config.DatetimeColumn("Attempt Date", format="DD-MM-YYYY HH:mm:ss"),
                     "score": "Score",
                     "total_questions": "Total Questions",
@@ -504,6 +509,7 @@ if st.session_state.user_role != "admin":
                     ),
                     "time_taken_seconds": "Time Taken",
                     "passed": "Result",
+                    "difficulty": "Difficulty",
                 },
             )
 
