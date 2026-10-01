@@ -285,7 +285,8 @@ if st.session_state.user_role != "admin":
 
             exam_rules = {
                 "JEE Mains": {"q": 75, "cm": 4, "im": -1, "time": 180, "diff": "Hard"},
-                "JEE Advanced": {"q": 54, "cm": 3, "im": -1, "time": 180, "diff": "Hard"},
+                "JEE Advanced Paper 1": {"q": 54, "cm": 3, "im": -1, "time": 180, "diff": "Hard"},
+                "JEE Advanced Paper 2": {"q": 54, "cm": 4, "im": -2, "time": 180, "diff": "Hard"},
                 "BITSAT": {"q": 130, "cm": 3, "im": -1, "time": 180, "diff": "Medium"},
                 "GATE": {"q": 65, "cm": 1, "im": -0.33, "time": 180, "diff": "Hard"},
                 "NEET": {"q": 180, "cm": 4, "im": -1, "time": 200, "diff": "Medium"},
@@ -399,6 +400,78 @@ if st.session_state.user_role != "admin":
             im_val = st.session_state.get('im_val', 0)
             mark_str = f" |  Marking: +{cm_val} / {im_val}" if cm_val != 1 or im_val != 0 else ""
 
+            if time_limit:
+                import streamlit.components.v1 as components
+                elapsed = time.time() - st.session_state.assessment_start_time
+                remaining = max(0, (time_limit * 60) - elapsed)
+                
+                st.markdown(
+                    f"""
+                    <div id="exam-timer-container" style="
+                        position: fixed;
+                        top: 60px;
+                        right: 20px;
+                        background: #1e1e2f;
+                        color: #00ffcc;
+                        padding: 10px 20px;
+                        border-radius: 8px;
+                        font-family: monospace;
+                        font-size: 24px;
+                        font-weight: bold;
+                        z-index: 999999;
+                        border: 2px solid #00ffcc;
+                        box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+                    ">
+                        <span id="exam-timer-text">Loading...</span>
+                    </div>
+                    """, 
+                    unsafe_allow_html=True
+                )
+                
+                components.html(f"""
+                <script>
+                    var remaining = {remaining};
+                    var timerText = window.parent.document.getElementById('exam-timer-text');
+                    var timerContainer = window.parent.document.getElementById('exam-timer-container');
+                    
+                    if (timerText) {{
+                        var interval = setInterval(function() {{
+                            if (!window.parent.document.getElementById('exam-timer-text')) {{
+                                clearInterval(interval);
+                                return;
+                            }}
+                            
+                            if (remaining <= 0) {{
+                                clearInterval(interval);
+                                timerText.innerHTML = "⏰ TIME UP!";
+                                timerContainer.style.color = "#ff4444";
+                                timerContainer.style.borderColor = "#ff4444";
+                                return;
+                            }}
+                            
+                            var h = Math.floor(remaining / 3600);
+                            var m = Math.floor((remaining % 3600) / 60);
+                            var s = Math.floor(remaining % 60);
+                            var timeStr = "";
+                            if (h > 0) timeStr += (h < 10 ? "0" : "") + h + ":";
+                            timeStr += (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+                            
+                            timerText.innerHTML = "⏱️ " + timeStr;
+                            
+                            if (remaining < 300 && remaining > 60) {{ 
+                                timerContainer.style.color = "#ffaa00";
+                                timerContainer.style.borderColor = "#ffaa00";
+                            }} else if (remaining <= 60) {{ 
+                                timerContainer.style.color = "#ff4444";
+                                timerContainer.style.borderColor = "#ff4444";
+                            }}
+                            
+                            remaining--;
+                        }}, 1000);
+                    }}
+                </script>
+                """, height=0, width=0)
+
             with st.form("student_assessment_form"):
                 st.markdown(
                     f"**Answering {len(assessment_set)} Randomized Questions**{time_str}{mark_str}"
@@ -463,7 +536,21 @@ if st.session_state.user_role != "admin":
                     )
 
             if cancel_assessment:
-                confirm_end_assessment()
+                st.session_state.show_cancel_warning = True
+
+            if st.session_state.get("show_cancel_warning", False):
+                st.warning("Are you sure you want to end the test early? Your progress will be lost and not saved.")
+                col_y, col_n = st.columns(2)
+                with col_y:
+                    if st.button("Yes, End Test", type="primary"):
+                        st.session_state.show_cancel_warning = False
+                        st.session_state.assessment_set = None
+                        st.session_state.assessment_start_time = None
+                        st.rerun()
+                with col_n:
+                    if st.button("No, Continue Test"):
+                        st.session_state.show_cancel_warning = False
+                        st.rerun()
 
             if submit_assessment or st.session_state.get("force_submit", False):
                 if st.session_state.get("force_submit"):
@@ -541,7 +628,14 @@ if st.session_state.user_role != "admin":
                 score_percentage = max(0.0, (raw_score / max_possible_score) * 100.0) if max_possible_score > 0 else 0.0
                 passed = 1 if score_percentage >= 50.0 else 0
 
-                # Save attempt
+                if unattempted_count == total_q:
+                    st.warning("You did not attempt any questions. This attempt will not be saved.")
+                    if st.button("Return to Dashboard"):
+                        st.session_state.assessment_set = None
+                        st.session_state.assessment_start_time = None
+                        st.rerun()
+                    st.stop()
+
                 cur = conn.cursor()
                 cur.execute(
                     """
