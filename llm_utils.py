@@ -1,145 +1,158 @@
 import json
 import os
+import time
 
 import streamlit as st
 from google import genai
 from google.genai import types
 
-
 def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Medium", context: str = None, exam_format: str = "Standard") -> list:
-    try:
-        api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
-    except Exception:  # noqa: BLE001
-        api_key = os.getenv("GEMINI_API_KEY")
+    provider = st.session_state.get("custom_ai_provider", "System Default")
+    custom_key = st.session_state.get("custom_api_key", "")
 
-    if not api_key:
-        st.error("GEMINI_API_KEY is not set. Add it to .streamlit/secrets.toml.")
-        return []
+    if provider == "System Default":
+        try:
+            api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
+        except Exception:
+            api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            st.error("GEMINI_API_KEY is not set. Add it to .streamlit/secrets.toml.")
+            return []
+    elif provider in ["Google Gemini", "OpenAI", "Groq", "Anthropic"]:
+        if not custom_key:
+            st.error(f"Please enter your {provider} API Key in the sidebar.")
+            return []
+        api_key = custom_key
 
-    client = genai.Client(api_key=api_key)
-
-    context_prompt = ""
-    if context:
-        context_prompt = f"The questions MUST be based strictly on the following source material provided by the student:\n\n{context}\n\n"
-
-    format_instructions = ""
+    context_prompt = f"Use the following study material context to create the questions if relevant:\n{context}" if context else ""
     
-    # Categorize exams by their question format requirements
+    format_instructions = ""
     multi_and_numerical_exams = ["JEE Advanced Paper 1", "JEE Advanced Paper 2"]
-    mcq_and_numerical_exams = ["JEE Mains", "GATE", "CAT", "BITSAT"] # Note: CAT has TITA (Type In The Answer) which is numerical/text. BITSAT has some numericals in some variants, but mostly MCQ.
+    mcq_and_numerical_exams = ["JEE Mains", "GATE", "CAT", "BITSAT"] 
     
     if exam_format in multi_and_numerical_exams:
         format_instructions = """
-        Generate a mix of Single-Correct MCQs, Multi-Correct MCQs, and Numerical questions.
-        For Single-Correct MCQs ("type": "single_mcq"):
-        - "options": {"a": "...", "b": "...", "c": "...", "d": "..."}
-        - "correct": string (e.g., "a", "b", "c", or "d")
-        For Multi-Correct MCQs ("type": "multi_mcq"):
-        - "options": {"a": "...", "b": "...", "c": "...", "d": "..."}
-        - "correct": array of strings (e.g., ["a", "c"])
-        For Numerical/TITA questions ("type": "numerical"):
-        - "options": null
-        - "correct": string (the exact integer, decimal, or short text answer)
-        Each object must have "qno", "type", "ques", "options", "correct", and "explanation".
+        This is a highly rigorous exam. You MUST generate a mix of these two question types:
+        1) "multi_mcq": Multiple Choice Questions where MORE THAN ONE option can be correct. 
+           The 'correct' field MUST be a comma-separated string of the correct keys (e.g. "a,c" or "a,b,d").
+           Provide exactly 4 options (a, b, c, d).
+        2) "numerical": Questions where the answer is a numerical value (integer or decimal).
+           Do NOT provide options. Leave 'options' as an empty object {}.
+           The 'correct' field MUST be the exact numerical string (e.g. "4.5" or "12").
+        
+        Randomly mix these two types. Do NOT generate standard single-choice MCQs.
         """
     elif exam_format in mcq_and_numerical_exams:
         format_instructions = """
-        Generate a mix of Single-Correct MCQs (approx 80%) and Numerical/TITA Answer Type questions (approx 20%).
-        For Single-Correct MCQs ("type": "single_mcq"):
-        - "options": {"a": "...", "b": "...", "c": "...", "d": "..."}
-        - "correct": string (e.g., "a", "b", "c", or "d")
-        For Numerical/TITA questions ("type": "numerical"):
-        - "options": null
-        - "correct": string (the exact integer, decimal, or short text answer)
-        Each object must have "qno", "type", "ques", "options", "correct", and "explanation".
+        You MUST generate a mix of these two question types:
+        1) "single_mcq": Standard Multiple Choice Questions with exactly ONE correct option.
+           Provide exactly 4 options (a, b, c, d). The 'correct' field must be a single letter.
+        2) "numerical": Questions where the answer is a numerical value (integer or decimal).
+           Do NOT provide options. Leave 'options' as an empty object {}.
+           The 'correct' field MUST be the exact numerical string (e.g. "4.5" or "12").
         """
-    else: # Default for Standard, NEET, CLAT, UPSC, NDA, etc.
+    else:
         format_instructions = """
-        Generate ONLY Single-Correct Multiple Choice questions.
-        Each object must have:
-        - "qno": integer
-        - "type": "single_mcq"
-        - "ques": string (the question)
-        - "options": {"a": "...", "b": "...", "c": "...", "d": "..."}
-        - "correct": string (e.g., "a", "b", "c", or "d")
-        - "explanation": string
+        You MUST generate ONLY "single_mcq" type questions.
+        Provide exactly 4 options (a, b, c, d).
+        The 'correct' field MUST be exactly one of the keys (e.g. "a").
         """
 
     prompt = f"""
     Generate exactly {count} questions about the topic '{topic}'.
     {context_prompt}
     The difficulty level of the questions must be: {difficulty}.
-    Return the response strictly as a JSON array of objects.
+    Return the response strictly as a JSON array of objects. Do not include markdown code block formatting like ```json.
     {format_instructions}
+    
+    Each object must have:
+    - "qno": integer
+    - "type": string (must be one of: "single_mcq", "multi_mcq", "numerical")
+    - "ques": string (the question)
+    - "options": object with keys "a", "b", "c", "d" (or empty {{}} for numerical)
+    - "correct": string
+    - "explanation": string
     """
 
-    models_to_try = [
-        "gemini-3.8-flash",
-    ]
+    try:
+        if provider in ["System Default", "Google Gemini"]:
+            models_to_try = ["gemini-3.8-flash"] if provider == "System Default" else ["gemini-1.5-flash", "gemini-1.5-pro"]
+            client = genai.Client(api_key=api_key)
+            last_error = None
+            for model_name in models_to_try:
+                for attempt in range(2):
+                    try:
+                        response = client.models.generate_content(
+                            model=model_name,
+                            contents=prompt,
+                            config=types.GenerateContentConfig(
+                                response_mime_type="application/json",
+                                temperature=0.7,
+                            ),
+                        )
+                        text = response.text.strip().removeprefix("```json\n").removesuffix("\n```").removeprefix("```json").removesuffix("```")
+                        return json.loads(text.strip())
+                    except Exception as e:
+                        last_error = e
+                        if "404" in str(e) or "not found" in str(e).lower():
+                            break
+                        if "503" in str(e) or "429" in str(e) or "overloaded" in str(e).lower():
+                            time.sleep(2)
+                            continue
+                        raise e
+            if last_error:
+                raise last_error
 
-    import time
-
-    last_error = None
-    for model_name in models_to_try:
-        for attempt in range(2):
-            try:
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        temperature=0.7,
-                    ),
-                )
-
-                response_text = response.text.strip()
-                response_text = response_text.removeprefix("```json")
-                response_text = response_text.removesuffix("```")
-
-                data = json.loads(response_text.strip())
-                return data
-            except Exception as e:  # noqa: BLE001
-                last_error = e
-                error_str = str(e)
-                if "404" in error_str or "not found" in error_str.lower():
-                    print(f"Model {model_name} not available, trying next...")
-                    break
-                if (
-                    "503" in error_str
-                    or "429" in error_str
-                    or "overloaded" in error_str.lower()
-                ):
-                    print(
-                        f"Model {model_name} temporarily unavailable (attempt {attempt + 1}), retrying..."
-                    )
-                    time.sleep(2)
-                    continue
-                st.error("System Error: Unable to generate assessment content at this time. Please try again.")
-                print(f"Error generating questions ({model_name}): {e}")
-                return []
-
-    if last_error:
-        error_str = str(last_error)
-        if "503" in error_str or "429" in error_str:
-            st.warning(
-                "All models are temporarily overloaded. Please try again in a few seconds."
+        elif provider == "OpenAI":
+            import openai
+            client = openai.OpenAI(api_key=api_key)
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7
             )
+            text = response.choices[0].message.content.strip()
+            text = text.removeprefix("```json\n").removesuffix("\n```").removeprefix("```json").removesuffix("```")
+            return json.loads(text.strip())
+
+        elif provider == "Groq":
+            import groq
+            client = groq.Groq(api_key=api_key)
+            response = client.chat.completions.create(
+                model="llama3-70b-8192",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7
+            )
+            text = response.choices[0].message.content.strip()
+            text = text.removeprefix("```json\n").removesuffix("\n```").removeprefix("```json").removesuffix("```")
+            return json.loads(text.strip())
+
+        elif provider == "Anthropic":
+            import anthropic
+            client = anthropic.Anthropic(api_key=api_key)
+            response = client.messages.create(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=4000,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7
+            )
+            text = response.content[0].text.strip()
+            text = text.removeprefix("```json\n").removesuffix("\n```").removeprefix("```json").removesuffix("```")
+            return json.loads(text.strip())
+
+    except Exception as e:
+        error_str = str(e)
+        if "503" in error_str or "429" in error_str or "rate_limit" in error_str.lower():
+            st.warning("The selected AI provider is temporarily overloaded or you hit a rate limit. Please try again later.")
         else:
-            st.error(f"System Error: Unable to communicate with the assessment engine. Details: {error_str}")
-        print(f"All models failed. Last error: {last_error}")
-    return []
+            st.error(f"System Error: Unable to communicate with the {provider} engine. Details: {error_str}")
+        print(f"Error generating questions ({provider}): {e}")
+        return []
 
 def explain_wrong_answer(question: str, selected_answer: str, correct_answer: str, base_explanation: str) -> str:
-    """Generate an explanation specifically addressing why the user's chosen answer is incorrect."""
-    try:
-        api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
-    except Exception:
-        api_key = os.getenv("GEMINI_API_KEY")
-
-    if not api_key:
-        return base_explanation
-
-    client = genai.Client(api_key=api_key)
+    provider = st.session_state.get("custom_ai_provider", "System Default")
+    custom_key = st.session_state.get("custom_api_key", "")
+    
     prompt = f"""
     Question: {question}
     Correct Answer: {correct_answer}
@@ -148,14 +161,58 @@ def explain_wrong_answer(question: str, selected_answer: str, correct_answer: st
 
     Provide a concise explanation (2-3 sentences) directly addressing why the student's selected answer is incorrect, and briefly reiterate why the correct answer is right.
     """
-    
-    try:
-        response = client.models.generate_content(
-            model="gemini-3.8-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(temperature=0.7),
-        )
-        return response.text.strip()
-    except Exception:
-        return base_explanation
 
+    try:
+        if provider in ["System Default", "Google Gemini"]:
+            if provider == "System Default":
+                api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
+                if not api_key: api_key = os.getenv("GEMINI_API_KEY")
+                model_name = "gemini-3.8-flash"
+            else:
+                api_key = custom_key
+                model_name = "gemini-1.5-flash"
+                
+            if not api_key: return base_explanation
+            
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(temperature=0.3),
+            )
+            return response.text.strip()
+            
+        elif provider == "OpenAI":
+            import openai
+            client = openai.OpenAI(api_key=custom_key)
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3
+            )
+            return response.choices[0].message.content.strip()
+
+        elif provider == "Groq":
+            import groq
+            client = groq.Groq(api_key=custom_key)
+            response = client.chat.completions.create(
+                model="llama3-8b-8192",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3
+            )
+            return response.choices[0].message.content.strip()
+
+        elif provider == "Anthropic":
+            import anthropic
+            client = anthropic.Anthropic(api_key=custom_key)
+            response = client.messages.create(
+                model="claude-3-haiku-20240307",
+                max_tokens=1000,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3
+            )
+            return response.content[0].text.strip()
+            
+    except Exception as e:
+        print(f"Error generating dynamic explanation ({provider}): {e}")
+        return base_explanation
