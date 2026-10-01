@@ -1,5 +1,12 @@
 {
     "Engineering": {
+        "Undergraduate Entrance Exams (UG)": [
+            "JEE Mains",
+            "JEE Advanced",
+            "BITSAT",
+            "VITEEE",
+            "SRMJEEE"
+        ],
         "Computer Science & Engineering": {
             "Core Subjects": [
                 "Data Structures & Algorithms",
@@ -20,10 +27,8 @@
                 "Blockchain",
                 "Computer Vision"
             ],
-            "Competitive Exams": [
+            "Competitive Exams (PG/Govt)": [
                 "GATE (Computer Science - CS)",
-                "JEE Mains (CS Focus)",
-                "JEE Advanced",
                 "ISRO Scientist Exam (CS)",
                 "NIC Scientist B Exam"
             ]
@@ -38,7 +43,7 @@
                 "Manufacturing Processes",
                 "Machine Design"
             ],
-            "Competitive Exams": [
+            "Competitive Exams (PG/Govt)": [
                 "GATE (Mechanical - ME)",
                 "Engineering Services Exam (ESE - Mechanical)",
                 "ISRO Scientist Exam (ME)"
@@ -54,7 +59,7 @@
                 "Control Systems",
                 "Power Electronics"
             ],
-            "Competitive Exams": [
+            "Competitive Exams (PG/Govt)": [
                 "GATE (Electrical - EE)",
                 "Engineering Services Exam (ESE - Electrical)"
             ]
@@ -69,7 +74,7 @@
                 "Surveying",
                 "Construction Materials"
             ],
-            "Competitive Exams": [
+            "Competitive Exams (PG/Govt)": [
                 "GATE (Civil - CE)",
                 "Engineering Services Exam (ESE - Civil)"
             ]
@@ -84,7 +89,7 @@
                 "Electromagnetics",
                 "Microprocessors & Microcontrollers"
             ],
-            "Competitive Exams": [
+            "Competitive Exams (PG/Govt)": [
                 "GATE (ECE)",
                 "Engineering Services Exam (ESE - ECE)",
                 "ISRO Scientist Exam (Electronics)"
@@ -92,7 +97,12 @@
         }
     },
     "Medical Sciences": {
-        "MBBS / Undergrad": [
+        "Undergraduate Entrance Exams (UG)": [
+            "NEET (UG)",
+            "AIIMS MBBS (Historical)",
+            "JIPMER (Historical)"
+        ],
+        "MBBS Subjects": [
             "Human Anatomy",
             "Physiology",
             "Biochemistry",
@@ -108,8 +118,7 @@
             "Orthopedics",
             "Dermatology"
         ],
-        "Competitive Exams": [
-            "NEET (UG)",
+        "Postgraduate Exams": [
             "NEET (PG)",
             "USMLE Step 1",
             "USMLE Step 2 CK",
@@ -163,8 +172,5 @@
         "Psychology",
         "Literature",
         "Art History"
-    ],
-    "Other/Custom": [
-        "Custom Topic..."
     ]
 }

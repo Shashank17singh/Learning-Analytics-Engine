@@ -182,30 +182,51 @@ if st.session_state.user_role != "admin":
             labels = ["Broad Domain", "Branch / Course", "Category / Specialization", "Topic / Exam"]
             
             level_idx = 0
+            custom_triggered = False
+            
             while isinstance(current_level, dict):
-                options = list(current_level.keys())
+                options = list(current_level.keys()) + ["Other / Custom..."]
                 label = labels[level_idx] if level_idx < len(labels) else f"Level {level_idx+1}"
                 selection = st.selectbox(f"Search/Select {label}:", options, key=f"sel_{level_idx}")
+                
+                if selection == "Other / Custom...":
+                    custom_triggered = True
+                    break
+                    
                 selections.append(selection)
                 current_level = current_level[selection]
                 level_idx += 1
                 
-            if isinstance(current_level, list):
-                options = current_level + ["Custom Topic..."]
+            if not custom_triggered and isinstance(current_level, list):
+                options = current_level + ["Other / Custom..."]
                 label = labels[level_idx] if level_idx < len(labels) else "Specific Subject"
                 final_selection = st.selectbox(f"Search/Select {label}:", options, key=f"sel_final")
-                selections.append(final_selection)
+                if final_selection == "Other / Custom...":
+                    custom_triggered = True
+                else:
+                    selections.append(final_selection)
 
-            ai_domain = selections[0] if selections else "General"
+            ai_domain = selections[0] if selections else "Custom"
             
-            if selections and selections[-1] == "Custom Topic...":
-                custom_topic = st.text_input(
-                    "Type your completely custom topic here:", value=""
+            if custom_triggered:
+                custom_topic_input = st.text_input(
+                    "Type your custom topic / specialization here:", value=""
                 )
-                ai_subject = "Custom"
+                if not selections:
+                    ai_domain = "Custom"
+                    ai_subject = custom_topic_input
+                    custom_topic = custom_topic_input
+                else:
+                    ai_subject = " - ".join(selections[1:]) + (" - " + custom_topic_input if custom_topic_input else "")
+                    ai_subject = ai_subject.strip(" -")
+                    custom_topic = f"{ai_domain} - {ai_subject}" if ai_domain != "Custom" else custom_topic_input
             else:
                 ai_subject = " - ".join(selections[1:]) if len(selections) > 1 else "General Knowledge"
                 custom_topic = f"{ai_domain} - {ai_subject}"
+
+            if not custom_topic.strip() or custom_topic.strip() == "-":
+                custom_topic = "General Knowledge"
+                ai_subject = "General Knowledge"
 
             st.session_state.selected_domain = ai_domain
             st.session_state.selected_subject = ai_subject
