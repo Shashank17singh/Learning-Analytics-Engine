@@ -1,12 +1,40 @@
 {
     "Engineering": {
-        "Undergraduate Entrance Exams (UG)": [
-            "JEE Mains",
-            "JEE Advanced",
-            "BITSAT",
-            "VITEEE",
-            "SRMJEEE"
-        ],
+        "Undergraduate Entrance Exams (UG)": {
+            "JEE Mains": [
+                "Physics",
+                "Chemistry",
+                "Mathematics",
+                "Full Mock Test"
+            ],
+            "JEE Advanced": [
+                "Physics",
+                "Chemistry",
+                "Mathematics",
+                "Full Mock Test"
+            ],
+            "BITSAT": [
+                "Physics",
+                "Chemistry",
+                "Mathematics",
+                "English Proficiency & Logical Reasoning",
+                "Full Mock Test"
+            ],
+            "VITEEE": [
+                "Physics",
+                "Chemistry",
+                "Mathematics",
+                "Biology (for Biotech)",
+                "Full Mock Test"
+            ],
+            "SRMJEEE": [
+                "Physics",
+                "Chemistry",
+                "Mathematics",
+                "Biology",
+                "Full Mock Test"
+            ]
+        },
         "Computer Science & Engineering": {
             "Core Subjects": [
                 "Data Structures & Algorithms",
@@ -27,11 +55,29 @@
                 "Blockchain",
                 "Computer Vision"
             ],
-            "Competitive Exams (PG/Govt)": [
-                "GATE (Computer Science - CS)",
-                "ISRO Scientist Exam (CS)",
-                "NIC Scientist B Exam"
-            ]
+            "Competitive Exams (PG/Govt)": {
+                "GATE (Computer Science - CS)": [
+                    "Engineering Mathematics",
+                    "Digital Logic",
+                    "Computer Organization & Architecture",
+                    "Programming & Data Structures",
+                    "Algorithms",
+                    "Theory of Computation",
+                    "Compiler Design",
+                    "Operating Systems",
+                    "Databases",
+                    "Computer Networks",
+                    "Full Mock Test"
+                ],
+                "ISRO Scientist Exam (CS)": [
+                    "Core CS Topics",
+                    "Full Mock Test"
+                ],
+                "NIC Scientist B Exam": [
+                    "Core CS Topics",
+                    "Full Mock Test"
+                ]
+            }
         },
         "Mechanical Engineering": {
             "Core Subjects": [
@@ -43,11 +89,24 @@
                 "Manufacturing Processes",
                 "Machine Design"
             ],
-            "Competitive Exams (PG/Govt)": [
-                "GATE (Mechanical - ME)",
-                "Engineering Services Exam (ESE - Mechanical)",
-                "ISRO Scientist Exam (ME)"
-            ]
+            "Competitive Exams (PG/Govt)": {
+                "GATE (Mechanical - ME)": [
+                    "Engineering Mathematics",
+                    "Applied Mechanics & Design",
+                    "Fluid Mechanics & Thermal Sciences",
+                    "Materials, Manufacturing & Industrial Engineering",
+                    "Full Mock Test"
+                ],
+                "Engineering Services Exam (ESE - Mechanical)": [
+                    "General Studies & Engineering Aptitude",
+                    "Mechanical Engineering Paper I & II",
+                    "Full Mock Test"
+                ],
+                "ISRO Scientist Exam (ME)": [
+                    "Core ME Topics",
+                    "Full Mock Test"
+                ]
+            }
         },
         "Electrical Engineering": {
             "Core Subjects": [
@@ -59,10 +118,26 @@
                 "Control Systems",
                 "Power Electronics"
             ],
-            "Competitive Exams (PG/Govt)": [
-                "GATE (Electrical - EE)",
-                "Engineering Services Exam (ESE - Electrical)"
-            ]
+            "Competitive Exams (PG/Govt)": {
+                "GATE (Electrical - EE)": [
+                    "Engineering Mathematics",
+                    "Electric Circuits",
+                    "Electromagnetic Fields",
+                    "Signals & Systems",
+                    "Electrical Machines",
+                    "Power Systems",
+                    "Control Systems",
+                    "Electrical & Electronic Measurements",
+                    "Analog & Digital Electronics",
+                    "Power Electronics",
+                    "Full Mock Test"
+                ],
+                "Engineering Services Exam (ESE - Electrical)": [
+                    "General Studies & Engineering Aptitude",
+                    "Electrical Engineering Paper I & II",
+                    "Full Mock Test"
+                ]
+            }
         },
         "Civil Engineering": {
             "Core Subjects": [
@@ -74,10 +149,23 @@
                 "Surveying",
                 "Construction Materials"
             ],
-            "Competitive Exams (PG/Govt)": [
-                "GATE (Civil - CE)",
-                "Engineering Services Exam (ESE - Civil)"
-            ]
+            "Competitive Exams (PG/Govt)": {
+                "GATE (Civil - CE)": [
+                    "Engineering Mathematics",
+                    "Structural Engineering",
+                    "Geotechnical Engineering",
+                    "Water Resources Engineering",
+                    "Environmental Engineering",
+                    "Transportation Engineering",
+                    "Geomatics Engineering",
+                    "Full Mock Test"
+                ],
+                "Engineering Services Exam (ESE - Civil)": [
+                    "General Studies & Engineering Aptitude",
+                    "Civil Engineering Paper I & II",
+                    "Full Mock Test"
+                ]
+            }
         },
         "Electronics & Communication Engineering": {
             "Core Subjects": [
@@ -89,19 +177,54 @@
                 "Electromagnetics",
                 "Microprocessors & Microcontrollers"
             ],
-            "Competitive Exams (PG/Govt)": [
-                "GATE (ECE)",
-                "Engineering Services Exam (ESE - ECE)",
-                "ISRO Scientist Exam (Electronics)"
-            ]
+            "Competitive Exams (PG/Govt)": {
+                "GATE (ECE)": [
+                    "Engineering Mathematics",
+                    "Networks, Signals & Systems",
+                    "Electronic Devices",
+                    "Analog Circuits",
+                    "Digital Circuits",
+                    "Control Systems",
+                    "Communications",
+                    "Electromagnetics",
+                    "Full Mock Test"
+                ],
+                "Engineering Services Exam (ESE - ECE)": [
+                    "General Studies & Engineering Aptitude",
+                    "Electronics & Telecom Paper I & II",
+                    "Full Mock Test"
+                ],
+                "ISRO Scientist Exam (Electronics)": [
+                    "Core ECE Topics",
+                    "Full Mock Test"
+                ]
+            }
         }
     },
     "Medical Sciences": {
-        "Undergraduate Entrance Exams (UG)": [
-            "NEET (UG)",
-            "AIIMS MBBS (Historical)",
-            "JIPMER (Historical)"
-        ],
+        "Undergraduate Entrance Exams (UG)": {
+            "NEET (UG)": [
+                "Physics",
+                "Chemistry",
+                "Biology (Botany & Zoology)",
+                "Full Mock Test"
+            ],
+            "AIIMS MBBS (Historical)": [
+                "Physics",
+                "Chemistry",
+                "Biology",
+                "General Knowledge",
+                "Full Mock Test"
+            ],
+            "JIPMER (Historical)": [
+                "Physics",
+                "Chemistry",
+                "Biology",
+                "English",
+                "Logic & Quantitative Reasoning",
+                "Full Mock Test"
+            ]
+        },
         "MBBS Subjects": [
             "Human Anatomy",
             "Physiology",
@@ -118,12 +241,37 @@
             "Orthopedics",
             "Dermatology"
         ],
-        "Postgraduate Exams": [
-            "NEET (PG)",
-            "USMLE Step 1",
-            "USMLE Step 2 CK",
-            "AIIMS PG / INI-CET"
-        ]
+        "Postgraduate Exams": {
+            "NEET (PG)": [
+                "Pre-Clinical Subjects",
+                "Para-Clinical Subjects",
+                "Clinical Subjects",
+                "Full Mock Test"
+            ],
+            "USMLE Step 1": [
+                "Anatomy & Embryology",
+                "Behavioral Sciences",
+                "Biochemistry & Genetics",
+                "Microbiology & Immunology",
+                "Pathology",
+                "Pharmacology",
+                "Physiology",
+                "Full Mock Test"
+            ],
+            "USMLE Step 2 CK": [
+                "Internal Medicine",
+                "Obstetrics & Gynecology",
+                "Pediatrics",
+                "Preventive Medicine",
+                "Psychiatry",
+                "Surgery",
+                "Full Mock Test"
+            ],
+            "AIIMS PG / INI-CET": [
+                "Basic Clinical Sciences",
+                "Full Mock Test"
+            ]
+        }
     },
     "Business & Finance": {
         "Accounting & Finance": [
@@ -140,12 +288,41 @@
             "Consumer Behavior",
             "Supply Chain Management"
         ],
-        "Competitive Exams": [
-            "CAT (Common Admission Test)",
-            "GMAT (Graduate Management Admission Test)",
-            "CFA Level 1",
-            "CPA Exam"
-        ]
+        "Competitive Exams": {
+            "CAT (Common Admission Test)": [
+                "Verbal Ability & Reading Comprehension (VARC)",
+                "Data Interpretation & Logical Reasoning (DILR)",
+                "Quantitative Ability (QA)",
+                "Full Mock Test"
+            ],
+            "GMAT (Graduate Management Admission Test)": [
+                "Analytical Writing Assessment",
+                "Integrated Reasoning",
+                "Quantitative Reasoning",
+                "Verbal Reasoning",
+                "Full Mock Test"
+            ],
+            "CFA Level 1": [
+                "Ethical & Professional Standards",
+                "Quantitative Methods",
+                "Economics",
+                "Financial Statement Analysis",
+                "Corporate Issuers",
+                "Equity Investments",
+                "Fixed Income",
+                "Derivatives",
+                "Alternative Investments",
+                "Portfolio Management",
+                "Full Mock Test"
+            ],
+            "CPA Exam": [
+                "Auditing & Attestation (AUD)",
+                "Business Environment & Concepts (BEC)",
+                "Financial Accounting & Reporting (FAR)",
+                "Regulation (REG)",
+                "Full Mock Test"
+            ]
+        }
     },
     "Mathematics": [
         "Calculus",
