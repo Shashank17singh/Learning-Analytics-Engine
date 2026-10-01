@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 
 
-def generate_gemini_questions(topic: str, count: int = 5) -> list:
+def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Medium") -> list:
     try:
         api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
     except Exception:  # noqa: BLE001
@@ -20,6 +20,7 @@ def generate_gemini_questions(topic: str, count: int = 5) -> list:
 
     prompt = f"""
     Generate exactly {count} multiple-choice questions about the topic '{topic}'.
+    The difficulty level of the questions must be: {difficulty}.
     Return the response strictly as a JSON array of objects.
     Each object must have exactly these keys:
     - "qno": integer
