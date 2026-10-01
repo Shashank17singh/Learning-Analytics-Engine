@@ -9,6 +9,7 @@ import streamlit as st
 
 import llm_utils
 from db_utils import get_db_connection, init_db
+from pypdf import PdfReader
 
 # -------------------------------------------------------------
 # PAGE CONFIGURATION (NO SIDEBAR, FULL BROWSER APP LAYOUT)
@@ -168,69 +169,102 @@ if st.session_state.user_role != "admin":
     with student_tabs[0]:
         st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
         if not st.session_state.get("student_assessment_started", False):
-            # Load extensive domains catalog
-            try:
-                with open("domains_catalog.json", "r") as f:
-                    ai_domains_catalog = json.load(f)
-            except FileNotFoundError:
-                ai_domains_catalog = {
-                    "General": ["General Knowledge", "Custom Topic..."]
-                }
-
-            current_level = ai_domains_catalog
-            selections = []
-            labels = ["Broad Domain", "Branch / Course", "Category / Specialization", "Topic / Exam"]
             
-            level_idx = 0
-            custom_triggered = False
+            source_type = st.radio("Select Assessment Source:", ["Select Topic from Catalog", "Upload Study Material (PDF)"], horizontal=True)
             
-            while isinstance(current_level, dict):
-                options = list(current_level.keys()) + ["Other / Custom..."]
-                label = labels[level_idx] if level_idx < len(labels) else f"Level {level_idx+1}"
-                selection = st.selectbox(f"Search/Select {label}:", options, key=f"sel_{level_idx}")
-                
-                if selection == "Other / Custom...":
-                    custom_triggered = True
-                    break
-                    
-                selections.append(selection)
-                current_level = current_level[selection]
-                level_idx += 1
-                
-            if not custom_triggered and isinstance(current_level, list):
-                options = current_level + ["Other / Custom..."]
-                label = labels[level_idx] if level_idx < len(labels) else "Specific Subject"
-                final_selection = st.selectbox(f"Search/Select {label}:", options, key=f"sel_final")
-                if final_selection == "Other / Custom...":
-                    custom_triggered = True
-                else:
-                    selections.append(final_selection)
-
-            ai_domain = selections[0] if selections else "Custom"
+            pdf_context = None
+            ai_domain = ""
+            ai_subject = ""
+            custom_topic = ""
             
-            if custom_triggered:
-                custom_topic_input = st.text_input(
-                    "Type your custom topic / specialization here:", value=""
-                )
-                if not selections:
-                    ai_domain = "Custom"
-                    ai_subject = custom_topic_input
-                    custom_topic = custom_topic_input
-                else:
-                    ai_subject = " - ".join(selections[1:]) + (" - " + custom_topic_input if custom_topic_input else "")
-                    ai_subject = ai_subject.strip(" -")
-                    custom_topic = f"{ai_domain} - {ai_subject}" if ai_domain != "Custom" else custom_topic_input
+            if source_type == "Upload Study Material (PDF)":
+                uploaded_file = st.file_uploader("Upload a PDF document to generate questions from its contents", type=["pdf"])
+                if uploaded_file is not None:
+                    try:
+                        reader = PdfReader(uploaded_file)
+                        text = ""
+                        for page in reader.pages:
+                            page_text = page.extract_text()
+                            if page_text:
+                                text += page_text + "\n"
+                        # Limit text to avoid blowing up context window
+                        pdf_context = text[:30000] 
+                        st.success(f"Successfully extracted {len(pdf_context)} characters from the PDF.")
+                        
+                        ai_domain = "Custom PDF"
+                        ai_subject = uploaded_file.name
+                        custom_topic = f"PDF: {uploaded_file.name}"
+                        st.session_state.selected_domain = ai_domain
+                        st.session_state.selected_subject = ai_subject
+                        st.session_state.custom_topic = custom_topic
+                        st.session_state.pdf_context = pdf_context
+                    except Exception as e:
+                        st.error(f"Error reading PDF: {e}")
             else:
-                ai_subject = " - ".join(selections[1:]) if len(selections) > 1 else "General Knowledge"
-                custom_topic = f"{ai_domain} - {ai_subject}"
+                # Load extensive domains catalog
+                try:
+                    with open("domains_catalog.json", "r") as f:
+                        ai_domains_catalog = json.load(f)
+                except FileNotFoundError:
+                    ai_domains_catalog = {
+                        "General": ["General Knowledge", "Custom Topic..."]
+                    }
 
-            if not custom_topic.strip() or custom_topic.strip() == "-":
-                custom_topic = "General Knowledge"
-                ai_subject = "General Knowledge"
+                current_level = ai_domains_catalog
+                selections = []
+                labels = ["Broad Domain", "Branch / Course", "Category / Specialization", "Topic / Exam"]
+                
+                level_idx = 0
+                custom_triggered = False
+                
+                while isinstance(current_level, dict):
+                    options = list(current_level.keys()) + ["Other / Custom..."]
+                    label = labels[level_idx] if level_idx < len(labels) else f"Level {level_idx+1}"
+                    selection = st.selectbox(f"Search/Select {label}:", options, key=f"sel_{level_idx}")
+                    
+                    if selection == "Other / Custom...":
+                        custom_triggered = True
+                        break
+                        
+                    selections.append(selection)
+                    current_level = current_level[selection]
+                    level_idx += 1
+                    
+                if not custom_triggered and isinstance(current_level, list):
+                    options = current_level + ["Other / Custom..."]
+                    label = labels[level_idx] if level_idx < len(labels) else "Specific Subject"
+                    final_selection = st.selectbox(f"Search/Select {label}:", options, key=f"sel_final")
+                    if final_selection == "Other / Custom...":
+                        custom_triggered = True
+                    else:
+                        selections.append(final_selection)
 
-            st.session_state.selected_domain = ai_domain
-            st.session_state.selected_subject = ai_subject
-            st.session_state.custom_topic = custom_topic
+                ai_domain = selections[0] if selections else "Custom"
+                
+                if custom_triggered:
+                    custom_topic_input = st.text_input(
+                        "Type your custom topic / specialization here:", value=""
+                    )
+                    if not selections:
+                        ai_domain = "Custom"
+                        ai_subject = custom_topic_input
+                        custom_topic = custom_topic_input
+                    else:
+                        ai_subject = " - ".join(selections[1:]) + (" - " + custom_topic_input if custom_topic_input else "")
+                        ai_subject = ai_subject.strip(" -")
+                        custom_topic = f"{ai_domain} - {ai_subject}" if ai_domain != "Custom" else custom_topic_input
+                else:
+                    ai_subject = " - ".join(selections[1:]) if len(selections) > 1 else "General Knowledge"
+                    custom_topic = f"{ai_domain} - {ai_subject}"
+
+                    if not custom_topic.strip() or custom_topic.strip() == "-":
+                        custom_topic = "General Knowledge"
+                        ai_subject = "General Knowledge"
+
+                    st.session_state.selected_domain = ai_domain
+                    st.session_state.selected_subject = ai_subject
+                    st.session_state.custom_topic = custom_topic
+                    st.session_state.pdf_context = None
 
             exam_rules = {
                 "JEE Mains": {"q": 75, "cm": 4, "im": -1, "time": 180, "diff": "Hard"},
@@ -245,29 +279,32 @@ if st.session_state.user_role != "admin":
                 "NDA": {"q": 120, "cm": 2.5, "im": -0.83, "time": 150, "diff": "Medium"},
                 "CLAT": {"q": 120, "cm": 1, "im": -0.25, "time": 120, "diff": "Medium"}
             }
-            
-            matched_exam = None
-            for ex, rules in exam_rules.items():
-                if ex in ai_subject or ex in ai_domain or ex in custom_topic:
-                    matched_exam = ex
-                    break
-            
-            if matched_exam:
-                st.info(f"🎓 **{matched_exam} Format Detected!** Applying official marking scheme and settings.")
-                q_val = exam_rules[matched_exam]['q']
-                if "Mock" not in ai_subject and "Mock" not in custom_topic:
-                    q_val = max(10, q_val // 3)
-                    st.caption(f"Note: Adjusted to {q_val} questions for a single subject section.")
-                
-                num_questions_chosen = q_val
-                cm_val = exam_rules[matched_exam]['cm']
-                im_val = exam_rules[matched_exam]['im']
-                time_val = exam_rules[matched_exam]['time']
-                difficulty_level = exam_rules[matched_exam]['diff']
-                
-                st.write(f"**Questions:** {q_val} | **Time Limit:** {time_val} mins | **Marking:** +{cm_val} / {im_val} | **Difficulty:** {difficulty_level}")
+            if source_type == "Upload Study Material (PDF)" and not uploaded_file:
+                # Do not show exam configs if no file is uploaded yet
+                pass
             else:
-                q_options = [5, 10, 15, 20, 25, 30, 40, 50]
+                matched_exam = None
+                for ex, rules in exam_rules.items():
+                    if ex in ai_subject or ex in ai_domain or ex in custom_topic:
+                        matched_exam = ex
+                        break
+                
+                if matched_exam:
+                    st.info(f"🎓 **{matched_exam} Format Detected!** Applying official marking scheme and settings.")
+                    q_val = exam_rules[matched_exam]['q']
+                    if "Mock" not in ai_subject and "Mock" not in custom_topic:
+                        q_val = max(10, q_val // 3)
+                        st.caption(f"Note: Adjusted to {q_val} questions for a single subject section.")
+                    
+                    num_questions_chosen = q_val
+                    cm_val = exam_rules[matched_exam]['cm']
+                    im_val = exam_rules[matched_exam]['im']
+                    time_val = exam_rules[matched_exam]['time']
+                    difficulty_level = exam_rules[matched_exam]['diff']
+                    
+                    st.write(f"**Questions:** {q_val} | **Time Limit:** {time_val} mins | **Marking:** +{cm_val} / {im_val} | **Difficulty:** {difficulty_level}")
+                else:
+                    q_options = [5, 10, 15, 20, 25, 30, 40, 50]
                 col_q, col_diff = st.columns(2)
                 with col_q:
                     num_questions_chosen = st.select_slider(
@@ -305,11 +342,13 @@ if st.session_state.user_role != "admin":
                     if not topic_for_gen.strip():
                         topic_for_gen = "General Knowledge"
 
+                    pdf_context = st.session_state.get("pdf_context", None)
+
                     with st.spinner(
                         f"Preparing your {difficulty_level.lower()} assessment module on '{topic_for_gen}'..."
                     ):
                         gen_qs = llm_utils.generate_gemini_questions(
-                            topic_for_gen, num_questions_chosen, difficulty_level
+                            topic_for_gen, num_questions_chosen, difficulty_level, context=pdf_context
                         )
 
                     if gen_qs:
