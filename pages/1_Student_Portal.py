@@ -480,8 +480,8 @@ if st.session_state.user_role != "admin":
                     "attempt_date": "Attempt Date",
                     "score": "Score",
                     "total_questions": "Total Questions",
-                    "score_percentage": st.column_config.ProgressColumn(
-                        "Score %", format="%.1f%%", min_value=0, max_value=100
+                    "score_percentage": st.column_config.NumberColumn(
+                        "Score %", format="%.1f%%"
                     ),
                     "time_taken_seconds": "Time Taken (s)",
                     "passed": "Result",
