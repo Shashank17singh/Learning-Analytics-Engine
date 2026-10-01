@@ -42,18 +42,14 @@ def engineer_features(df):
     """
     df = df.copy()
 
-    # Efficiency metric: how fast did the student answer correctly
     df["speed"] = df["score"] / df["time_taken_seconds"].replace(0, 1)
 
-    # Binary speed flag relative to cohort median
     median_time = df["time_taken_seconds"].median()
     df["is_fast"] = (df["time_taken_seconds"] < median_time).astype(int)
 
-    # Per-student attempt tracking
     df = df.sort_values(["student_name", "attempt_date"])
     df["attempt_number"] = df.groupby("student_name").cumcount() + 1
 
-    # Score improvement across sequential attempts
     df["score_improvement"] = (
         df.groupby("student_name")["score_percentage"].diff().fillna(0)
     )
@@ -91,19 +87,16 @@ def train_classifiers(df):
     X_train_sc = scaler.fit_transform(X_train)
     X_test_sc = scaler.transform(X_test)
 
-    # --- Logistic Regression ---
     lr = LogisticRegression(random_state=42, max_iter=1000)
     lr.fit(X_train_sc, y_train)
     lr_preds = lr.predict(X_test_sc)
     lr_cv = cross_val_score(lr, scaler.transform(X), y, cv=5, scoring="accuracy")
 
-    # --- Random Forest ---
     rf = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=5)
     rf.fit(X_train, y_train)
     rf_preds = rf.predict(X_test)
     rf_cv = cross_val_score(rf, X, y, cv=5, scoring="accuracy")
 
-    # Feature importances from Random Forest
     importances = pd.Series(rf.feature_importances_, index=CLASSIFICATION_FEATURES)
     importances = importances.sort_values(ascending=False)
 
@@ -165,7 +158,6 @@ def train_regression(df):
     model.fit(X_train, y_train)
     preds = model.predict(X_test)
 
-    # Coefficient analysis
     coefficients = pd.Series(model.coef_, index=REGRESSION_FEATURES)
 
     return {
@@ -203,7 +195,6 @@ def train_clustering(df, n_clusters=3):
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     labels = kmeans.fit_predict(X_scaled)
 
-    # Name clusters by mean score for interpretability
     df["cluster"] = labels
     cluster_summary = (
         df.groupby("cluster")
@@ -215,7 +206,6 @@ def train_clustering(df, n_clusters=3):
         .sort_values("avg_score", ascending=False)
     )
 
-    # Assign descriptive names
     cluster_names = {}
     for rank, idx in enumerate(cluster_summary.index):
         if rank == 0:
@@ -230,7 +220,6 @@ def train_clustering(df, n_clusters=3):
 
     sil_score = silhouette_score(X_scaled, labels) if n_clusters > 1 else 0.0
 
-    # Elbow method data (k=2..8)
     inertias = []
     k_range = range(2, min(9, len(df)))
     for k in k_range:
@@ -263,7 +252,6 @@ def print_ml_report(conn):
     print("    MACHINE LEARNING ANALYSIS REPORT (Scikit-learn)")
     print("=" * 65)
 
-    # 1. Classification
     print("\n--- 1. CLASSIFICATION: Pass/Fail Prediction ---")
     clf_results = train_classifiers(df)
     if "error" in clf_results:
@@ -285,7 +273,6 @@ def print_ml_report(conn):
         for feat, imp in clf_results["random_forest"]["feature_importances"].items():
             print(f"    {feat:<25} {imp:.4f}")
 
-    # 2. Regression
     print("\n--- 2. REGRESSION: Score Prediction ---")
     reg_results = train_regression(df)
     print(f"  MAE:    {reg_results['mae']:.2f}")
@@ -295,7 +282,6 @@ def print_ml_report(conn):
     for feat, coef in reg_results["coefficients"].items():
         print(f"    {feat:<25} {coef:+.4f}")
 
-    # 3. Clustering
     print("\n--- 3. CLUSTERING: K-Means Learner Segmentation ---")
     cluster_results = train_clustering(df)
     print(f"  Silhouette Score: {cluster_results['silhouette_score']:.4f}")
