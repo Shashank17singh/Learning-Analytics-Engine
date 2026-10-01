@@ -4,6 +4,13 @@ import streamlit as st
 import auth_utils
 
 def get_db_connection():
+    """
+    Establish and return a connection to the PostgreSQL database.
+    
+    Retrieves the database URL from Streamlit secrets or environment variables.
+    Returns:
+        psycopg2.extensions.connection: A connection object to the database, or None if the URL is missing.
+    """
     # Use st.secrets to get the Supabase URL
     db_url = st.secrets.get("DATABASE_URL", os.getenv("DATABASE_URL"))
     if not db_url:
@@ -12,6 +19,15 @@ def get_db_connection():
     return psycopg2.connect(db_url)
 
 def init_db(conn):
+    """
+    Initialize the database schema if it doesn't already exist.
+    
+    Creates necessary tables (login, leaderboard, attempts), handles schema migrations,
+    and ensures a default admin user is present.
+    
+    Args:
+        conn (psycopg2.extensions.connection): The database connection object.
+    """
     if not conn:
         return
     cur = conn.cursor()

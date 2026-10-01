@@ -3,9 +3,6 @@ import streamlit as st
 import auth_utils
 from db_utils import get_db_connection, init_db
 
-# -------------------------------------------------------------
-# PAGE CONFIGURATION (NO SIDEBAR, FULL BROWSER APP LAYOUT)
-# -------------------------------------------------------------
 st.set_page_config(
     page_title="Assessment & Analytics Portal",
     page_icon="",
@@ -14,14 +11,10 @@ st.set_page_config(
 )
 
 
-# Initialize database on app startup
 _init_conn = get_db_connection()
 init_db(_init_conn)
 _init_conn.close()
 
-# -------------------------------------------------------------
-# CUSTOM CSS: REMOVES SIDEBAR & ADDS MODERN PORTAL STYLING
-# -------------------------------------------------------------
 st.markdown(
     """
 <style>
@@ -108,18 +101,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# -------------------------------------------------------------
-# SESSION STATE INITIALIZATION
-# -------------------------------------------------------------
 auth_utils.sync_session_state()
 
 
-# -------------------------------------------------------------
-# ROUTING / AUTHENTICATION
-# -------------------------------------------------------------
-# -------------------------------------------------------------
-# SCREEN 1: LOGIN & REGISTRATION (IF NOT LOGGED IN)
-# -------------------------------------------------------------
 if not st.session_state.authenticated:
     st.write("")
     st.write("")
@@ -139,7 +123,6 @@ if not st.session_state.authenticated:
             [" Student / Admin Login", " Create Student Account"]
         )
 
-        # TAB 1: LOGIN
         with auth_tab1:
             st.markdown(
                 "<div style='margin-bottom: 15px; color: #4B5563; font-size: 0.95rem;'>Log in with your registered username & password:</div>",
@@ -192,7 +175,6 @@ if not st.session_state.authenticated:
                 unsafe_allow_html=True,
             )
 
-        # TAB 2: REGISTER (CREATE ACCOUNT)
         with auth_tab2:
             st.markdown(
                 "<div style='margin-bottom: 15px; color: #4B5563; font-size: 0.95rem;'>New student? Create your account in 10 seconds:</div>",
@@ -253,10 +235,8 @@ if not st.session_state.authenticated:
                                 " Account created successfully! Please switch to the Login tab and sign in."
                             )
 
-# -------------------------------------------------------------
-
 else:
     if st.session_state.user_role != "admin":
-        st.switch_page("pages/1_Student_Portal.py")
+        st.switch_page("pages/Student_Portal.py")
     else:
-        st.switch_page("pages/2_Admin_Portal.py")
+        st.switch_page("pages/Admin_Portal.py")

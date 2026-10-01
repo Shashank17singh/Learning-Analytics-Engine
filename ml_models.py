@@ -30,11 +30,6 @@ from sklearn.metrics import (
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.preprocessing import StandardScaler
 
-# ─────────────────────────────────────────────
-# Feature Engineering Pipeline
-# ─────────────────────────────────────────────
-
-
 def engineer_features(df):
     """Create derived features from raw attempt data for ML modeling.
 
@@ -65,10 +60,6 @@ def engineer_features(df):
 
     return df
 
-
-# ─────────────────────────────────────────────
-# 1. CLASSIFICATION: Pass/Fail Prediction
-# ─────────────────────────────────────────────
 
 CLASSIFICATION_FEATURES = [
     "time_taken_seconds",
@@ -148,10 +139,6 @@ def train_classifiers(df):
     }
 
 
-# ─────────────────────────────────────────────
-# 2. REGRESSION: Score Prediction
-# ─────────────────────────────────────────────
-
 REGRESSION_FEATURES = [
     "time_taken_seconds",
     "total_questions",
@@ -194,10 +181,6 @@ def train_regression(df):
         "feature_names": REGRESSION_FEATURES,
     }
 
-
-# ─────────────────────────────────────────────
-# 3. CLUSTERING: Learner Segmentation
-# ─────────────────────────────────────────────
 
 CLUSTER_FEATURES = [
     "score_percentage",
@@ -265,11 +248,6 @@ def train_clustering(df, n_clusters=3):
         "elbow_data": {"k_range": list(k_range), "inertias": inertias},
         "feature_names": CLUSTER_FEATURES,
     }
-
-
-# ─────────────────────────────────────────────
-# CLI Report (for main.py / terminal usage)
-# ─────────────────────────────────────────────
 
 
 def print_ml_report(conn):
