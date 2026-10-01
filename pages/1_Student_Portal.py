@@ -616,17 +616,29 @@ if st.session_state.user_role != "admin":
     with student_tabs[2]:
         st.markdown("###  Real-Time Hall of Fame")
         
-        df_filters = pd.read_sql_query("SELECT DISTINCT domain, subject, difficulty FROM attempts", conn)
+        df_filters = pd.read_sql_query(
+            "SELECT DISTINCT domain, subject FROM attempts WHERE student_name = ?", 
+            conn, params=(st.session_state.username,)
+        )
         
+        if df_filters.empty:
+            st.info("You haven't taken any assessments yet. Complete an assessment to unlock its leaderboard!")
+            return
+            
         col1, col2, col3 = st.columns(3)
         with col1:
             domains = ["All"] + sorted(df_filters["domain"].dropna().unique().tolist())
             selected_domain = st.selectbox("Filter by Domain", domains, key="lb_domain")
         with col2:
-            subjects = ["All"] + sorted(df_filters["subject"].dropna().unique().tolist())
+            if selected_domain == "All":
+                subjects_list = sorted(df_filters["subject"].dropna().unique().tolist())
+            else:
+                subjects_list = sorted(df_filters[df_filters["domain"] == selected_domain]["subject"].dropna().unique().tolist())
+            subjects = ["All"] + subjects_list
             selected_subject = st.selectbox("Filter by Subject", subjects, key="lb_subject")
         with col3:
-            difficulties = ["All"] + sorted(df_filters["difficulty"].dropna().unique().tolist())
+            df_diffs = pd.read_sql_query("SELECT DISTINCT difficulty FROM attempts", conn)
+            difficulties = ["All"] + sorted(df_diffs["difficulty"].dropna().unique().tolist())
             selected_difficulty = st.selectbox("Filter by Difficulty", difficulties, key="lb_diff")
 
         query = "SELECT student_name, score, total_questions, score_percentage, domain, subject, difficulty FROM attempts WHERE 1=1"
@@ -642,6 +654,10 @@ if st.session_state.user_role != "admin":
             params.append(selected_difficulty)
             
         df_all = pd.read_sql_query(query, conn, params=params)
+
+        if not df_all.empty:
+            allowed_combinations = set(zip(df_filters['domain'], df_filters['subject']))
+            df_all = df_all[df_all.apply(lambda row: (row['domain'], row['subject']) in allowed_combinations, axis=1)]
 
         if not df_all.empty:
             # Get best attempt per student
