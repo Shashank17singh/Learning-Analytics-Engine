@@ -6,7 +6,7 @@ from google import genai
 from google.genai import types
 
 
-def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Medium") -> list:
+def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Medium", context: str = None) -> list:
     try:
         api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
     except Exception:  # noqa: BLE001
@@ -18,8 +18,13 @@ def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Med
 
     client = genai.Client(api_key=api_key)
 
+    context_prompt = ""
+    if context:
+        context_prompt = f"The questions MUST be based strictly on the following source material provided by the student:\n\n{context}\n\n"
+
     prompt = f"""
     Generate exactly {count} multiple-choice questions about the topic '{topic}'.
+    {context_prompt}
     The difficulty level of the questions must be: {difficulty}.
     Return the response strictly as a JSON array of objects.
     Each object must have exactly these keys:
