@@ -186,7 +186,7 @@ if st.session_state.user_role != "admin":
     with student_tabs[0]:
         st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
         if not st.session_state.get("student_assessment_started", False):
-            st.markdown("#### ⚙️ AI Configuration")
+            st.markdown("#### AI Configuration")
             provider = st.selectbox(
                 "Select AI Provider (Use your own API key)",
                 ["System Default", "Google Gemini", "OpenAI", "Groq", "Anthropic"]
