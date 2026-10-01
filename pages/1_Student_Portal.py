@@ -742,7 +742,7 @@ if st.session_state.user_role != "admin":
             f"###  Personal Learning Analytics for: **{st.session_state.username.title()}**"
         )
         df_my = pd.read_sql_query(
-            "SELECT * FROM attempts WHERE LOWER(TRIM(student_name)) = ? ORDER BY attempt_id ASC",
+            "SELECT * FROM attempts WHERE LOWER(TRIM(student_name)) = %s ORDER BY attempt_id ASC",
             conn,
             params=(st.session_state.username.lower(),),
         )
@@ -888,7 +888,7 @@ if st.session_state.user_role != "admin":
         st.markdown("###  Real-Time Hall of Fame")
         
         df_filters = pd.read_sql_query(
-            "SELECT DISTINCT domain, subject FROM attempts WHERE student_name = ?", 
+            "SELECT DISTINCT domain, subject FROM attempts WHERE student_name = %s", 
             conn, params=(st.session_state.username,)
         )
         
@@ -915,13 +915,13 @@ if st.session_state.user_role != "admin":
         query = "SELECT student_name, score, total_questions, score_percentage, domain, subject, difficulty FROM attempts WHERE 1=1"
         params = []
         if selected_domain != "All":
-            query += " AND domain = ?"
+            query += " AND domain = %s"
             params.append(selected_domain)
         if selected_subject != "All":
-            query += " AND subject = ?"
+            query += " AND subject = %s"
             params.append(selected_subject)
         if selected_difficulty != "All":
-            query += " AND difficulty = ?"
+            query += " AND difficulty = %s"
             params.append(selected_difficulty)
             
         df_all = pd.read_sql_query(query, conn, params=params)
