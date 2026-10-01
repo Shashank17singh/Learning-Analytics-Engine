@@ -322,50 +322,51 @@ if st.session_state.user_role != "admin":
                     im_val = 0
                     time_val = None
 
-            st.write("")
-            _, center_col, _ = st.columns([1, 2, 1])
-            with center_col:
-                if st.button(
-                    "Start Assessment Now ",
-                    type="primary",
-                    use_container_width=True,
-                ):
-                    st.session_state.student_assessment_started = True
-                    st.session_state.assessment_start_time = time.time()
-                    st.session_state.difficulty_level = difficulty_level
-                    st.session_state.cm_val = cm_val
-                    st.session_state.im_val = im_val
-                    st.session_state.time_limit_mins = time_val
-                    st.session_state.num_questions = num_questions_chosen
-
-                    topic_for_gen = st.session_state.get("custom_topic", "General")
-                    if not topic_for_gen.strip():
-                        topic_for_gen = "General Knowledge"
-
-                    pdf_context = st.session_state.get("pdf_context", None)
-
-                    with st.spinner(
-                        f"Preparing your {difficulty_level.lower()} assessment module on '{topic_for_gen}'..."
+            if not (source_type == "Upload Study Material (PDF)" and not uploaded_file):
+                st.write("")
+                _, center_col, _ = st.columns([1, 2, 1])
+                with center_col:
+                    if st.button(
+                        "Start Assessment Now ",
+                        type="primary",
+                        use_container_width=True,
                     ):
-                        gen_qs = llm_utils.generate_gemini_questions(
-                            topic_for_gen, num_questions_chosen, difficulty_level, context=pdf_context
-                        )
-
-                    if gen_qs:
-                        mapped_qs = [
-                            (
-                                q.get("qno", i),
-                                q.get("ques", ""),
-                                q.get("a", ""),
-                                q.get("b", ""),
-                                q.get("c", ""),
-                                q.get("d", ""),
-                                q.get("correct", ""),
-                                q.get("explanation", ""),
+                        st.session_state.student_assessment_started = True
+                        st.session_state.assessment_start_time = time.time()
+                        st.session_state.difficulty_level = difficulty_level
+                        st.session_state.cm_val = cm_val
+                        st.session_state.im_val = im_val
+                        st.session_state.time_limit_mins = time_val
+                        st.session_state.num_questions = num_questions_chosen
+    
+                        topic_for_gen = st.session_state.get("custom_topic", "General")
+                        if not topic_for_gen.strip():
+                            topic_for_gen = "General Knowledge"
+    
+                        pdf_context = st.session_state.get("pdf_context", None)
+    
+                        with st.spinner(
+                            f"Preparing your {difficulty_level.lower()} assessment module on '{topic_for_gen}'..."
+                        ):
+                            gen_qs = llm_utils.generate_gemini_questions(
+                                topic_for_gen, num_questions_chosen, difficulty_level, context=pdf_context
                             )
-                            for i, q in enumerate(gen_qs, 1)
-                        ]
-                        st.session_state.assessment_set = mapped_qs
+    
+                        if gen_qs:
+                            mapped_qs = [
+                                (
+                                    q.get("qno", i),
+                                    q.get("ques", ""),
+                                    q.get("a", ""),
+                                    q.get("b", ""),
+                                    q.get("c", ""),
+                                    q.get("d", ""),
+                                    q.get("correct", ""),
+                                    q.get("explanation", ""),
+                                )
+                                for i, q in enumerate(gen_qs, 1)
+                            ]
+                            st.session_state.assessment_set = mapped_qs
                         st.rerun()
                     else:
                         st.error(
