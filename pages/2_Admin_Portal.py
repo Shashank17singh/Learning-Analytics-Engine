@@ -263,7 +263,25 @@ with admin_tabs[0]:
             st.pyplot(fig4)
 
         st.markdown("#### Complete Cohort Attempt Records")
-        st.dataframe(df_cohort, width="stretch")
+        st.dataframe(
+            df_cohort,
+            width="stretch",
+            column_config={
+                "attempt_id": "Attempt ID",
+                "student_name": "Student Name",
+                "score": "Score",
+                "total_questions": "Total Questions",
+                "score_percentage": st.column_config.ProgressColumn(
+                    "Score %", format="%.1f%%", min_value=0, max_value=100
+                ),
+                "time_taken_seconds": "Time Taken (s)",
+                "reviews_used": "Reviews Used",
+                "attempt_date": "Attempt Date",
+                "passed": st.column_config.CheckboxColumn("Passed"),
+                "domain": "Domain",
+                "subject": "Subject",
+            },
+        )
         csv_bytes = df_cohort.to_csv(index=False).encode("utf-8")
         st.download_button(
             " Export Cohort Data to CSV",
@@ -510,12 +528,18 @@ with admin_tabs[1]:
                 df_feat[feature_cols].head(50),
                 width="stretch",
                 column_config={
+                    "student_name": "Student Name",
+                    "score_percentage": "Score %",
+                    "time_taken_seconds": "Time Taken (s)",
+                    "reviews_used": "Reviews Used",
                     "speed": st.column_config.NumberColumn(
                         "Speed (Q/s)", format="%.4f"
                     ),
                     "review_ratio": st.column_config.NumberColumn(
                         "Review Ratio", format="%.2f"
                     ),
+                    "is_fast": "Is Fast",
+                    "attempt_number": "Attempt Number",
                     "score_improvement": st.column_config.NumberColumn(
                         "Score Δ", format="%.1f"
                     ),
