@@ -266,8 +266,8 @@ with admin_tabs[0]:
                 "student_name": "Student Name",
                 "score": "Score",
                 "total_questions": "Total Questions",
-                "score_percentage": st.column_config.ProgressColumn(
-                    "Score %", format="%.1f%%", min_value=0, max_value=100
+                "score_percentage": st.column_config.NumberColumn(
+                    "Score %", format="%.1f%%"
                 ),
                 "time_taken_seconds": "Time Taken (s)",
                 "reviews_used": "Reviews Used",
