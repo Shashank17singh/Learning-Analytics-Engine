@@ -18,7 +18,7 @@
 
 ## Overview
 
-The **Learning Analytics Engine** is a comprehensive educational platform that merges real-time assessment delivery with advanced data science and generative AI. It allows students to take AI-generated, customized quizzes while administrators gain deep insights into cohort performance through interactive, predictive analytics. 
+The **Learning Analytics Engine** is a comprehensive educational platform that merges real-time assessment delivery with advanced data science and generative AI. It allows students to take AI-generated, customized quizzes while administrators gain deep insights into cohort performance through interactive, predictive analytics.
 
 The platform leverages **Retrieval-Augmented Generation (RAG)** via multiple LLM providers (Google Gemini, OpenAI, Groq, Anthropic) to synthesize quiz questions from user-uploaded PDF study materials, and relies on a persistent **Supabase PostgreSQL** backend for seamless behavioral telemetry.
 
@@ -37,24 +37,24 @@ graph TD
     C[Student Portal] -->|Telemetry & Results| B
     C <-->|RAG PDF Chunking & Prompting| I
     end
-    
+
     subgraph "Data Science & Analytics Layer"
     B --> D{Data Ingestion & Cleaning}
     D --> E[Pandas DataFrames]
     E --> F[Exploratory Data Analysis]
     E --> G[Scikit-Learn ML Models]
     end
-    
+
     subgraph "Presentation Layer"
     F --> H[Streamlit UI Visualizations]
     G --> H
     end
-    
+
     classDef io fill:#f9f0ff,stroke:#8a2be2,stroke-width:2px,color:#000;
     classDef core fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
     classDef logic fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#000;
     classDef ext fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000;
-    
+
     class A,C,H io;
     class B,E core;
     class D,F,G logic;
@@ -65,14 +65,14 @@ graph TD
 
 ## Features
 
-| Capability | Description |
-|---|---|
-| **Multi-Provider AI Engine** | Dynamically generates custom, on-the-fly multiple-choice questions tailored to the user's selected difficulty. Supports **Google Gemini, OpenAI, Groq, and Anthropic** APIs. |
-| **RAG PDF Ingestion** | Upload your own course material (PDFs) and let the engine extract context, synthesize data, and generate high-quality examination questions based strictly on the syllabus provided. |
-| **Cloud PostgreSQL Backend** | Integrated with **Supabase Serverless PostgreSQL** for permanent, robust data persistence of user logins, telemetry, and analytics records. |
-| **Dynamic Leaderboards** | Real-time, grouped hall of fame with explicit ranking. Filter top performers dynamically across specific Domains, Subjects, or Difficulty levels (Easy, Medium, Hard). |
-| **Personalized Analytics** | Students have access to a dedicated analytics tab showcasing their own personal seaborn charts (Score Distribution, Duration vs. Score, and Competency Breakdown). |
-| **Machine Learning** | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation). |
+| Capability                   | Description                                                                                                                                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Multi-Provider AI Engine** | Dynamically generates custom, on-the-fly multiple-choice questions tailored to the user's selected difficulty. Supports **Google Gemini, OpenAI, Groq, and Anthropic** APIs.         |
+| **RAG PDF Ingestion**        | Upload your own course material (PDFs) and let the engine extract context, synthesize data, and generate high-quality examination questions based strictly on the syllabus provided. |
+| **Cloud PostgreSQL Backend** | Integrated with **Supabase Serverless PostgreSQL** for permanent, robust data persistence of user logins, telemetry, and analytics records.                                          |
+| **Dynamic Leaderboards**     | Real-time, grouped hall of fame with explicit ranking. Filter top performers dynamically across specific Domains, Subjects, or Difficulty levels (Easy, Medium, Hard).               |
+| **Personalized Analytics**   | Students have access to a dedicated analytics tab showcasing their own personal seaborn charts (Score Distribution, Duration vs. Score, and Competency Breakdown).                   |
+| **Machine Learning**         | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation).                                                          |
 
 ---
 
@@ -138,7 +138,7 @@ The app requires a PostgreSQL database URL for telemetry, and API keys for gener
 DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.your-supabase-url.supabase.co:5432/postgres"
 
 # AI Provider Configurations
-# Note: You only need the key for the provider(s) you intend to use. 
+# Note: You only need the key for the provider(s) you intend to use.
 GEMINI_API_KEY="your-gemini-api-key"
 OPENAI_API_KEY="your-openai-api-key"
 GROQ_API_KEY="your-groq-api-key"

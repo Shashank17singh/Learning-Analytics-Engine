@@ -6,10 +6,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import streamlit as st
+from pypdf import PdfReader
 
 import llm_utils
 from db_utils import get_db_connection, init_db
-from pypdf import PdfReader
 
 st.set_page_config(
     page_title="Assessment & Analytics Portal",
@@ -23,15 +23,16 @@ _init_conn = get_db_connection()
 init_db(_init_conn)
 _init_conn.close()
 
+
 def format_time_str(seconds):
     """
     Format a duration in seconds into a human-readable string.
-    
+
     Converts raw seconds into a 'Xh Ym Zs' format. Handles missing values.
-    
+
     Args:
         seconds (float/int): The duration to format.
-        
+
     Returns:
         str: The formatted time string (e.g. '1h 30m 15s').
     """
@@ -48,21 +49,25 @@ def format_time_str(seconds):
     else:
         return f"{s}s"
 
+
 @st.dialog("End Assessment Early")
 def confirm_end_assessment():
     """
     Render a Streamlit dialog prompting the user to confirm ending the test early.
-    
+
     If confirmed, sets a session state flag to force submission of the test
     and triggers a rerun to process the submission.
     """
-    st.warning("Are you sure you want to end the test? Your current progress will be saved if you have selected any option.")
+    st.warning(
+        "Are you sure you want to end the test? Your current progress will be saved if you have selected any option."
+    )
     col1, col2 = st.columns(2)
     if col1.button("Yes, End Test"):
         st.session_state.force_submit = True
         st.rerun()
     if col2.button("No, Continue Test"):
         st.rerun()
+
 
 st.markdown(
     """
@@ -186,7 +191,7 @@ if st.session_state.user_role != "admin":
             st.markdown("#### AI Configuration")
             provider = st.selectbox(
                 "Select AI Provider (Use your own API key)",
-                ["System Default", "Google Gemini", "OpenAI", "Groq", "Anthropic"]
+                ["System Default", "Google Gemini", "OpenAI", "Groq", "Anthropic"],
             )
             user_api_key = ""
             if provider != "System Default":
@@ -196,16 +201,23 @@ if st.session_state.user_role != "admin":
             st.session_state.custom_ai_provider = provider
             st.session_state.custom_api_key = user_api_key
             st.markdown("---")
-            
-            source_type = st.radio("Select Assessment Source:", ["Select Topic from Catalog", "Upload Study Material (PDF)"], horizontal=True)
-            
+
+            source_type = st.radio(
+                "Select Assessment Source:",
+                ["Select Topic from Catalog", "Upload Study Material (PDF)"],
+                horizontal=True,
+            )
+
             pdf_context = None
             ai_domain = ""
             ai_subject = ""
             custom_topic = ""
-            
+
             if source_type == "Upload Study Material (PDF)":
-                uploaded_file = st.file_uploader("Upload a PDF document to generate questions from its contents", type=["pdf"])
+                uploaded_file = st.file_uploader(
+                    "Upload a PDF document to generate questions from its contents",
+                    type=["pdf"],
+                )
                 if uploaded_file is not None:
                     try:
                         reader = PdfReader(uploaded_file)
@@ -214,9 +226,11 @@ if st.session_state.user_role != "admin":
                             page_text = page.extract_text()
                             if page_text:
                                 text += page_text + "\n"
-                        pdf_context = text[:30000] 
-                        st.success(f"Successfully extracted {len(pdf_context)} characters from the PDF.")
-                        
+                        pdf_context = text[:30000]
+                        st.success(
+                            f"Successfully extracted {len(pdf_context)} characters from the PDF."
+                        )
+
                         ai_domain = "Custom PDF"
                         ai_subject = uploaded_file.name
                         custom_topic = f"PDF: {uploaded_file.name}"
@@ -237,35 +251,52 @@ if st.session_state.user_role != "admin":
 
                 current_level = ai_domains_catalog
                 selections = []
-                labels = ["Broad Domain", "Branch / Course", "Category / Specialization", "Topic / Exam"]
-                
+                labels = [
+                    "Broad Domain",
+                    "Branch / Course",
+                    "Category / Specialization",
+                    "Topic / Exam",
+                ]
+
                 level_idx = 0
                 custom_triggered = False
-                
+
                 while isinstance(current_level, dict):
                     options = list(current_level.keys()) + ["Other / Custom..."]
-                    label = labels[level_idx] if level_idx < len(labels) else f"Level {level_idx+1}"
-                    selection = st.selectbox(f"Search/Select {label}:", options, key=f"sel_{level_idx}")
-                    
+                    label = (
+                        labels[level_idx]
+                        if level_idx < len(labels)
+                        else f"Level {level_idx + 1}"
+                    )
+                    selection = st.selectbox(
+                        f"Search/Select {label}:", options, key=f"sel_{level_idx}"
+                    )
+
                     if selection == "Other / Custom...":
                         custom_triggered = True
                         break
-                        
+
                     selections.append(selection)
                     current_level = current_level[selection]
                     level_idx += 1
-                    
+
                 if not custom_triggered and isinstance(current_level, list):
                     options = current_level + ["Other / Custom..."]
-                    label = labels[level_idx] if level_idx < len(labels) else "Specific Subject"
-                    final_selection = st.selectbox(f"Search/Select {label}:", options, key=f"sel_final")
+                    label = (
+                        labels[level_idx]
+                        if level_idx < len(labels)
+                        else "Specific Subject"
+                    )
+                    final_selection = st.selectbox(
+                        f"Search/Select {label}:", options, key="sel_final"
+                    )
                     if final_selection == "Other / Custom...":
                         custom_triggered = True
                     else:
                         selections.append(final_selection)
 
                 ai_domain = selections[0] if selections else "Custom"
-                
+
                 if custom_triggered:
                     custom_topic_input = st.text_input(
                         "Type your custom topic / specialization here:", value=""
@@ -275,11 +306,21 @@ if st.session_state.user_role != "admin":
                         ai_subject = custom_topic_input
                         custom_topic = custom_topic_input
                     else:
-                        ai_subject = " - ".join(selections[1:]) + (" - " + custom_topic_input if custom_topic_input else "")
+                        ai_subject = " - ".join(selections[1:]) + (
+                            " - " + custom_topic_input if custom_topic_input else ""
+                        )
                         ai_subject = ai_subject.strip(" -")
-                        custom_topic = f"{ai_domain} - {ai_subject}" if ai_domain != "Custom" else custom_topic_input
+                        custom_topic = (
+                            f"{ai_domain} - {ai_subject}"
+                            if ai_domain != "Custom"
+                            else custom_topic_input
+                        )
                 else:
-                    ai_subject = " - ".join(selections[1:]) if len(selections) > 1 else "General Knowledge"
+                    ai_subject = (
+                        " - ".join(selections[1:])
+                        if len(selections) > 1
+                        else "General Knowledge"
+                    )
                     custom_topic = f"{ai_domain} - {ai_subject}"
 
                     if not custom_topic.strip() or custom_topic.strip() == "-":
@@ -293,8 +334,20 @@ if st.session_state.user_role != "admin":
 
             exam_rules = {
                 "JEE Mains": {"q": 75, "cm": 4, "im": -1, "time": 180, "diff": "Hard"},
-                "JEE Advanced Paper 1": {"q": 54, "cm": 3, "im": -1, "time": 180, "diff": "Hard"},
-                "JEE Advanced Paper 2": {"q": 54, "cm": 4, "im": -2, "time": 180, "diff": "Hard"},
+                "JEE Advanced Paper 1": {
+                    "q": 54,
+                    "cm": 3,
+                    "im": -1,
+                    "time": 180,
+                    "diff": "Hard",
+                },
+                "JEE Advanced Paper 2": {
+                    "q": 54,
+                    "cm": 4,
+                    "im": -2,
+                    "time": 180,
+                    "diff": "Hard",
+                },
                 "BITSAT": {"q": 130, "cm": 3, "im": -1, "time": 180, "diff": "Medium"},
                 "GATE": {"q": 65, "cm": 1, "im": -0.33, "time": 180, "diff": "Hard"},
                 "NEET": {"q": 180, "cm": 4, "im": -1, "time": 200, "diff": "Medium"},
@@ -307,12 +360,24 @@ if st.session_state.user_role != "admin":
                 "MAT": {"q": 200, "cm": 1, "im": -0.25, "time": 150, "diff": "Easy"},
                 "CMAT": {"q": 100, "cm": 4, "im": -1, "time": 180, "diff": "Medium"},
                 "CUET (UG)": {"q": 50, "cm": 5, "im": -1, "time": 45, "diff": "Medium"},
-                "CUET (PG)": {"q": 75, "cm": 4, "im": -1, "time": 105, "diff": "Medium"},
+                "CUET (PG)": {
+                    "q": 75,
+                    "cm": 4,
+                    "im": -1,
+                    "time": 105,
+                    "diff": "Medium",
+                },
                 "IPMAT": {"q": 90, "cm": 4, "im": -1, "time": 120, "diff": "Hard"},
                 "NPAT": {"q": 120, "cm": 1, "im": 0, "time": 100, "diff": "Medium"},
                 "UPSC": {"q": 100, "cm": 2, "im": -0.66, "time": 120, "diff": "Hard"},
-                "NDA": {"q": 120, "cm": 2.5, "im": -0.83, "time": 150, "diff": "Medium"},
-                "CLAT": {"q": 120, "cm": 1, "im": -0.25, "time": 120, "diff": "Medium"}
+                "NDA": {
+                    "q": 120,
+                    "cm": 2.5,
+                    "im": -0.83,
+                    "time": 150,
+                    "diff": "Medium",
+                },
+                "CLAT": {"q": 120, "cm": 1, "im": -0.25, "time": 120, "diff": "Medium"},
             }
             if source_type == "Upload Study Material (PDF)" and not uploaded_file:
                 pass
@@ -322,21 +387,27 @@ if st.session_state.user_role != "admin":
                     if ex in ai_subject or ex in ai_domain or ex in custom_topic:
                         matched_exam = ex
                         break
-                
+
                 if matched_exam:
-                    st.info(f" **{matched_exam} Format Detected!** Applying official marking scheme and settings.")
-                    q_val = exam_rules[matched_exam]['q']
+                    st.info(
+                        f" **{matched_exam} Format Detected!** Applying official marking scheme and settings."
+                    )
+                    q_val = exam_rules[matched_exam]["q"]
                     if "Mock" not in ai_subject and "Mock" not in custom_topic:
                         q_val = max(10, q_val // 3)
-                        st.caption(f"Note: Adjusted to {q_val} questions for a single subject section.")
-                    
+                        st.caption(
+                            f"Note: Adjusted to {q_val} questions for a single subject section."
+                        )
+
                     num_questions_chosen = q_val
-                    cm_val = exam_rules[matched_exam]['cm']
-                    im_val = exam_rules[matched_exam]['im']
-                    time_val = exam_rules[matched_exam]['time']
-                    difficulty_level = exam_rules[matched_exam]['diff']
-                    
-                    st.write(f"**Questions:** {q_val} | **Time Limit:** {time_val} mins | **Marking:** +{cm_val} / {im_val} | **Difficulty:** {difficulty_level}")
+                    cm_val = exam_rules[matched_exam]["cm"]
+                    im_val = exam_rules[matched_exam]["im"]
+                    time_val = exam_rules[matched_exam]["time"]
+                    difficulty_level = exam_rules[matched_exam]["diff"]
+
+                    st.write(
+                        f"**Questions:** {q_val} | **Time Limit:** {time_val} mins | **Marking:** +{cm_val} / {im_val} | **Difficulty:** {difficulty_level}"
+                    )
                 else:
                     q_options = [5, 10, 15, 20, 25, 30, 40, 50]
                     col_q, col_diff = st.columns(2)
@@ -350,7 +421,7 @@ if st.session_state.user_role != "admin":
                         difficulty_level = st.select_slider(
                             " Select Difficulty:",
                             options=["Easy", "Medium", "Hard"],
-                            value="Medium"
+                            value="Medium",
                         )
                     cm_val = 1
                     im_val = 0
@@ -372,21 +443,29 @@ if st.session_state.user_role != "admin":
                         st.session_state.im_val = im_val
                         st.session_state.time_limit_mins = time_val
                         st.session_state.num_questions = num_questions_chosen
-    
+
                         topic_for_gen = st.session_state.get("custom_topic", "General")
                         if not topic_for_gen.strip():
                             topic_for_gen = "General Knowledge"
-    
+
                         pdf_context = st.session_state.get("pdf_context", None)
-    
+
                         with st.spinner(
                             f"Preparing your {difficulty_level.lower()} assessment module on '{topic_for_gen}'..."
                         ):
-                            exam_fmt = matched_exam if 'matched_exam' in locals() and matched_exam else "Standard"
-                            gen_qs = llm_utils.generate_gemini_questions(
-                                topic_for_gen, num_questions_chosen, difficulty_level, context=pdf_context, exam_format=exam_fmt
+                            exam_fmt = (
+                                matched_exam
+                                if "matched_exam" in locals() and matched_exam
+                                else "Standard"
                             )
-    
+                            gen_qs = llm_utils.generate_gemini_questions(
+                                topic_for_gen,
+                                num_questions_chosen,
+                                difficulty_level,
+                                context=pdf_context,
+                                exam_format=exam_fmt,
+                            )
+
                         if gen_qs:
                             st.session_state.assessment_set = gen_qs
                             st.rerun()
@@ -401,19 +480,24 @@ if st.session_state.user_role != "admin":
                 st.rerun()
             user_choices = {}
 
-            time_limit = st.session_state.get('time_limit_mins')
+            time_limit = st.session_state.get("time_limit_mins")
             time_str = f" |  Time Limit: {time_limit} mins" if time_limit else ""
-            cm_val = st.session_state.get('cm_val', 1)
-            im_val = st.session_state.get('im_val', 0)
-            mark_str = f" |  Marking: +{cm_val} / {im_val}" if cm_val != 1 or im_val != 0 else ""
+            cm_val = st.session_state.get("cm_val", 1)
+            im_val = st.session_state.get("im_val", 0)
+            mark_str = (
+                f" |  Marking: +{cm_val} / {im_val}"
+                if cm_val != 1 or im_val != 0
+                else ""
+            )
 
             if time_limit:
                 import streamlit.components.v1 as components
+
                 elapsed = time.time() - st.session_state.assessment_start_time
                 remaining = max(0, (time_limit * 60) - elapsed)
-                
+
                 st.markdown(
-                    f"""
+                    """
                     <div id="exam-timer-container" style="
                         position: fixed;
                         top: 60px;
@@ -431,11 +515,12 @@ if st.session_state.user_role != "admin":
                     ">
                         <span id="exam-timer-text">Loading...</span>
                     </div>
-                    """, 
-                    unsafe_allow_html=True
+                    """,
+                    unsafe_allow_html=True,
                 )
-                
-                components.html(f"""
+
+                components.html(
+                    f"""
                 <script>
                     var remaining = {remaining};
                     var timerText = window.parent.document.getElementById('exam-timer-text');
@@ -484,7 +569,10 @@ if st.session_state.user_role != "admin":
                         }}, 1000);
                     }}
                 </script>
-                """, height=0, width=0)
+                """,
+                    height=0,
+                    width=0,
+                )
 
             with st.form("student_assessment_form"):
                 st.markdown(
@@ -497,12 +585,14 @@ if st.session_state.user_role != "admin":
                     correct = q_data.get("correct", "")
                     explanation = q_data.get("explanation", "")
                     options = q_data.get("options", {})
-                    
+
                     st.markdown(f"**Q{idx}. {ques}**")
-                    
+
                     c_val = None
                     if qtype == "numerical":
-                        c_val = st.text_input(f"Your answer for Q{idx}:", key=f"sq_{qno}")
+                        c_val = st.text_input(
+                            f"Your answer for Q{idx}:", key=f"sq_{qno}"
+                        )
                         c_val = c_val.strip() if c_val.strip() else None
                     elif qtype == "multi_mcq":
                         opts = [f"{k}) {v}" for k, v in options.items() if v]
@@ -513,7 +603,7 @@ if st.session_state.user_role != "admin":
                             selection_mode="multi",
                             label_visibility="collapsed",
                         )
-                    else: # single_mcq
+                    else:  # single_mcq
                         opts = [f"{k}) {v}" for k, v in options.items() if v]
                         c_val = st.pills(
                             f"Select answer for Q{idx}:",
@@ -529,7 +619,7 @@ if st.session_state.user_role != "admin":
                         "correct": correct,
                         "options": options,
                         "explanation": explanation,
-                        "ques": ques
+                        "ques": ques,
                     }
 
                     st.write("")
@@ -552,7 +642,9 @@ if st.session_state.user_role != "admin":
                 st.session_state.show_cancel_warning = True
 
             if st.session_state.get("show_cancel_warning", False):
-                st.warning("Are you sure you want to end the test early? Your progress will be lost and not saved.")
+                st.warning(
+                    "Are you sure you want to end the test early? Your progress will be lost and not saved."
+                )
                 col_y, col_n = st.columns(2)
                 with col_y:
                     if st.button("Yes, End Test", type="primary"):
@@ -568,7 +660,7 @@ if st.session_state.user_role != "admin":
             if submit_assessment or st.session_state.get("force_submit", False):
                 if st.session_state.get("force_submit"):
                     st.session_state.force_submit = False
-                
+
                 duration = max(
                     1, int(time.time() - st.session_state.assessment_start_time)
                 )
@@ -590,28 +682,44 @@ if st.session_state.user_role != "admin":
                     exp = choice_data["explanation"]
                     ques = choice_data["ques"]
 
-                    if c_val is None or (isinstance(c_val, list) and len(c_val) == 0) or c_val == "":
+                    if (
+                        c_val is None
+                        or (isinstance(c_val, list) and len(c_val) == 0)
+                        or c_val == ""
+                    ):
                         unattempted_count += 1
                         continue
 
                     is_correct = False
-                    
+
                     if qtype == "numerical":
                         if str(c_val).strip() == str(correct).strip():
                             is_correct = True
                     elif qtype == "multi_mcq":
-                        selected_letters = sorted([str(v).split(")")[0].strip().lower() for v in c_val])
-                        correct_letters = sorted([str(c).strip().lower() for c in correct]) if isinstance(correct, list) else sorted([str(correct).strip().lower()])
+                        selected_letters = sorted(
+                            [str(v).split(")")[0].strip().lower() for v in c_val]
+                        )
+                        correct_letters = (
+                            sorted([str(c).strip().lower() for c in correct])
+                            if isinstance(correct, list)
+                            else sorted([str(correct).strip().lower()])
+                        )
                         if selected_letters == correct_letters:
                             is_correct = True
-                    else: # single_mcq
+                    else:  # single_mcq
                         selected_letter = str(c_val).split(")")[0].strip().lower()
                         clean_corr = str(correct).strip().lower()
-                        
-                        opt_map = {str(k).lower(): str(v).strip().lower() for k,v in options.items()}
-                        
+
+                        opt_map = {
+                            str(k).lower(): str(v).strip().lower()
+                            for k, v in options.items()
+                        }
+
                         if selected_letter in opt_map:
-                            if selected_letter == clean_corr or opt_map.get(selected_letter) == clean_corr:
+                            if (
+                                selected_letter == clean_corr
+                                or opt_map.get(selected_letter) == clean_corr
+                            ):
                                 is_correct = True
                         elif str(c_val).strip().lower() == clean_corr:
                             is_correct = True
@@ -620,25 +728,33 @@ if st.session_state.user_role != "admin":
                         correct_count += 1
                     else:
                         incorrect_count += 1
-                        st.session_state.setdefault("incorrect_answers", []).append({
-                            "qno": qno,
-                            "ques": ques,
-                            "selected": c_val,
-                            "correct": correct,
-                            "explanation": exp
-                        })
+                        st.session_state.setdefault("incorrect_answers", []).append(
+                            {
+                                "qno": qno,
+                                "ques": ques,
+                                "selected": c_val,
+                                "correct": correct,
+                                "explanation": exp,
+                            }
+                        )
 
-                cm_val = st.session_state.get('cm_val', 1)
-                im_val = st.session_state.get('im_val', 0)
-                
+                cm_val = st.session_state.get("cm_val", 1)
+                im_val = st.session_state.get("im_val", 0)
+
                 raw_score = (correct_count * cm_val) + (incorrect_count * im_val)
                 max_possible_score = total_q * cm_val
-                
-                score_percentage = max(0.0, (raw_score / max_possible_score) * 100.0) if max_possible_score > 0 else 0.0
+
+                score_percentage = (
+                    max(0.0, (raw_score / max_possible_score) * 100.0)
+                    if max_possible_score > 0
+                    else 0.0
+                )
                 passed = 1 if score_percentage >= 50.0 else 0
 
                 if unattempted_count == total_q:
-                    st.warning("You did not attempt any questions. This attempt will not be saved.")
+                    st.warning(
+                        "You did not attempt any questions. This attempt will not be saved."
+                    )
                     if st.button("Return to Dashboard"):
                         st.session_state.assessment_set = None
                         st.session_state.assessment_start_time = None
@@ -667,9 +783,15 @@ if st.session_state.user_role != "admin":
                     ),
                 )
 
-                cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='leaderboard'")
+                cur.execute(
+                    "SELECT column_name FROM information_schema.columns WHERE table_name='leaderboard'"
+                )
                 cols = [r[0] for r in cur.fetchall()]
-                t_col = "total_questions" if "total_questions" in cols else "total_questions"
+                t_col = (
+                    "total_questions"
+                    if "total_questions" in cols
+                    else "total_questions"
+                )
                 cur.execute(
                     f"INSERT INTO leaderboard (name, score, {t_col}, scoreper) VALUES (%s, %s, %s, %s)",
                     (
@@ -705,22 +827,29 @@ if st.session_state.user_role != "admin":
                 if st.session_state.get("incorrect_answers"):
                     st.divider()
                     st.markdown("###  Detailed Review of Incorrect Answers")
-                    st.info("Here is a breakdown of the questions you got wrong, including a specific explanation of why your chosen answer was incorrect.")
-                    
+                    st.info(
+                        "Here is a breakdown of the questions you got wrong, including a specific explanation of why your chosen answer was incorrect."
+                    )
+
                     for d in st.session_state.incorrect_answers:
                         with st.expander(f"Question {d['qno']}: {d['ques']}"):
                             st.markdown(f" **Your Answer:** {d['selected']}")
                             st.markdown(f" **Correct Answer:** {d['correct']}")
-                            
+
                             with st.spinner("Generating targeted explanation..."):
-                                targeted_exp = llm_utils.explain_wrong_answer(d['ques'], d['selected'], d['correct'], d['explanation'])
-                            
+                                targeted_exp = llm_utils.explain_wrong_answer(
+                                    d["ques"],
+                                    d["selected"],
+                                    d["correct"],
+                                    d["explanation"],
+                                )
+
                             st.markdown(f"**Explanation:** {targeted_exp}")
 
                 st.session_state.student_assessment_started = False
                 st.session_state.assessment_set = None
                 st.session_state.incorrect_answers = []
-                
+
                 if st.button(" Take Another Assessment"):
                     st.rerun()
 
@@ -739,7 +868,7 @@ if st.session_state.user_role != "admin":
                 "You haven't completed any assessments yet. Take an assessment in Tab 1 to see your personal learning analytics here!"
             )
         else:
-            df_my['passed'] = df_my['passed'].astype(bool)
+            df_my["passed"] = df_my["passed"].astype(bool)
             m1, m2, m3, m4 = st.columns(4)
             m1.metric("Total Assessments", len(df_my))
             m2.metric("Average Score", f"{df_my['score_percentage'].mean():.1f}%")
@@ -837,9 +966,15 @@ if st.session_state.user_role != "admin":
             st.divider()
             st.markdown("#### Assessment History")
             df_my_display = df_my.copy()
-            df_my_display["attempt_date"] = pd.to_datetime(df_my_display["attempt_date"])
-            df_my_display["passed"] = df_my_display["passed"].apply(lambda x: "Passed" if x else "Failed")
-            df_my_display["time_taken_seconds"] = df_my_display["time_taken_seconds"].apply(format_time_str)
+            df_my_display["attempt_date"] = pd.to_datetime(
+                df_my_display["attempt_date"]
+            )
+            df_my_display["passed"] = df_my_display["passed"].apply(
+                lambda x: "Passed" if x else "Failed"
+            )
+            df_my_display["time_taken_seconds"] = df_my_display[
+                "time_taken_seconds"
+            ].apply(format_time_str)
             st.dataframe(
                 df_my_display[
                     [
@@ -857,7 +992,9 @@ if st.session_state.user_role != "admin":
                 hide_index=True,
                 column_config={
                     "attempt_id": "Attempt ID",
-                    "attempt_date": st.column_config.DatetimeColumn("Attempt Date", format="DD-MM-YYYY HH:mm:ss"),
+                    "attempt_date": st.column_config.DatetimeColumn(
+                        "Attempt Date", format="DD-MM-YYYY HH:mm:ss"
+                    ),
                     "score": "Score",
                     "total_questions": "Total Questions",
                     "score_percentage": st.column_config.NumberColumn(
@@ -871,16 +1008,19 @@ if st.session_state.user_role != "admin":
 
     with student_tabs[2]:
         st.markdown("###  Real-Time Hall of Fame")
-        
+
         df_filters = pd.read_sql_query(
-            "SELECT DISTINCT domain, subject FROM attempts WHERE student_name = %s", 
-            conn, params=(st.session_state.username,)
+            "SELECT DISTINCT domain, subject FROM attempts WHERE student_name = %s",
+            conn,
+            params=(st.session_state.username,),
         )
-        
+
         if df_filters.empty:
-            st.info("You haven't taken any assessments yet. Complete an assessment to unlock its leaderboard!")
+            st.info(
+                "You haven't taken any assessments yet. Complete an assessment to unlock its leaderboard!"
+            )
             st.stop()
-            
+
         col1, col2, col3 = st.columns(3)
         with col1:
             domains = ["All"] + sorted(df_filters["domain"].dropna().unique().tolist())
@@ -889,13 +1029,26 @@ if st.session_state.user_role != "admin":
             if selected_domain == "All":
                 subjects_list = sorted(df_filters["subject"].dropna().unique().tolist())
             else:
-                subjects_list = sorted(df_filters[df_filters["domain"] == selected_domain]["subject"].dropna().unique().tolist())
+                subjects_list = sorted(
+                    df_filters[df_filters["domain"] == selected_domain]["subject"]
+                    .dropna()
+                    .unique()
+                    .tolist()
+                )
             subjects = ["All"] + subjects_list
-            selected_subject = st.selectbox("Filter by Subject", subjects, key="lb_subject")
+            selected_subject = st.selectbox(
+                "Filter by Subject", subjects, key="lb_subject"
+            )
         with col3:
-            df_diffs = pd.read_sql_query("SELECT DISTINCT difficulty FROM attempts", conn)
-            difficulties = ["All"] + sorted(df_diffs["difficulty"].dropna().unique().tolist())
-            selected_difficulty = st.selectbox("Filter by Difficulty", difficulties, key="lb_diff")
+            df_diffs = pd.read_sql_query(
+                "SELECT DISTINCT difficulty FROM attempts", conn
+            )
+            difficulties = ["All"] + sorted(
+                df_diffs["difficulty"].dropna().unique().tolist()
+            )
+            selected_difficulty = st.selectbox(
+                "Filter by Difficulty", difficulties, key="lb_diff"
+            )
 
         query = "SELECT student_name, score, total_questions, score_percentage, domain, subject, difficulty FROM attempts WHERE 1=1"
         params = []
@@ -908,42 +1061,61 @@ if st.session_state.user_role != "admin":
         if selected_difficulty != "All":
             query += " AND difficulty = %s"
             params.append(selected_difficulty)
-            
+
         df_all = pd.read_sql_query(query, conn, params=params)
 
         if not df_all.empty:
-            allowed_combinations = set(zip(df_filters['domain'], df_filters['subject']))
-            df_all = df_all[df_all.apply(lambda row: (row['domain'], row['subject']) in allowed_combinations, axis=1)]
+            allowed_combinations = set(zip(df_filters["domain"], df_filters["subject"]))
+            df_all = df_all[
+                df_all.apply(
+                    lambda row: (row["domain"], row["subject"]) in allowed_combinations,
+                    axis=1,
+                )
+            ]
 
         if not df_all.empty:
             # Get best attempt per student
-            idx = df_all.groupby('student_name')['score_percentage'].idxmax()
-            df_lb = df_all.loc[idx].sort_values(by=['score_percentage', 'score'], ascending=[False, False]).head(50).reset_index(drop=True)
-            
-            df_lb.rename(columns={
-                "student_name": "Student",
-                "score": "Score",
-                "total_questions": "Total",
-                "score_percentage": "Score %",
-                "domain": "Domain",
-                "subject": "Subject",
-                "difficulty": "Difficulty"
-            }, inplace=True)
-            
+            idx = df_all.groupby("student_name")["score_percentage"].idxmax()
+            df_lb = (
+                df_all.loc[idx]
+                .sort_values(by=["score_percentage", "score"], ascending=[False, False])
+                .head(50)
+                .reset_index(drop=True)
+            )
+
+            df_lb.rename(
+                columns={
+                    "student_name": "Student",
+                    "score": "Score",
+                    "total_questions": "Total",
+                    "score_percentage": "Score %",
+                    "domain": "Domain",
+                    "subject": "Subject",
+                    "difficulty": "Difficulty",
+                },
+                inplace=True,
+            )
+
             ranks = [
-                (" 1st" if i == 0 else " 2nd" if i == 1 else " 3rd" if i == 2 else f"{i + 1}th")
+                (
+                    " 1st"
+                    if i == 0
+                    else " 2nd"
+                    if i == 1
+                    else " 3rd"
+                    if i == 2
+                    else f"{i + 1}th"
+                )
                 for i in range(len(df_lb))
             ]
             df_lb.insert(0, "Rank", ranks)
             st.dataframe(
-                df_lb, 
-                width="stretch", 
+                df_lb,
+                width="stretch",
                 hide_index=True,
                 column_config={
                     "Score %": st.column_config.NumberColumn("Score %", format="%.1f%%")
-                }
+                },
             )
         else:
             st.info("Leaderboard is currently empty for the selected filters.")
-
-

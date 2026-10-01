@@ -1,218 +1,931 @@
 {
-    "Engineering & Technology": {
-        "Undergraduate Entrance Exams (UG)": {
-            "JEE Mains": ["Physics", "Chemistry", "Mathematics", "Full Mock Test"],
-            "JEE Advanced": ["Physics", "Chemistry", "Mathematics", "Full Mock Test"],
-            "BITSAT": ["Physics", "Chemistry", "Mathematics", "English Proficiency & Logical Reasoning", "Full Mock Test"],
-            "VITEEE": ["Physics", "Chemistry", "Mathematics", "Biology (for Biotech)", "Full Mock Test"],
-            "SRMJEEE": ["Physics", "Chemistry", "Mathematics", "Biology", "Full Mock Test"],
-            "MHT CET": ["Physics", "Chemistry", "Mathematics", "Biology", "Full Mock Test"],
-            "COMEDK": ["Physics", "Chemistry", "Mathematics", "Full Mock Test"]
-        },
-        "Computer Science & Engineering": {
-            "Core Subjects": ["Data Structures & Algorithms", "Operating Systems", "Computer Networks", "Database Management Systems", "Theory of Computation", "Compiler Design", "Computer Architecture", "Software Engineering", "Discrete Mathematics"],
-            "Electives / Advanced Topics": ["Artificial Intelligence", "Machine Learning", "Deep Learning", "Cryptography & Network Security", "Cloud Computing", "Blockchain", "Computer Vision", "Natural Language Processing", "Quantum Computing", "Internet of Things (IoT)", "Robotics"],
-            "Competitive Exams (PG/Govt)": {
-                "GATE (Computer Science - CS)": ["Engineering Mathematics", "Digital Logic", "Computer Organization & Architecture", "Programming & Data Structures", "Algorithms", "Theory of Computation", "Compiler Design", "Operating Systems", "Databases", "Computer Networks", "Full Mock Test"],
-                "ISRO Scientist Exam (CS)": ["Core CS Topics", "Full Mock Test"],
-                "NIC Scientist B Exam": ["Core CS Topics", "Full Mock Test"]
-            }
-        },
-        "Mechanical Engineering": {
-            "Core Subjects": ["Thermodynamics", "Fluid Mechanics", "Heat Transfer", "Theory of Machines", "Strength of Materials", "Manufacturing Processes", "Machine Design", "Engineering Mechanics", "Material Science"],
-            "Electives": ["Robotics & Automation", "Aerodynamics", "Automotive Engineering", "Mechatronics", "Computational Fluid Dynamics (CFD)", "Finite Element Analysis (FEA)"],
-            "Competitive Exams (PG/Govt)": {
-                "GATE (Mechanical - ME)": ["Engineering Mathematics", "Applied Mechanics & Design", "Fluid Mechanics & Thermal Sciences", "Materials, Manufacturing & Industrial Engineering", "Full Mock Test"],
-                "Engineering Services Exam (ESE - Mechanical)": ["General Studies & Engineering Aptitude", "Mechanical Engineering Paper I & II", "Full Mock Test"],
-                "ISRO Scientist Exam (ME)": ["Core ME Topics", "Full Mock Test"]
-            }
-        },
-        "Electrical Engineering": {
-            "Core Subjects": ["Circuit Theory", "Electromagnetic Fields", "Signals and Systems", "Electrical Machines", "Power Systems", "Control Systems", "Power Electronics", "Analog & Digital Electronics"],
-            "Electives": ["Renewable Energy Systems", "Smart Grid Technology", "High Voltage Engineering", "Electric Vehicles (EV) Technology"],
-            "Competitive Exams (PG/Govt)": {
-                "GATE (Electrical - EE)": ["Engineering Mathematics", "Electric Circuits", "Electromagnetic Fields", "Signals & Systems", "Electrical Machines", "Power Systems", "Control Systems", "Electrical & Electronic Measurements", "Analog & Digital Electronics", "Power Electronics", "Full Mock Test"],
-                "Engineering Services Exam (ESE - Electrical)": ["General Studies & Engineering Aptitude", "Electrical Engineering Paper I & II", "Full Mock Test"]
-            }
-        },
-        "Civil Engineering": {
-            "Core Subjects": ["Structural Analysis", "Geotechnical Engineering", "Fluid Mechanics", "Transportation Engineering", "Environmental Engineering", "Surveying", "Construction Materials", "Solid Mechanics", "Hydraulics"],
-            "Electives": ["Urban Planning", "Earthquake Engineering", "Bridge Engineering", "Wastewater Management", "Construction Management"],
-            "Competitive Exams (PG/Govt)": {
-                "GATE (Civil - CE)": ["Engineering Mathematics", "Structural Engineering", "Geotechnical Engineering", "Water Resources Engineering", "Environmental Engineering", "Transportation Engineering", "Geomatics Engineering", "Full Mock Test"],
-                "Engineering Services Exam (ESE - Civil)": ["General Studies & Engineering Aptitude", "Civil Engineering Paper I & II", "Full Mock Test"]
-            }
-        },
-        "Electronics & Communication Engineering": {
-            "Core Subjects": ["Electronic Devices", "Analog Circuits", "Digital Circuits", "Signals and Systems", "Communications Systems", "Electromagnetics", "Microprocessors & Microcontrollers"],
-            "Electives": ["VLSI Design", "Embedded Systems", "Satellite Communication", "Optical Communication", "Wireless Networks"],
-            "Competitive Exams (PG/Govt)": {
-                "GATE (ECE)": ["Engineering Mathematics", "Networks, Signals & Systems", "Electronic Devices", "Analog Circuits", "Digital Circuits", "Control Systems", "Communications", "Electromagnetics", "Full Mock Test"],
-                "Engineering Services Exam (ESE - ECE)": ["General Studies & Engineering Aptitude", "Electronics & Telecom Paper I & II", "Full Mock Test"]
-            }
-        },
-        "Aerospace Engineering": {
-            "Core Subjects": ["Aerodynamics", "Flight Mechanics", "Aircraft Structures", "Propulsion", "Space Dynamics", "Avionics"],
-            "Competitive Exams (PG/Govt)": {
-                "GATE (Aerospace - AE)": ["Engineering Mathematics", "Flight Mechanics", "Space Dynamics", "Aerodynamics", "Structures", "Propulsion", "Full Mock Test"]
-            }
-        },
-        "Chemical Engineering": {
-            "Core Subjects": ["Process Calculations", "Thermodynamics", "Fluid Mechanics", "Heat Transfer", "Mass Transfer", "Chemical Reaction Engineering", "Plant Design"],
-            "Competitive Exams (PG/Govt)": {
-                "GATE (Chemical - CH)": ["Engineering Mathematics", "Process Calculations", "Thermodynamics", "Fluid Mechanics", "Heat Transfer", "Mass Transfer", "Chemical Reaction Engineering", "Full Mock Test"]
-            }
-        }
+  "Engineering & Technology": {
+    "Undergraduate Entrance Exams (UG)": {
+      "JEE Mains": ["Physics", "Chemistry", "Mathematics", "Full Mock Test"],
+      "JEE Advanced": ["Physics", "Chemistry", "Mathematics", "Full Mock Test"],
+      "BITSAT": [
+        "Physics",
+        "Chemistry",
+        "Mathematics",
+        "English Proficiency & Logical Reasoning",
+        "Full Mock Test"
+      ],
+      "VITEEE": [
+        "Physics",
+        "Chemistry",
+        "Mathematics",
+        "Biology (for Biotech)",
+        "Full Mock Test"
+      ],
+      "SRMJEEE": [
+        "Physics",
+        "Chemistry",
+        "Mathematics",
+        "Biology",
+        "Full Mock Test"
+      ],
+      "MHT CET": [
+        "Physics",
+        "Chemistry",
+        "Mathematics",
+        "Biology",
+        "Full Mock Test"
+      ],
+      "COMEDK": ["Physics", "Chemistry", "Mathematics", "Full Mock Test"]
     },
-    "Medical & Health Sciences": {
-        "Undergraduate Entrance Exams (UG)": {
-            "NEET (UG)": ["Physics", "Chemistry", "Biology (Botany & Zoology)", "Full Mock Test"],
-            "Nursing Entrance Exams": ["Physics", "Chemistry", "Biology", "General Aptitude", "English", "Full Mock Test"]
-        },
-        "MBBS / Undergrad Subjects": {
-            "Pre-Clinical": ["Human Anatomy", "Physiology", "Biochemistry"],
-            "Para-Clinical": ["Pathology", "Pharmacology", "Microbiology", "Forensic Medicine", "Community Medicine"],
-            "Clinical": ["General Medicine", "General Surgery", "Pediatrics", "Obstetrics & Gynecology", "Orthopedics", "Ophthalmology", "ENT", "Psychiatry", "Dermatology"]
-        },
-        "Dentistry (BDS/MDS)": {
-            "Subjects": ["Dental Anatomy", "Oral Pathology", "Periodontics", "Orthodontics", "Prosthodontics", "Oral Surgery"],
-            "Competitive Exams": {
-                "NEET (MDS)": ["Basic Sciences", "Clinical Dental Subjects", "Full Mock Test"]
-            }
-        },
-        "Pharmacy (B.Pharm/M.Pharm)": {
-            "Subjects": ["Pharmaceutics", "Pharmaceutical Chemistry", "Pharmacognosy", "Pharmacology", "Pharmacy Practice"],
-            "Competitive Exams": {
-                "GPAT": ["Pharmaceutics", "Pharmaceutical Chemistry", "Pharmacology", "Pharmacognosy", "Full Mock Test"]
-            }
-        },
-        "Postgraduate Medical Exams": {
-            "NEET (PG)": ["Pre-Clinical Subjects", "Para-Clinical Subjects", "Clinical Subjects", "Full Mock Test"],
-            "USMLE Step 1": ["Anatomy & Embryology", "Behavioral Sciences", "Biochemistry & Genetics", "Microbiology & Immunology", "Pathology", "Pharmacology", "Physiology", "Full Mock Test"],
-            "USMLE Step 2 CK": ["Internal Medicine", "Obstetrics & Gynecology", "Pediatrics", "Preventive Medicine", "Psychiatry", "Surgery", "Full Mock Test"],
-            "AIIMS PG / INI-CET": ["Basic Clinical Sciences", "Full Mock Test"],
-            "PLAB (UK)": ["Clinical Scenarios", "OSCE Practice", "Full Mock Test"],
-            "AMC (Australia)": ["Clinical Medicine", "Full Mock Test"]
-        }
+    "Computer Science & Engineering": {
+      "Core Subjects": [
+        "Data Structures & Algorithms",
+        "Operating Systems",
+        "Computer Networks",
+        "Database Management Systems",
+        "Theory of Computation",
+        "Compiler Design",
+        "Computer Architecture",
+        "Software Engineering",
+        "Discrete Mathematics"
+      ],
+      "Electives / Advanced Topics": [
+        "Artificial Intelligence",
+        "Machine Learning",
+        "Deep Learning",
+        "Cryptography & Network Security",
+        "Cloud Computing",
+        "Blockchain",
+        "Computer Vision",
+        "Natural Language Processing",
+        "Quantum Computing",
+        "Internet of Things (IoT)",
+        "Robotics"
+      ],
+      "Competitive Exams (PG/Govt)": {
+        "GATE (Computer Science - CS)": [
+          "Engineering Mathematics",
+          "Digital Logic",
+          "Computer Organization & Architecture",
+          "Programming & Data Structures",
+          "Algorithms",
+          "Theory of Computation",
+          "Compiler Design",
+          "Operating Systems",
+          "Databases",
+          "Computer Networks",
+          "Full Mock Test"
+        ],
+        "ISRO Scientist Exam (CS)": ["Core CS Topics", "Full Mock Test"],
+        "NIC Scientist B Exam": ["Core CS Topics", "Full Mock Test"]
+      }
     },
-    "Computer Science & Information Technology (IT)": {
-        "Software Development": ["Frontend Web Development (React/Angular/Vue)", "Backend Web Development (Node/Django/Spring)", "Mobile App Development (iOS/Android)", "Game Development (Unity/Unreal)", "Full Stack Development"],
-        "Data Science & Analytics": ["Data Analysis (Pandas/SQL)", "Data Visualization (Tableau/PowerBI)", "Big Data (Hadoop/Spark)", "Statistical Modeling", "A/B Testing"],
-        "Cyber Security": ["Ethical Hacking", "Penetration Testing", "Network Security", "Cryptography", "Digital Forensics", "Malware Analysis", "Security Auditing"],
-        "Cloud & DevOps": ["AWS Architecture", "Google Cloud Platform (GCP)", "Microsoft Azure", "Docker & Kubernetes", "CI/CD Pipelines", "Infrastructure as Code (Terraform)"],
-        "Certifications": {
-            "AWS Certified Solutions Architect": ["Design Resilient Architectures", "Design High-Performing Architectures", "Design Secure Applications", "Cost-Optimized Architectures", "Full Mock Test"],
-            "CompTIA Security+": ["Attacks, Threats, and Vulnerabilities", "Architecture and Design", "Implementation", "Operations and Incident Response", "Governance, Risk, and Compliance", "Full Mock Test"],
-            "Cisco CCNA": ["Network Fundamentals", "Network Access", "IP Connectivity", "IP Services", "Security Fundamentals", "Automation and Programmability", "Full Mock Test"]
-        }
+    "Mechanical Engineering": {
+      "Core Subjects": [
+        "Thermodynamics",
+        "Fluid Mechanics",
+        "Heat Transfer",
+        "Theory of Machines",
+        "Strength of Materials",
+        "Manufacturing Processes",
+        "Machine Design",
+        "Engineering Mechanics",
+        "Material Science"
+      ],
+      "Electives": [
+        "Robotics & Automation",
+        "Aerodynamics",
+        "Automotive Engineering",
+        "Mechatronics",
+        "Computational Fluid Dynamics (CFD)",
+        "Finite Element Analysis (FEA)"
+      ],
+      "Competitive Exams (PG/Govt)": {
+        "GATE (Mechanical - ME)": [
+          "Engineering Mathematics",
+          "Applied Mechanics & Design",
+          "Fluid Mechanics & Thermal Sciences",
+          "Materials, Manufacturing & Industrial Engineering",
+          "Full Mock Test"
+        ],
+        "Engineering Services Exam (ESE - Mechanical)": [
+          "General Studies & Engineering Aptitude",
+          "Mechanical Engineering Paper I & II",
+          "Full Mock Test"
+        ],
+        "ISRO Scientist Exam (ME)": ["Core ME Topics", "Full Mock Test"]
+      }
     },
-    "Business, Management & Finance": {
-        "BBA (Bachelor of Business Administration)": {
-            "Subjects": ["Principles of Management", "Business Mathematics", "Business Economics", "Financial Accounting", "Marketing Management", "Human Resource Management", "Business Communication", "Business Law", "Entrepreneurship"],
-            "Entrance Exams": {
-                "CUET (UG)": ["Language", "Domain Specific Subjects", "General Test", "Full Mock Test"],
-                "IPMAT": ["Quantitative Ability", "Verbal Ability", "Logical Reasoning", "Full Mock Test"],
-                "NPAT": ["Quantitative & Numerical Ability", "Reasoning & General Intelligence", "Proficiency in English Language", "Full Mock Test"]
-            }
-        },
-        "MBA (Master of Business Administration)": {
-            "Subjects": ["Managerial Economics", "Accounting for Managers", "Business Statistics", "Financial Management", "Marketing Strategy", "Organizational Behavior", "Operations Management", "Strategic Management", "Business Ethics", "International Business", "MIS"],
-            "Entrance Exams": {
-                "CAT (Common Admission Test)": ["Verbal Ability & Reading Comprehension (VARC)", "Data Interpretation & Logical Reasoning (DILR)", "Quantitative Ability (QA)", "Full Mock Test"],
-                "XAT": ["Verbal & Logical Ability", "Decision Making", "Quantitative Ability & Data Interpretation", "General Knowledge", "Full Mock Test"],
-                "SNAP": ["General English", "Analytical & Logical Reasoning", "Quantitative, Data Interpretation & Data Sufficiency", "Full Mock Test"],
-                "GMAT": ["Analytical Writing Assessment", "Integrated Reasoning", "Quantitative Reasoning", "Verbal Reasoning", "Full Mock Test"],
-                "GRE": ["Analytical Writing", "Verbal Reasoning", "Quantitative Reasoning", "Full Mock Test"],
-                "NMAT": ["Language Skills", "Quantitative Skills", "Logical Reasoning", "Full Mock Test"],
-                "MAT": ["Language Comprehension", "Mathematical Skills", "Data Analysis", "Intelligence & Critical Reasoning", "Indian & Global Environment", "Full Mock Test"],
-                "CMAT": ["Quantitative Techniques & Data Interpretation", "Logical Reasoning", "Language Comprehension", "General Awareness", "Innovation & Entrepreneurship", "Full Mock Test"]
-            }
-        },
-        "Commerce (B.Com / M.Com)": {
-            "Subjects": ["Financial Accounting", "Corporate Accounting", "Cost Accounting", "Income Tax Law & Practice", "Business Organization & Management", "Company Law", "Auditing & Corporate Governance", "Business Statistics", "Financial Management", "E-Commerce", "Goods & Services Tax (GST)"],
-            "Entrance Exams": {
-                "CUET (UG) - Commerce": ["Accountancy/Bookkeeping", "Business Studies", "Economics/Business Economics", "Full Mock Test"],
-                "CUET (PG) - Commerce": ["Commerce Subject Knowledge", "General Aptitude", "Full Mock Test"]
-            }
-        },
-        "Accounting & Finance": ["Financial Accounting", "Corporate Finance", "Investment Banking", "Taxation", "Auditing", "Cost Accounting", "Wealth Management", "Risk Management"],
-        "Management & Marketing": ["Strategic Management", "Organizational Behavior", "Digital Marketing", "Consumer Behavior", "Supply Chain Management", "Human Resource Management", "Operations Management", "Brand Management"],
-        "Economics": ["Microeconomics", "Macroeconomics", "International Trade", "Econometrics", "Development Economics", "Behavioral Economics"],
-        "Professional Certifications": {
-            "CFA Level 1": ["Ethical & Professional Standards", "Quantitative Methods", "Economics", "Financial Statement Analysis", "Corporate Issuers", "Equity Investments", "Fixed Income", "Derivatives", "Alternative Investments", "Portfolio Management", "Full Mock Test"],
-            "CFA Level 2": ["Item Set Scenarios", "Valuation Focus", "Full Mock Test"],
-            "CPA Exam": ["Auditing & Attestation (AUD)", "Business Environment & Concepts (BEC)", "Financial Accounting & Reporting (FAR)", "Regulation (REG)", "Full Mock Test"],
-            "FRM (Financial Risk Manager)": ["Foundations of Risk Management", "Quantitative Analysis", "Financial Markets and Products", "Valuation and Risk Models", "Full Mock Test"]
-        }
+    "Electrical Engineering": {
+      "Core Subjects": [
+        "Circuit Theory",
+        "Electromagnetic Fields",
+        "Signals and Systems",
+        "Electrical Machines",
+        "Power Systems",
+        "Control Systems",
+        "Power Electronics",
+        "Analog & Digital Electronics"
+      ],
+      "Electives": [
+        "Renewable Energy Systems",
+        "Smart Grid Technology",
+        "High Voltage Engineering",
+        "Electric Vehicles (EV) Technology"
+      ],
+      "Competitive Exams (PG/Govt)": {
+        "GATE (Electrical - EE)": [
+          "Engineering Mathematics",
+          "Electric Circuits",
+          "Electromagnetic Fields",
+          "Signals & Systems",
+          "Electrical Machines",
+          "Power Systems",
+          "Control Systems",
+          "Electrical & Electronic Measurements",
+          "Analog & Digital Electronics",
+          "Power Electronics",
+          "Full Mock Test"
+        ],
+        "Engineering Services Exam (ESE - Electrical)": [
+          "General Studies & Engineering Aptitude",
+          "Electrical Engineering Paper I & II",
+          "Full Mock Test"
+        ]
+      }
     },
-    "Law & Legal Studies": {
-        "Law Entrance Exams (UG/PG)": {
-            "CLAT (UG)": ["English Language", "Current Affairs & GK", "Legal Reasoning", "Logical Reasoning", "Quantitative Techniques", "Full Mock Test"],
-            "CLAT (PG)": ["Constitutional Law", "Jurisprudence", "Administrative Law", "Law of Contract", "Torts", "Family Law", "Criminal Law", "Full Mock Test"],
-            "LSAT": ["Logical Reasoning", "Analytical Reasoning", "Reading Comprehension", "Writing Sample", "Full Mock Test"]
-        },
-        "Legal Subjects": ["Constitutional Law", "Criminal Law (IPC/CRPC)", "Corporate Law", "International Law", "Intellectual Property Law", "Family Law", "Law of Torts", "Environmental Law", "Labor & Employment Law", "Tax Law"],
-        "Judiciary Exams": {
-            "State Judicial Services": ["Substantive Law", "Procedural Law", "General Knowledge", "Language/Essay", "Full Mock Test"]
-        }
+    "Civil Engineering": {
+      "Core Subjects": [
+        "Structural Analysis",
+        "Geotechnical Engineering",
+        "Fluid Mechanics",
+        "Transportation Engineering",
+        "Environmental Engineering",
+        "Surveying",
+        "Construction Materials",
+        "Solid Mechanics",
+        "Hydraulics"
+      ],
+      "Electives": [
+        "Urban Planning",
+        "Earthquake Engineering",
+        "Bridge Engineering",
+        "Wastewater Management",
+        "Construction Management"
+      ],
+      "Competitive Exams (PG/Govt)": {
+        "GATE (Civil - CE)": [
+          "Engineering Mathematics",
+          "Structural Engineering",
+          "Geotechnical Engineering",
+          "Water Resources Engineering",
+          "Environmental Engineering",
+          "Transportation Engineering",
+          "Geomatics Engineering",
+          "Full Mock Test"
+        ],
+        "Engineering Services Exam (ESE - Civil)": [
+          "General Studies & Engineering Aptitude",
+          "Civil Engineering Paper I & II",
+          "Full Mock Test"
+        ]
+      }
     },
-    "Government & Civil Services Exams": {
-        "UPSC Civil Services (CSE)": {
-            "Prelims": ["General Studies Paper I (History/Polity/Geography/Economy/Environment/Science)", "CSAT (Paper II - Aptitude/Reasoning)", "Full Mock Test"],
-            "Mains General Studies": ["GS I (Heritage, History & Geography)", "GS II (Governance, Constitution, Polity)", "GS III (Technology, Economic Development, Environment, Security)", "GS IV (Ethics, Integrity & Aptitude)"]
-        },
-        "State PSC Exams": {
-            "UPPSC / BPSC / MPSC / KPSC / TNPSC": ["General Studies", "State Specific History & Geography", "Aptitude", "Full Mock Test"]
-        },
-        "Banking & Insurance": {
-            "IBPS PO / SBI PO": ["Quantitative Aptitude", "Reasoning Ability", "English Language", "General/Banking Awareness", "Computer Aptitude", "Full Mock Test"],
-            "RBI Grade B": ["General Awareness", "Quantitative Aptitude", "English Language", "Reasoning", "Economic and Social Issues", "Finance and Management", "Full Mock Test"],
-            "LIC AAO": ["Reasoning", "Quantitative Aptitude", "General Knowledge", "Insurance and Financial Market Awareness", "Full Mock Test"]
-        },
-        "Staff Selection Commission (SSC)": {
-            "SSC CGL": ["General Intelligence & Reasoning", "General Awareness", "Quantitative Aptitude", "English Comprehension", "Statistics (Tier II)", "Full Mock Test"]
-        },
-        "Defense & Police": {
-            "NDA / NA": ["Mathematics", "General Ability Test (English & GK)", "Full Mock Test"],
-            "CDS": ["English", "General Knowledge", "Elementary Mathematics", "Full Mock Test"],
-            "AFCAT": ["General Awareness", "Verbal Ability in English", "Numerical Ability and Reasoning", "Full Mock Test"]
-        }
+    "Electronics & Communication Engineering": {
+      "Core Subjects": [
+        "Electronic Devices",
+        "Analog Circuits",
+        "Digital Circuits",
+        "Signals and Systems",
+        "Communications Systems",
+        "Electromagnetics",
+        "Microprocessors & Microcontrollers"
+      ],
+      "Electives": [
+        "VLSI Design",
+        "Embedded Systems",
+        "Satellite Communication",
+        "Optical Communication",
+        "Wireless Networks"
+      ],
+      "Competitive Exams (PG/Govt)": {
+        "GATE (ECE)": [
+          "Engineering Mathematics",
+          "Networks, Signals & Systems",
+          "Electronic Devices",
+          "Analog Circuits",
+          "Digital Circuits",
+          "Control Systems",
+          "Communications",
+          "Electromagnetics",
+          "Full Mock Test"
+        ],
+        "Engineering Services Exam (ESE - ECE)": [
+          "General Studies & Engineering Aptitude",
+          "Electronics & Telecom Paper I & II",
+          "Full Mock Test"
+        ]
+      }
     },
-    "Natural Sciences & Mathematics": {
-        "Mathematics": ["Calculus", "Linear Algebra", "Discrete Mathematics", "Statistics & Probability", "Differential Equations", "Topology", "Number Theory", "Real & Complex Analysis", "Abstract Algebra"],
-        "Physics": ["Classical Mechanics", "Quantum Mechanics", "Electromagnetism", "Thermodynamics & Statistical Mechanics", "Optics", "Astrophysics", "Nuclear & Particle Physics", "Solid State Physics"],
-        "Chemistry": ["Organic Chemistry", "Inorganic Chemistry", "Physical Chemistry", "Analytical Chemistry", "Biochemistry", "Polymer Chemistry", "Environmental Chemistry"],
-        "Biology & Life Sciences": ["Genetics", "Microbiology", "Ecology", "Botany", "Zoology", "Evolution", "Cell & Molecular Biology", "Biotechnology", "Immunology"],
-        "Earth & Space Sciences": ["Geology", "Meteorology", "Oceanography", "Astronomy", "Environmental Science"],
-        "Science Entrance Exams": {
-            "JAM (Joint Admission Test for Masters)": ["Physics", "Chemistry", "Mathematics", "Biotechnology", "Mathematical Statistics", "Geology", "Full Mock Test"],
-            "CSIR NET": ["Chemical Sciences", "Earth Sciences", "Life Sciences", "Mathematical Sciences", "Physical Sciences", "Full Mock Test"]
-        }
+    "Aerospace Engineering": {
+      "Core Subjects": [
+        "Aerodynamics",
+        "Flight Mechanics",
+        "Aircraft Structures",
+        "Propulsion",
+        "Space Dynamics",
+        "Avionics"
+      ],
+      "Competitive Exams (PG/Govt)": {
+        "GATE (Aerospace - AE)": [
+          "Engineering Mathematics",
+          "Flight Mechanics",
+          "Space Dynamics",
+          "Aerodynamics",
+          "Structures",
+          "Propulsion",
+          "Full Mock Test"
+        ]
+      }
     },
-    "Humanities, Arts & Social Sciences": {
-        "History": ["Ancient History", "Medieval History", "Modern World History", "Archaeology", "Art History"],
-        "Political Science & IR": ["Political Theory", "Comparative Politics", "International Relations", "Public Administration", "Geopolitics"],
-        "Psychology & Sociology": ["Cognitive Psychology", "Clinical Psychology", "Social Psychology", "Sociological Theory", "Cultural Anthropology", "Criminology"],
-        "Literature & Languages": ["English Literature", "Linguistics", "Creative Writing", "Translation Studies", "Foreign Languages (Spanish/French/German/Mandarin)"],
-        "Philosophy & Ethics": ["Logic", "Metaphysics", "Epistemology", "Moral Philosophy", "Aesthetics", "Philosophy of Mind"],
-        "Design & Fine Arts": {
-            "Subjects": ["Graphic Design", "Industrial Design", "Fashion Design", "Animation & VFX", "Painting & Sculpture", "Typography", "UI/UX Design Theory"],
-            "Entrance Exams": {
-                "NID DAT": ["Prelims (Design Aptitude)", "Mains (Studio Test)", "Full Mock Test"],
-                "NIFT": ["Creative Ability Test (CAT)", "General Ability Test (GAT)", "Full Mock Test"],
-                "CEED / UCEED": ["Visual Spatial Ability", "Observation and Design Sensitivity", "Environmental and Social Awareness", "Analytical and Logical Reasoning", "Full Mock Test"]
-            }
-        }
-    },
-    "Global Standardized Tests (Study Abroad)": {
-        "English Language Proficiency": {
-            "TOEFL": ["Reading", "Listening", "Speaking", "Writing", "Full Mock Test"],
-            "IELTS": ["Listening", "Reading", "Writing", "Speaking", "Full Mock Test"],
-            "PTE Academic": ["Speaking & Writing", "Reading", "Listening", "Full Mock Test"]
-        },
-        "Undergraduate Admissions": {
-            "SAT": ["Reading & Writing", "Math", "Full Mock Test"],
-            "ACT": ["English", "Math", "Reading", "Science", "Writing", "Full Mock Test"]
-        }
+    "Chemical Engineering": {
+      "Core Subjects": [
+        "Process Calculations",
+        "Thermodynamics",
+        "Fluid Mechanics",
+        "Heat Transfer",
+        "Mass Transfer",
+        "Chemical Reaction Engineering",
+        "Plant Design"
+      ],
+      "Competitive Exams (PG/Govt)": {
+        "GATE (Chemical - CH)": [
+          "Engineering Mathematics",
+          "Process Calculations",
+          "Thermodynamics",
+          "Fluid Mechanics",
+          "Heat Transfer",
+          "Mass Transfer",
+          "Chemical Reaction Engineering",
+          "Full Mock Test"
+        ]
+      }
     }
+  },
+  "Medical & Health Sciences": {
+    "Undergraduate Entrance Exams (UG)": {
+      "NEET (UG)": [
+        "Physics",
+        "Chemistry",
+        "Biology (Botany & Zoology)",
+        "Full Mock Test"
+      ],
+      "Nursing Entrance Exams": [
+        "Physics",
+        "Chemistry",
+        "Biology",
+        "General Aptitude",
+        "English",
+        "Full Mock Test"
+      ]
+    },
+    "MBBS / Undergrad Subjects": {
+      "Pre-Clinical": ["Human Anatomy", "Physiology", "Biochemistry"],
+      "Para-Clinical": [
+        "Pathology",
+        "Pharmacology",
+        "Microbiology",
+        "Forensic Medicine",
+        "Community Medicine"
+      ],
+      "Clinical": [
+        "General Medicine",
+        "General Surgery",
+        "Pediatrics",
+        "Obstetrics & Gynecology",
+        "Orthopedics",
+        "Ophthalmology",
+        "ENT",
+        "Psychiatry",
+        "Dermatology"
+      ]
+    },
+    "Dentistry (BDS/MDS)": {
+      "Subjects": [
+        "Dental Anatomy",
+        "Oral Pathology",
+        "Periodontics",
+        "Orthodontics",
+        "Prosthodontics",
+        "Oral Surgery"
+      ],
+      "Competitive Exams": {
+        "NEET (MDS)": [
+          "Basic Sciences",
+          "Clinical Dental Subjects",
+          "Full Mock Test"
+        ]
+      }
+    },
+    "Pharmacy (B.Pharm/M.Pharm)": {
+      "Subjects": [
+        "Pharmaceutics",
+        "Pharmaceutical Chemistry",
+        "Pharmacognosy",
+        "Pharmacology",
+        "Pharmacy Practice"
+      ],
+      "Competitive Exams": {
+        "GPAT": [
+          "Pharmaceutics",
+          "Pharmaceutical Chemistry",
+          "Pharmacology",
+          "Pharmacognosy",
+          "Full Mock Test"
+        ]
+      }
+    },
+    "Postgraduate Medical Exams": {
+      "NEET (PG)": [
+        "Pre-Clinical Subjects",
+        "Para-Clinical Subjects",
+        "Clinical Subjects",
+        "Full Mock Test"
+      ],
+      "USMLE Step 1": [
+        "Anatomy & Embryology",
+        "Behavioral Sciences",
+        "Biochemistry & Genetics",
+        "Microbiology & Immunology",
+        "Pathology",
+        "Pharmacology",
+        "Physiology",
+        "Full Mock Test"
+      ],
+      "USMLE Step 2 CK": [
+        "Internal Medicine",
+        "Obstetrics & Gynecology",
+        "Pediatrics",
+        "Preventive Medicine",
+        "Psychiatry",
+        "Surgery",
+        "Full Mock Test"
+      ],
+      "AIIMS PG / INI-CET": ["Basic Clinical Sciences", "Full Mock Test"],
+      "PLAB (UK)": ["Clinical Scenarios", "OSCE Practice", "Full Mock Test"],
+      "AMC (Australia)": ["Clinical Medicine", "Full Mock Test"]
+    }
+  },
+  "Computer Science & Information Technology (IT)": {
+    "Software Development": [
+      "Frontend Web Development (React/Angular/Vue)",
+      "Backend Web Development (Node/Django/Spring)",
+      "Mobile App Development (iOS/Android)",
+      "Game Development (Unity/Unreal)",
+      "Full Stack Development"
+    ],
+    "Data Science & Analytics": [
+      "Data Analysis (Pandas/SQL)",
+      "Data Visualization (Tableau/PowerBI)",
+      "Big Data (Hadoop/Spark)",
+      "Statistical Modeling",
+      "A/B Testing"
+    ],
+    "Cyber Security": [
+      "Ethical Hacking",
+      "Penetration Testing",
+      "Network Security",
+      "Cryptography",
+      "Digital Forensics",
+      "Malware Analysis",
+      "Security Auditing"
+    ],
+    "Cloud & DevOps": [
+      "AWS Architecture",
+      "Google Cloud Platform (GCP)",
+      "Microsoft Azure",
+      "Docker & Kubernetes",
+      "CI/CD Pipelines",
+      "Infrastructure as Code (Terraform)"
+    ],
+    "Certifications": {
+      "AWS Certified Solutions Architect": [
+        "Design Resilient Architectures",
+        "Design High-Performing Architectures",
+        "Design Secure Applications",
+        "Cost-Optimized Architectures",
+        "Full Mock Test"
+      ],
+      "CompTIA Security+": [
+        "Attacks, Threats, and Vulnerabilities",
+        "Architecture and Design",
+        "Implementation",
+        "Operations and Incident Response",
+        "Governance, Risk, and Compliance",
+        "Full Mock Test"
+      ],
+      "Cisco CCNA": [
+        "Network Fundamentals",
+        "Network Access",
+        "IP Connectivity",
+        "IP Services",
+        "Security Fundamentals",
+        "Automation and Programmability",
+        "Full Mock Test"
+      ]
+    }
+  },
+  "Business, Management & Finance": {
+    "BBA (Bachelor of Business Administration)": {
+      "Subjects": [
+        "Principles of Management",
+        "Business Mathematics",
+        "Business Economics",
+        "Financial Accounting",
+        "Marketing Management",
+        "Human Resource Management",
+        "Business Communication",
+        "Business Law",
+        "Entrepreneurship"
+      ],
+      "Entrance Exams": {
+        "CUET (UG)": [
+          "Language",
+          "Domain Specific Subjects",
+          "General Test",
+          "Full Mock Test"
+        ],
+        "IPMAT": [
+          "Quantitative Ability",
+          "Verbal Ability",
+          "Logical Reasoning",
+          "Full Mock Test"
+        ],
+        "NPAT": [
+          "Quantitative & Numerical Ability",
+          "Reasoning & General Intelligence",
+          "Proficiency in English Language",
+          "Full Mock Test"
+        ]
+      }
+    },
+    "MBA (Master of Business Administration)": {
+      "Subjects": [
+        "Managerial Economics",
+        "Accounting for Managers",
+        "Business Statistics",
+        "Financial Management",
+        "Marketing Strategy",
+        "Organizational Behavior",
+        "Operations Management",
+        "Strategic Management",
+        "Business Ethics",
+        "International Business",
+        "MIS"
+      ],
+      "Entrance Exams": {
+        "CAT (Common Admission Test)": [
+          "Verbal Ability & Reading Comprehension (VARC)",
+          "Data Interpretation & Logical Reasoning (DILR)",
+          "Quantitative Ability (QA)",
+          "Full Mock Test"
+        ],
+        "XAT": [
+          "Verbal & Logical Ability",
+          "Decision Making",
+          "Quantitative Ability & Data Interpretation",
+          "General Knowledge",
+          "Full Mock Test"
+        ],
+        "SNAP": [
+          "General English",
+          "Analytical & Logical Reasoning",
+          "Quantitative, Data Interpretation & Data Sufficiency",
+          "Full Mock Test"
+        ],
+        "GMAT": [
+          "Analytical Writing Assessment",
+          "Integrated Reasoning",
+          "Quantitative Reasoning",
+          "Verbal Reasoning",
+          "Full Mock Test"
+        ],
+        "GRE": [
+          "Analytical Writing",
+          "Verbal Reasoning",
+          "Quantitative Reasoning",
+          "Full Mock Test"
+        ],
+        "NMAT": [
+          "Language Skills",
+          "Quantitative Skills",
+          "Logical Reasoning",
+          "Full Mock Test"
+        ],
+        "MAT": [
+          "Language Comprehension",
+          "Mathematical Skills",
+          "Data Analysis",
+          "Intelligence & Critical Reasoning",
+          "Indian & Global Environment",
+          "Full Mock Test"
+        ],
+        "CMAT": [
+          "Quantitative Techniques & Data Interpretation",
+          "Logical Reasoning",
+          "Language Comprehension",
+          "General Awareness",
+          "Innovation & Entrepreneurship",
+          "Full Mock Test"
+        ]
+      }
+    },
+    "Commerce (B.Com / M.Com)": {
+      "Subjects": [
+        "Financial Accounting",
+        "Corporate Accounting",
+        "Cost Accounting",
+        "Income Tax Law & Practice",
+        "Business Organization & Management",
+        "Company Law",
+        "Auditing & Corporate Governance",
+        "Business Statistics",
+        "Financial Management",
+        "E-Commerce",
+        "Goods & Services Tax (GST)"
+      ],
+      "Entrance Exams": {
+        "CUET (UG) - Commerce": [
+          "Accountancy/Bookkeeping",
+          "Business Studies",
+          "Economics/Business Economics",
+          "Full Mock Test"
+        ],
+        "CUET (PG) - Commerce": [
+          "Commerce Subject Knowledge",
+          "General Aptitude",
+          "Full Mock Test"
+        ]
+      }
+    },
+    "Accounting & Finance": [
+      "Financial Accounting",
+      "Corporate Finance",
+      "Investment Banking",
+      "Taxation",
+      "Auditing",
+      "Cost Accounting",
+      "Wealth Management",
+      "Risk Management"
+    ],
+    "Management & Marketing": [
+      "Strategic Management",
+      "Organizational Behavior",
+      "Digital Marketing",
+      "Consumer Behavior",
+      "Supply Chain Management",
+      "Human Resource Management",
+      "Operations Management",
+      "Brand Management"
+    ],
+    "Economics": [
+      "Microeconomics",
+      "Macroeconomics",
+      "International Trade",
+      "Econometrics",
+      "Development Economics",
+      "Behavioral Economics"
+    ],
+    "Professional Certifications": {
+      "CFA Level 1": [
+        "Ethical & Professional Standards",
+        "Quantitative Methods",
+        "Economics",
+        "Financial Statement Analysis",
+        "Corporate Issuers",
+        "Equity Investments",
+        "Fixed Income",
+        "Derivatives",
+        "Alternative Investments",
+        "Portfolio Management",
+        "Full Mock Test"
+      ],
+      "CFA Level 2": [
+        "Item Set Scenarios",
+        "Valuation Focus",
+        "Full Mock Test"
+      ],
+      "CPA Exam": [
+        "Auditing & Attestation (AUD)",
+        "Business Environment & Concepts (BEC)",
+        "Financial Accounting & Reporting (FAR)",
+        "Regulation (REG)",
+        "Full Mock Test"
+      ],
+      "FRM (Financial Risk Manager)": [
+        "Foundations of Risk Management",
+        "Quantitative Analysis",
+        "Financial Markets and Products",
+        "Valuation and Risk Models",
+        "Full Mock Test"
+      ]
+    }
+  },
+  "Law & Legal Studies": {
+    "Law Entrance Exams (UG/PG)": {
+      "CLAT (UG)": [
+        "English Language",
+        "Current Affairs & GK",
+        "Legal Reasoning",
+        "Logical Reasoning",
+        "Quantitative Techniques",
+        "Full Mock Test"
+      ],
+      "CLAT (PG)": [
+        "Constitutional Law",
+        "Jurisprudence",
+        "Administrative Law",
+        "Law of Contract",
+        "Torts",
+        "Family Law",
+        "Criminal Law",
+        "Full Mock Test"
+      ],
+      "LSAT": [
+        "Logical Reasoning",
+        "Analytical Reasoning",
+        "Reading Comprehension",
+        "Writing Sample",
+        "Full Mock Test"
+      ]
+    },
+    "Legal Subjects": [
+      "Constitutional Law",
+      "Criminal Law (IPC/CRPC)",
+      "Corporate Law",
+      "International Law",
+      "Intellectual Property Law",
+      "Family Law",
+      "Law of Torts",
+      "Environmental Law",
+      "Labor & Employment Law",
+      "Tax Law"
+    ],
+    "Judiciary Exams": {
+      "State Judicial Services": [
+        "Substantive Law",
+        "Procedural Law",
+        "General Knowledge",
+        "Language/Essay",
+        "Full Mock Test"
+      ]
+    }
+  },
+  "Government & Civil Services Exams": {
+    "UPSC Civil Services (CSE)": {
+      "Prelims": [
+        "General Studies Paper I (History/Polity/Geography/Economy/Environment/Science)",
+        "CSAT (Paper II - Aptitude/Reasoning)",
+        "Full Mock Test"
+      ],
+      "Mains General Studies": [
+        "GS I (Heritage, History & Geography)",
+        "GS II (Governance, Constitution, Polity)",
+        "GS III (Technology, Economic Development, Environment, Security)",
+        "GS IV (Ethics, Integrity & Aptitude)"
+      ]
+    },
+    "State PSC Exams": {
+      "UPPSC / BPSC / MPSC / KPSC / TNPSC": [
+        "General Studies",
+        "State Specific History & Geography",
+        "Aptitude",
+        "Full Mock Test"
+      ]
+    },
+    "Banking & Insurance": {
+      "IBPS PO / SBI PO": [
+        "Quantitative Aptitude",
+        "Reasoning Ability",
+        "English Language",
+        "General/Banking Awareness",
+        "Computer Aptitude",
+        "Full Mock Test"
+      ],
+      "RBI Grade B": [
+        "General Awareness",
+        "Quantitative Aptitude",
+        "English Language",
+        "Reasoning",
+        "Economic and Social Issues",
+        "Finance and Management",
+        "Full Mock Test"
+      ],
+      "LIC AAO": [
+        "Reasoning",
+        "Quantitative Aptitude",
+        "General Knowledge",
+        "Insurance and Financial Market Awareness",
+        "Full Mock Test"
+      ]
+    },
+    "Staff Selection Commission (SSC)": {
+      "SSC CGL": [
+        "General Intelligence & Reasoning",
+        "General Awareness",
+        "Quantitative Aptitude",
+        "English Comprehension",
+        "Statistics (Tier II)",
+        "Full Mock Test"
+      ]
+    },
+    "Defense & Police": {
+      "NDA / NA": [
+        "Mathematics",
+        "General Ability Test (English & GK)",
+        "Full Mock Test"
+      ],
+      "CDS": [
+        "English",
+        "General Knowledge",
+        "Elementary Mathematics",
+        "Full Mock Test"
+      ],
+      "AFCAT": [
+        "General Awareness",
+        "Verbal Ability in English",
+        "Numerical Ability and Reasoning",
+        "Full Mock Test"
+      ]
+    }
+  },
+  "Natural Sciences & Mathematics": {
+    "Mathematics": [
+      "Calculus",
+      "Linear Algebra",
+      "Discrete Mathematics",
+      "Statistics & Probability",
+      "Differential Equations",
+      "Topology",
+      "Number Theory",
+      "Real & Complex Analysis",
+      "Abstract Algebra"
+    ],
+    "Physics": [
+      "Classical Mechanics",
+      "Quantum Mechanics",
+      "Electromagnetism",
+      "Thermodynamics & Statistical Mechanics",
+      "Optics",
+      "Astrophysics",
+      "Nuclear & Particle Physics",
+      "Solid State Physics"
+    ],
+    "Chemistry": [
+      "Organic Chemistry",
+      "Inorganic Chemistry",
+      "Physical Chemistry",
+      "Analytical Chemistry",
+      "Biochemistry",
+      "Polymer Chemistry",
+      "Environmental Chemistry"
+    ],
+    "Biology & Life Sciences": [
+      "Genetics",
+      "Microbiology",
+      "Ecology",
+      "Botany",
+      "Zoology",
+      "Evolution",
+      "Cell & Molecular Biology",
+      "Biotechnology",
+      "Immunology"
+    ],
+    "Earth & Space Sciences": [
+      "Geology",
+      "Meteorology",
+      "Oceanography",
+      "Astronomy",
+      "Environmental Science"
+    ],
+    "Science Entrance Exams": {
+      "JAM (Joint Admission Test for Masters)": [
+        "Physics",
+        "Chemistry",
+        "Mathematics",
+        "Biotechnology",
+        "Mathematical Statistics",
+        "Geology",
+        "Full Mock Test"
+      ],
+      "CSIR NET": [
+        "Chemical Sciences",
+        "Earth Sciences",
+        "Life Sciences",
+        "Mathematical Sciences",
+        "Physical Sciences",
+        "Full Mock Test"
+      ]
+    }
+  },
+  "Humanities, Arts & Social Sciences": {
+    "History": [
+      "Ancient History",
+      "Medieval History",
+      "Modern World History",
+      "Archaeology",
+      "Art History"
+    ],
+    "Political Science & IR": [
+      "Political Theory",
+      "Comparative Politics",
+      "International Relations",
+      "Public Administration",
+      "Geopolitics"
+    ],
+    "Psychology & Sociology": [
+      "Cognitive Psychology",
+      "Clinical Psychology",
+      "Social Psychology",
+      "Sociological Theory",
+      "Cultural Anthropology",
+      "Criminology"
+    ],
+    "Literature & Languages": [
+      "English Literature",
+      "Linguistics",
+      "Creative Writing",
+      "Translation Studies",
+      "Foreign Languages (Spanish/French/German/Mandarin)"
+    ],
+    "Philosophy & Ethics": [
+      "Logic",
+      "Metaphysics",
+      "Epistemology",
+      "Moral Philosophy",
+      "Aesthetics",
+      "Philosophy of Mind"
+    ],
+    "Design & Fine Arts": {
+      "Subjects": [
+        "Graphic Design",
+        "Industrial Design",
+        "Fashion Design",
+        "Animation & VFX",
+        "Painting & Sculpture",
+        "Typography",
+        "UI/UX Design Theory"
+      ],
+      "Entrance Exams": {
+        "NID DAT": [
+          "Prelims (Design Aptitude)",
+          "Mains (Studio Test)",
+          "Full Mock Test"
+        ],
+        "NIFT": [
+          "Creative Ability Test (CAT)",
+          "General Ability Test (GAT)",
+          "Full Mock Test"
+        ],
+        "CEED / UCEED": [
+          "Visual Spatial Ability",
+          "Observation and Design Sensitivity",
+          "Environmental and Social Awareness",
+          "Analytical and Logical Reasoning",
+          "Full Mock Test"
+        ]
+      }
+    }
+  },
+  "Global Standardized Tests (Study Abroad)": {
+    "English Language Proficiency": {
+      "TOEFL": [
+        "Reading",
+        "Listening",
+        "Speaking",
+        "Writing",
+        "Full Mock Test"
+      ],
+      "IELTS": [
+        "Listening",
+        "Reading",
+        "Writing",
+        "Speaking",
+        "Full Mock Test"
+      ],
+      "PTE Academic": [
+        "Speaking & Writing",
+        "Reading",
+        "Listening",
+        "Full Mock Test"
+      ]
+    },
+    "Undergraduate Admissions": {
+      "SAT": ["Reading & Writing", "Math", "Full Mock Test"],
+      "ACT": [
+        "English",
+        "Math",
+        "Reading",
+        "Science",
+        "Writing",
+        "Full Mock Test"
+      ]
+    }
+  }
 }

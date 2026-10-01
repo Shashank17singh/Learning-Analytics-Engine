@@ -20,15 +20,16 @@ _init_conn = get_db_connection()
 init_db(_init_conn)
 _init_conn.close()
 
+
 def format_time_str(seconds):
     """
     Format a duration in seconds into a human-readable string.
-    
+
     Converts raw seconds into a 'Xh Ym Zs' format. Handles missing values.
-    
+
     Args:
         seconds (float/int): The duration to format.
-        
+
     Returns:
         str: The formatted time string (e.g. '1h 30m 15s').
     """
@@ -44,6 +45,7 @@ def format_time_str(seconds):
         return f"{m}m {s}s"
     else:
         return f"{s}s"
+
 
 st.markdown(
     """
@@ -158,17 +160,17 @@ admin_tabs = st.tabs(
 )
 
 with admin_tabs[0]:
-    df_raw = pd.read_sql_query(
-        "SELECT * FROM attempts ORDER BY attempt_id ASC", conn
-    )
+    df_raw = pd.read_sql_query("SELECT * FROM attempts ORDER BY attempt_id ASC", conn)
 
     if df_raw.empty:
         st.markdown("###  Assessment Cohort Analytics")
         st.warning("No assessment attempt records found.")
     else:
-        students_list = ["All Students"] + sorted(df_raw["student_name"].dropna().unique().tolist())
+        students_list = ["All Students"] + sorted(
+            df_raw["student_name"].dropna().unique().tolist()
+        )
         selected_student = st.selectbox("View Analytics for:", students_list)
-        
+
         if selected_student == "All Students":
             st.markdown("###  Assessment Cohort Analytics")
             df_cohort = df_raw.copy()
@@ -200,7 +202,7 @@ with admin_tabs[0]:
         k3.metric("Mean Score", f"{df_cohort['score_percentage'].mean():.1f}%")
         k4.metric(
             "Avg Completion Time",
-            format_time_str(df_cohort['time_taken_seconds'].mean()),
+            format_time_str(df_cohort["time_taken_seconds"].mean()),
         )
 
         st.divider()
@@ -228,7 +230,8 @@ with admin_tabs[0]:
                 label=f"Median: {df_cohort['score_percentage'].median():.1f}%",
             )
             ax1.set_title(
-                f"{chart_prefix} Score Distribution (Histogram & KDE)", fontweight="bold"
+                f"{chart_prefix} Score Distribution (Histogram & KDE)",
+                fontweight="bold",
             )
             ax1.set_xlabel("Score %")
             ax1.legend()
@@ -279,9 +282,15 @@ with admin_tabs[0]:
 
         st.markdown(f"#### Complete {chart_prefix} Attempt Records")
         df_cohort_display = df_cohort.copy()
-        df_cohort_display["attempt_date"] = pd.to_datetime(df_cohort_display["attempt_date"])
-        df_cohort_display["passed"] = df_cohort_display["passed"].apply(lambda x: "Passed" if x else "Failed")
-        df_cohort_display["time_taken_seconds"] = df_cohort_display["time_taken_seconds"].apply(format_time_str)
+        df_cohort_display["attempt_date"] = pd.to_datetime(
+            df_cohort_display["attempt_date"]
+        )
+        df_cohort_display["passed"] = df_cohort_display["passed"].apply(
+            lambda x: "Passed" if x else "Failed"
+        )
+        df_cohort_display["time_taken_seconds"] = df_cohort_display[
+            "time_taken_seconds"
+        ].apply(format_time_str)
         st.dataframe(
             df_cohort_display,
             width="stretch",
@@ -296,7 +305,9 @@ with admin_tabs[0]:
                 ),
                 "time_taken_seconds": "Time Taken",
                 "reviews_used": "Reviews Used",
-                "attempt_date": st.column_config.DatetimeColumn("Attempt Date", format="DD-MM-YYYY HH:mm:ss"),
+                "attempt_date": st.column_config.DatetimeColumn(
+                    "Attempt Date", format="DD-MM-YYYY HH:mm:ss"
+                ),
                 "passed": "Result",
                 "domain": "Domain",
                 "subject": "Subject",
@@ -540,7 +551,9 @@ with admin_tabs[1]:
                 "score_improvement",
             ]
             df_feat_display = df_feat[feature_cols].head(50).copy()
-            df_feat_display["time_taken_seconds"] = df_feat_display["time_taken_seconds"].apply(format_time_str)
+            df_feat_display["time_taken_seconds"] = df_feat_display[
+                "time_taken_seconds"
+            ].apply(format_time_str)
             st.dataframe(
                 df_feat_display,
                 width="stretch",
@@ -639,19 +652,29 @@ with admin_tabs[2]:
 
 with admin_tabs[3]:
     st.markdown("###  Full Assessment Leaderboard")
-    
-    df_filters = pd.read_sql_query("SELECT DISTINCT domain, subject, difficulty FROM attempts", conn)
-    
+
+    df_filters = pd.read_sql_query(
+        "SELECT DISTINCT domain, subject, difficulty FROM attempts", conn
+    )
+
     col1, col2, col3 = st.columns(3)
     with col1:
         domains = ["All"] + sorted(df_filters["domain"].dropna().unique().tolist())
-        selected_domain = st.selectbox("Filter by Domain", domains, key="admin_lb_domain")
+        selected_domain = st.selectbox(
+            "Filter by Domain", domains, key="admin_lb_domain"
+        )
     with col2:
         subjects = ["All"] + sorted(df_filters["subject"].dropna().unique().tolist())
-        selected_subject = st.selectbox("Filter by Subject", subjects, key="admin_lb_subject")
+        selected_subject = st.selectbox(
+            "Filter by Subject", subjects, key="admin_lb_subject"
+        )
     with col3:
-        difficulties = ["All"] + sorted(df_filters["difficulty"].dropna().unique().tolist())
-        selected_difficulty = st.selectbox("Filter by Difficulty", difficulties, key="admin_lb_diff")
+        difficulties = ["All"] + sorted(
+            df_filters["difficulty"].dropna().unique().tolist()
+        )
+        selected_difficulty = st.selectbox(
+            "Filter by Difficulty", difficulties, key="admin_lb_diff"
+        )
 
     query = "SELECT student_name, score, total_questions, score_percentage, domain, subject, difficulty FROM attempts WHERE 1=1"
     params = []
@@ -664,35 +687,50 @@ with admin_tabs[3]:
     if selected_difficulty != "All":
         query += " AND difficulty = %s"
         params.append(selected_difficulty)
-        
+
     df_all = pd.read_sql_query(query, conn, params=params)
 
     if not df_all.empty:
-        idx = df_all.groupby('student_name')['score_percentage'].idxmax()
-        df_admin_lb = df_all.loc[idx].sort_values(by=['score_percentage', 'score'], ascending=[False, False]).reset_index(drop=True)
-        
-        df_admin_lb.rename(columns={
-            "student_name": "Candidate",
-            "score": "Score",
-            "total_questions": "Total",
-            "score_percentage": "Score %",
-            "domain": "Domain",
-            "subject": "Subject",
-            "difficulty": "Difficulty"
-        }, inplace=True)
-        
+        idx = df_all.groupby("student_name")["score_percentage"].idxmax()
+        df_admin_lb = (
+            df_all.loc[idx]
+            .sort_values(by=["score_percentage", "score"], ascending=[False, False])
+            .reset_index(drop=True)
+        )
+
+        df_admin_lb.rename(
+            columns={
+                "student_name": "Candidate",
+                "score": "Score",
+                "total_questions": "Total",
+                "score_percentage": "Score %",
+                "domain": "Domain",
+                "subject": "Subject",
+                "difficulty": "Difficulty",
+            },
+            inplace=True,
+        )
+
         ranks = [
-            (" 1st" if i == 0 else " 2nd" if i == 1 else " 3rd" if i == 2 else f"{i + 1}th")
+            (
+                " 1st"
+                if i == 0
+                else " 2nd"
+                if i == 1
+                else " 3rd"
+                if i == 2
+                else f"{i + 1}th"
+            )
             for i in range(len(df_admin_lb))
         ]
         df_admin_lb.insert(0, "Rank", ranks)
         st.dataframe(
-            df_admin_lb, 
-            width="stretch", 
+            df_admin_lb,
+            width="stretch",
             hide_index=True,
             column_config={
                 "Score %": st.column_config.NumberColumn("Score %", format="%.1f%%")
-            }
+            },
         )
     else:
         st.info("Leaderboard is currently empty for the selected filters.")

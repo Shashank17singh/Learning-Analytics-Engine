@@ -1,12 +1,15 @@
 import os
+
 import psycopg2
 import streamlit as st
+
 import auth_utils
+
 
 def get_db_connection():
     """
     Establish and return a connection to the PostgreSQL database.
-    
+
     Retrieves the database URL from Streamlit secrets or environment variables.
     Returns:
         psycopg2.extensions.connection: A connection object to the database, or None if the URL is missing.
@@ -17,20 +20,21 @@ def get_db_connection():
         return None
     return psycopg2.connect(db_url)
 
+
 def init_db(conn):
     """
     Initialize the database schema if it doesn't already exist.
-    
+
     Creates necessary tables (login, leaderboard, attempts), handles schema migrations,
     and ensures a default admin user is present.
-    
+
     Args:
         conn (psycopg2.extensions.connection): The database connection object.
     """
     if not conn:
         return
     cur = conn.cursor()
-    
+
     cur.execute("""
     CREATE TABLE IF NOT EXISTS login (
         username TEXT PRIMARY KEY,
@@ -48,7 +52,7 @@ def init_db(conn):
         domain TEXT DEFAULT 'General',
         subject TEXT DEFAULT 'General'
     )""")
-    
+
     cur.execute("""
     CREATE TABLE IF NOT EXISTS attempts (
         attempt_id SERIAL PRIMARY KEY,
@@ -65,9 +69,11 @@ def init_db(conn):
         difficulty TEXT DEFAULT 'Medium'
     )""")
 
-    cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='attempts'")
+    cur.execute(
+        "SELECT column_name FROM information_schema.columns WHERE table_name='attempts'"
+    )
     columns = [col[0] for col in cur.fetchall()]
-    if 'difficulty' not in columns:
+    if "difficulty" not in columns:
         cur.execute("ALTER TABLE attempts ADD COLUMN difficulty TEXT DEFAULT 'Medium'")
 
     cur.execute("SELECT username FROM login WHERE username = 'admin'")
