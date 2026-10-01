@@ -44,6 +44,16 @@ def format_time_str(seconds):
     else:
         return f"{s}s"
 
+@st.dialog("End Assessment Early")
+def confirm_end_assessment():
+    st.warning("Are you sure you want to end the test? Your current progress will be saved if you have selected any option.")
+    col1, col2 = st.columns(2)
+    if col1.button("Yes, End Test"):
+        st.session_state.force_submit = True
+        st.rerun()
+    if col2.button("No, Continue Test"):
+        st.rerun()
+
 # -------------------------------------------------------------
 # CUSTOM CSS: REMOVES SIDEBAR & ADDS MODERN PORTAL STYLING
 # -------------------------------------------------------------
@@ -417,6 +427,7 @@ if st.session_state.user_role != "admin":
                         f"b) {b}",
                         f"c) {c}",
                         f"d) {d}",
+                        "Clear Selection"
                     ]
                     c_val = st.radio(
                         f"Select answer for Q{idx}:",
@@ -438,13 +449,27 @@ if st.session_state.user_role != "admin":
 
                     st.write("")
 
-                submit_assessment = st.form_submit_button(
-                    " Finish & Submit Assessment",
-                    type="primary",
-                    width="stretch",
-                )
+                col_btn1, col_btn2 = st.columns(2)
+                with col_btn1:
+                    submit_assessment = st.form_submit_button(
+                        " Finish & Submit Assessment",
+                        type="primary",
+                        use_container_width=True,
+                    )
+                with col_btn2:
+                    cancel_assessment = st.form_submit_button(
+                        " Go Back / End Test Early",
+                        type="secondary",
+                        use_container_width=True,
+                    )
 
-            if submit_assessment:
+            if cancel_assessment:
+                confirm_end_assessment()
+
+            if submit_assessment or st.session_state.get("force_submit", False):
+                if st.session_state.get("force_submit"):
+                    st.session_state.force_submit = False
+                
                 duration = max(
                     1, int(time.time() - st.session_state.assessment_start_time)
                 )
@@ -468,7 +493,7 @@ if st.session_state.user_role != "admin":
                     exp,
                     ques,
                 ) in user_choices.items():
-                    if c_val is None:
+                    if c_val is None or c_val == "Clear Selection":
                         unattempted_count += 1
                         continue
 
