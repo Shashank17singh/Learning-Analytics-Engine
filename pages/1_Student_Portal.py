@@ -96,36 +96,15 @@ st.markdown(
 
     
     
-    
-    /* Global fix for Streamlit button/tab text clipping */
-    button, button * {
-        overflow: visible !important;
+    /* Fix Streamlit tab and button text clipping */
+    [data-testid="stTabs"] [role="tablist"] {
+        padding-top: 15px !important;
+        height: auto !important;
     }
-    button p {
-        padding-top: 8px !important;
-        margin-top: 2px !important;
+    [data-testid="stTabs"] [role="tab"] p {
+        margin-top: 10px !important;
+        margin-bottom: 0 !important;
         line-height: normal !important;
-    }
-
-    /* Fix Streamlit tab text clipping.
-       The tab list has overflowY:clip with a fixed height.
-       Streamlit wraps tab text in <p> tags which may have margins.
-       These margins push the text up in the flex container, causing clipping.
-       We reset margins and line-height to perfectly center the text. */
-    div[data-testid="stTabs"] [role="tab"] {
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-    div[data-testid="stTabs"] [role="tab"] p {
-        margin: 0 !important;
-        padding: 0 !important;
-        line-height: 1.2 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    [role="tablist"] {
-        padding-top: 2px !important;
     }
 </style>
 """,
