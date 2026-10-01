@@ -127,7 +127,7 @@ def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Med
                 "All models are temporarily overloaded. Please try again in a few seconds."
             )
         else:
-            st.error("System Error: Unable to communicate with the assessment engine.")
+            st.error(f"System Error: Unable to communicate with the assessment engine. Details: {error_str}")
         print(f"All models failed. Last error: {last_error}")
     return []
 
