@@ -63,11 +63,12 @@ graph TD
 
 | Capability | Description |
 |---|---|
-| **Assessment Engine** | A secure platform supporting candidate registration, timed assessments, performance tracking, and real-time leaderboard rankings. |
-| **AI-Powered Questions** | Dynamically generates custom, on-the-fly multiple-choice questions across diverse subjects utilizing Google's Gemini Large Language Models. |
-| **Exploratory Data Analysis** | Automated descriptive statistics, competency segmentation, and statistical correlations (e.g., time elapsed vs. final score). |
+| **Assessment Engine** | Secure platform supporting candidate registration, timed assessments, and performance tracking. Features detailed post-assessment feedback with correct answers and AI-generated explanations for mistakes. |
+| **Dynamic Leaderboards** | Real-time, grouped hall of fame with explicit ranking. Filter top performers dynamically across specific Domains, Subjects, or Difficulty levels (Easy, Medium, Hard). |
+| **AI-Powered Questions** | Dynamically generates custom, on-the-fly multiple-choice questions utilizing Google's Gemini Large Language Models, tailored to the user's selected difficulty. |
+| **Personalized Analytics** | Students have access to a dedicated analytics tab showcasing their own personal seaborn charts (Score Distribution, Duration vs. Score, and Competency Breakdown). |
+| **Granular Admin Insights** | Admins can view merged cohort statistics or use intuitive dropdowns to isolate and evaluate individual student performance interactively. |
 | **Machine Learning** | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation). |
-| **Interactive Dashboard** | Provides a modern, reactive admin interface to interact with real-time cohort analytics, histograms, and correlation heatmaps. |
 
 ---
 
@@ -147,10 +148,11 @@ The app will open automatically in your browser at `http://localhost:8501`.
 
 ## Key Workflows
 
-1. **Dynamic Content Generation:** Generates real-time, topic-specific assessments via the Gemini API based on student preferences.
-2. **End-to-End Tracking:** Student actions (time taken, accuracy, domain chosen) are captured in SQLite and analyzed dynamically using Pandas.
-3. **Statistical Rigor:** Computes standard deviation, IQR, and Pearson correlation coefficients to identify conceptual bottlenecks.
-4. **Predictive Modeling:** Trains Random Forest and Logistic Regression models on-the-fly to predict student success based on behavioral telemetry.
+1. **Dynamic Content Generation:** Generates real-time, topic-specific assessments via the Gemini API based on student preferences (Domain, Subject, and Difficulty).
+2. **Immediate Feedback Loop:** Submitting an assessment provides students with instant grading and transparent explanations for incorrect answers.
+3. **End-to-End Tracking:** Student actions (time taken, accuracy, domain chosen) are captured in SQLite, rendered cleanly with standardized dates/times, and analyzed dynamically using Pandas.
+4. **Statistical Rigor & Visualization:** Computes standard deviation, IQR, and Pearson correlation coefficients to identify conceptual bottlenecks. Visualized cleanly via Matplotlib and Seaborn for both students and admins.
+5. **Predictive Modeling:** Trains Random Forest and Logistic Regression models on-the-fly to predict student success based on behavioral telemetry.
 
 ---
 
