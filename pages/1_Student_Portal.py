@@ -450,6 +450,7 @@ if st.session_state.user_role != "admin":
                 "You haven't completed any assessments yet. Take an assessment in Tab 1 to see your personal learning analytics here!"
             )
         else:
+            df_my['passed'] = df_my['passed'].astype(bool)
             m1, m2, m3, m4 = st.columns(4)
             m1.metric("Total Assessments", len(df_my))
             m2.metric("Average Score", f"{df_my['score_percentage'].mean():.1f}%")
