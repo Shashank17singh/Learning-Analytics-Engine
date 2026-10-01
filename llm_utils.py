@@ -77,7 +77,7 @@ def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Med
                     )
                     time.sleep(2)
                     continue
-                st.error(f"Gemini API Error ({model_name}): {e!s}")
+                st.error("System Error: Unable to generate assessment content at this time. Please try again.")
                 print(f"Error generating questions ({model_name}): {e}")
                 return []
 
@@ -88,7 +88,7 @@ def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Med
                 "All models are temporarily overloaded. Please try again in a few seconds."
             )
         else:
-            st.error(f"Gemini API Error: {last_error!s}")
+            st.error("System Error: Unable to communicate with the assessment engine.")
         print(f"All models failed. Last error: {last_error}")
     return []
 
