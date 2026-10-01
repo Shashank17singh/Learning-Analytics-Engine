@@ -163,7 +163,7 @@ def get_top_performers(conn, limit=10):
     GROUP BY student_name
     HAVING COUNT(*) >= 2
     ORDER BY avg_score DESC, total_attempts DESC
-    LIMIT ?
+    LIMIT %s
     """
     return pd.read_sql_query(query, conn, params=(limit,))
 
