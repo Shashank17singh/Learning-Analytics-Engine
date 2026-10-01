@@ -1,7 +1,10 @@
 import json
 import time
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import seaborn as sns
 import streamlit as st
 
 import llm_utils
@@ -477,6 +480,93 @@ if st.session_state.user_role != "admin":
             m4.metric(
                 "Success Rate", f"{(df_my['passed'].sum() / len(df_my)) * 100:.1f}%"
             )
+
+            st.divider()
+
+            # Personal Visual Grid (2x2)
+            df_my["Performance Tier"] = pd.cut(
+                df_my["score_percentage"],
+                bins=[-np.inf, 49.99, 74.99, 100],
+                labels=[
+                    "Needs Improvement (<50%)",
+                    "Competent (50-74%)",
+                    "Distinction (75-100%)",
+                ],
+            )
+
+            row1_col1, row1_col2 = st.columns(2)
+            with row1_col1:
+                fig1, ax1 = plt.subplots(figsize=(7, 4.5))
+                sns.histplot(
+                    df_my["score_percentage"],
+                    kde=True,
+                    color="#1E40AF",
+                    bins=12,
+                    ax=ax1,
+                )
+                if len(df_my) > 0:
+                    ax1.axvline(
+                        df_my["score_percentage"].mean(),
+                        color="red",
+                        linestyle="--",
+                        label=f"Mean: {df_my['score_percentage'].mean():.1f}%",
+                    )
+                    ax1.axvline(
+                        df_my["score_percentage"].median(),
+                        color="green",
+                        linestyle="-.",
+                        label=f"Median: {df_my['score_percentage'].median():.1f}%",
+                    )
+                ax1.set_title(
+                    "Personal Score Distribution (Histogram & KDE)", fontweight="bold"
+                )
+                ax1.set_xlabel("Score %")
+                ax1.legend()
+                st.pyplot(fig1)
+
+            with row1_col2:
+                fig2, ax2 = plt.subplots(figsize=(7, 4.5))
+                sns.scatterplot(
+                    data=df_my,
+                    x="time_taken_seconds",
+                    y="score_percentage",
+                    hue="passed",
+                    palette={True: "#2ca02c", False: "#d62728"},
+                    s=60,
+                    alpha=0.85,
+                    ax=ax2,
+                )
+                if len(df_my) > 1:
+                    sns.regplot(
+                        data=df_my,
+                        x="time_taken_seconds",
+                        y="score_percentage",
+                        scatter=False,
+                        color="black",
+                        line_kws={"linestyle": "--", "linewidth": 1.5},
+                        ax=ax2,
+                    )
+                ax2.set_title(
+                    "Completion Duration vs. Score Performance", fontweight="bold"
+                )
+                ax2.set_xlabel("Time Taken (Seconds)")
+                ax2.set_ylabel("Score %")
+                st.pyplot(fig2)
+
+            row2_col1, row2_col2 = st.columns(2)
+            with row2_col1:
+                fig4, ax4 = plt.subplots(figsize=(7, 4.5))
+                t_counts = df_my["Performance Tier"].value_counts()
+                ax4.pie(
+                    t_counts,
+                    labels=t_counts.index,
+                    autopct="%1.1f%%",
+                    startangle=140,
+                    colors=["#99ff99", "#66b3ff", "#ff9999"],
+                    wedgeprops={"width": 0.4, "edgecolor": "white"},
+                )
+                ax4.set_title("Personal Competency Breakdown", fontweight="bold")
+                st.pyplot(fig4)
 
             st.divider()
             st.markdown("#### Assessment History")
