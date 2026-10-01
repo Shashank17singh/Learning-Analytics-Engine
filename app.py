@@ -169,7 +169,7 @@ if not st.session_state.authenticated:
                         cur = conn.cursor()
                         pwd_hash = auth_utils.hash_password(login_pwd)
                         cur.execute(
-                            "SELECT username, role FROM login WHERE LOWER(TRIM(username)) = ? AND TRIM(password) = ? AND status = 'active'",
+                            "SELECT username, role FROM login WHERE LOWER(TRIM(username)) = %s AND TRIM(password) = %s AND status = 'active'",
                             (login_user, pwd_hash),
                         )
                         row = cur.fetchone()
@@ -235,7 +235,7 @@ if not st.session_state.authenticated:
                         conn = get_db_connection()
                         cur = conn.cursor()
                         cur.execute(
-                            "SELECT username FROM login WHERE LOWER(TRIM(username)) = ?",
+                            "SELECT username FROM login WHERE LOWER(TRIM(username)) = %s",
                             (reg_user,),
                         )
                         if cur.fetchone():
@@ -245,7 +245,7 @@ if not st.session_state.authenticated:
                         else:
                             pwd_hash = auth_utils.hash_password(reg_pwd)
                             cur.execute(
-                                "INSERT INTO login VALUES (?, ?, 'student', 'active')",
+                                "INSERT INTO login VALUES (%s, %s, 'student', 'active')",
                                 (reg_user, pwd_hash),
                             )
                             conn.commit()

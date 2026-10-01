@@ -665,7 +665,7 @@ if st.session_state.user_role != "admin":
                     INSERT INTO attempts (
                         student_name, score, total_questions, score_percentage,
                         time_taken_seconds, reviews_used, attempt_date, passed, domain, subject, difficulty
-                    ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), ?, ?, ?, ?)
+                    ) VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, %s, %s, %s)
                     """,
                     (
                         st.session_state.username,
@@ -682,11 +682,11 @@ if st.session_state.user_role != "admin":
                 )
 
                 # Save leaderboard
-                cur.execute("PRAGMA table_info(leaderboard)")
-                cols = [r[1] for r in cur.fetchall()]
-                t_col = "total_questions" if "total_questions" in cols else "limit"
+                cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='leaderboard'")
+                cols = [r[0] for r in cur.fetchall()]
+                t_col = "total_questions" if "total_questions" in cols else "total_questions"
                 cur.execute(
-                    f"INSERT INTO leaderboard (name, score, [{t_col}], scoreper) VALUES (?, ?, ?, ?)",
+                    f"INSERT INTO leaderboard (name, score, {t_col}, scoreper) VALUES (%s, %s, %s, %s)",
                     (
                         st.session_state.username,
                         correct_count,

@@ -1,18 +1,21 @@
 import os
-import sqlite3
-
+import psycopg2
+import streamlit as st
 import auth_utils
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "telemetry.db")
-
-
 def get_db_connection():
-    return sqlite3.connect(DB_PATH, check_same_thread=False)
-
+    # Use st.secrets to get the Supabase URL
+    db_url = st.secrets.get("DATABASE_URL", os.getenv("DATABASE_URL"))
+    if not db_url:
+        st.error("DATABASE_URL not found in secrets.")
+        return None
+    return psycopg2.connect(db_url)
 
 def init_db(conn):
+    if not conn:
+        return
     cur = conn.cursor()
+    
     cur.execute("""
     CREATE TABLE IF NOT EXISTS login (
         username TEXT PRIMARY KEY,
@@ -30,9 +33,10 @@ def init_db(conn):
         domain TEXT DEFAULT 'General',
         subject TEXT DEFAULT 'General'
     )""")
+    
     cur.execute("""
     CREATE TABLE IF NOT EXISTS attempts (
-        attempt_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        attempt_id SERIAL PRIMARY KEY,
         student_name TEXT,
         score INTEGER,
         total_questions INTEGER,
@@ -46,9 +50,9 @@ def init_db(conn):
         difficulty TEXT DEFAULT 'Medium'
     )""")
 
-    # Handle schema migration for existing databases
-    cur.execute("PRAGMA table_info(attempts)")
-    columns = [col[1] for col in cur.fetchall()]
+    # Handle schema migration for existing databases in PostgreSQL
+    cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='attempts'")
+    columns = [col[0] for col in cur.fetchall()]
     if 'difficulty' not in columns:
         cur.execute("ALTER TABLE attempts ADD COLUMN difficulty TEXT DEFAULT 'Medium'")
 
@@ -57,7 +61,8 @@ def init_db(conn):
         admin_pass = auth_utils.get_default_admin_password()
         pwd_hash = auth_utils.hash_password(admin_pass)
         cur.execute(
-            "INSERT INTO login VALUES ('admin', ?, 'admin', 'active')", (pwd_hash,)
+            "INSERT INTO login VALUES ('admin', %s, 'admin', 'active')", (pwd_hash,)
         )
 
     conn.commit()
+    cur.close()
