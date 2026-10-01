@@ -20,3 +20,5 @@ scratch/
 
 # Database (contains user credentials — do not commit)
 telemetry.db
+
+.streamlit/secrets.toml
