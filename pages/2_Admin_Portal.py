@@ -25,6 +25,23 @@ init_db(_init_conn)
 _init_conn.close()
 
 # -------------------------------------------------------------
+# HELPER FUNCTIONS
+# -------------------------------------------------------------
+def format_time_str(seconds):
+    if pd.isna(seconds):
+        return ""
+    s = int(seconds)
+    h = s // 3600
+    m = (s % 3600) // 60
+    s = s % 60
+    if h > 0:
+        return f"{h}h {m}m {s}s"
+    elif m > 0:
+        return f"{m}m {s}s"
+    else:
+        return f"{s}s"
+
+# -------------------------------------------------------------
 # CUSTOM CSS: REMOVES SIDEBAR & ADDS MODERN PORTAL STYLING
 # -------------------------------------------------------------
 st.markdown(
@@ -257,6 +274,7 @@ with admin_tabs[0]:
         st.markdown("#### Complete Cohort Attempt Records")
         df_cohort_display = df_cohort.copy()
         df_cohort_display["passed"] = df_cohort_display["passed"].apply(lambda x: "Passed" if x else "Failed")
+        df_cohort_display["time_taken_seconds"] = df_cohort_display["time_taken_seconds"].apply(format_time_str)
         st.dataframe(
             df_cohort_display,
             width="stretch",
@@ -269,7 +287,7 @@ with admin_tabs[0]:
                 "score_percentage": st.column_config.NumberColumn(
                     "Score %", format="%.1f%%"
                 ),
-                "time_taken_seconds": "Time Taken (s)",
+                "time_taken_seconds": "Time Taken",
                 "reviews_used": "Reviews Used",
                 "attempt_date": "Attempt Date",
                 "passed": "Result",
@@ -519,14 +537,16 @@ with admin_tabs[1]:
                 "attempt_number",
                 "score_improvement",
             ]
+            df_feat_display = df_feat[feature_cols].head(50).copy()
+            df_feat_display["time_taken_seconds"] = df_feat_display["time_taken_seconds"].apply(format_time_str)
             st.dataframe(
-                df_feat[feature_cols].head(50),
+                df_feat_display,
                 width="stretch",
                 hide_index=True,
                 column_config={
                     "student_name": "Student Name",
                     "score_percentage": "Score %",
-                    "time_taken_seconds": "Time Taken (s)",
+                    "time_taken_seconds": "Time Taken",
                     "reviews_used": "Reviews Used",
                     "speed": st.column_config.NumberColumn(
                         "Speed (Q/s)", format="%.4f"
