@@ -75,6 +75,13 @@ st.markdown(
         padding-bottom: 3rem;
         max-width: 1200px;
     }
+    /* Force pills (used for quiz options) to stack vertically */
+    div[data-testid="stPills"] > div {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
     /* Modern Header */
     .portal-navbar {
         background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
