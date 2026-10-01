@@ -108,18 +108,11 @@ st.markdown(
         line-height: normal !important;
     }
 
-    /* Fix Streamlit tab text clipping (Streamlit 1.64+ uses React Aria, not Base Web) */
-    div[data-testid="stTabs"] > div[role="tablist"] {
-        overflow: visible !important;
-    }
-    div[data-testid="stTabs"] div[role="tab"] {
-        overflow: visible !important;
-        padding-top: 6px !important;
-    }
-    div[data-testid="stTabs"] div[role="tab"] div,
-    div[data-testid="stTabs"] div[role="tab"] p {
-        overflow: visible !important;
-        line-height: 1.5 !important;
+    /* Fix Streamlit tab text clipping.
+       Streamlit 1.64 Emotion class e1ac7blb3 (tab list) sets overflowY: clip
+       which clips the top of tall characters. Override it directly. */
+    .e1ac7blb3 {
+        overflow-y: visible !important;
     }
 </style>
 """,
