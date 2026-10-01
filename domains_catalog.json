@@ -107,16 +107,37 @@
         }
     },
     "Business, Management & Finance": {
+        "BBA (Bachelor of Business Administration)": {
+            "Subjects": ["Principles of Management", "Business Mathematics", "Business Economics", "Financial Accounting", "Marketing Management", "Human Resource Management", "Business Communication", "Business Law", "Entrepreneurship"],
+            "Entrance Exams": {
+                "CUET (UG)": ["Language", "Domain Specific Subjects", "General Test", "Full Mock Test"],
+                "IPMAT": ["Quantitative Ability", "Verbal Ability", "Logical Reasoning", "Full Mock Test"],
+                "NPAT": ["Quantitative & Numerical Ability", "Reasoning & General Intelligence", "Proficiency in English Language", "Full Mock Test"]
+            }
+        },
+        "MBA (Master of Business Administration)": {
+            "Subjects": ["Managerial Economics", "Accounting for Managers", "Business Statistics", "Financial Management", "Marketing Strategy", "Organizational Behavior", "Operations Management", "Strategic Management", "Business Ethics", "International Business", "MIS"],
+            "Entrance Exams": {
+                "CAT (Common Admission Test)": ["Verbal Ability & Reading Comprehension (VARC)", "Data Interpretation & Logical Reasoning (DILR)", "Quantitative Ability (QA)", "Full Mock Test"],
+                "XAT": ["Verbal & Logical Ability", "Decision Making", "Quantitative Ability & Data Interpretation", "General Knowledge", "Full Mock Test"],
+                "SNAP": ["General English", "Analytical & Logical Reasoning", "Quantitative, Data Interpretation & Data Sufficiency", "Full Mock Test"],
+                "GMAT": ["Analytical Writing Assessment", "Integrated Reasoning", "Quantitative Reasoning", "Verbal Reasoning", "Full Mock Test"],
+                "GRE": ["Analytical Writing", "Verbal Reasoning", "Quantitative Reasoning", "Full Mock Test"],
+                "NMAT": ["Language Skills", "Quantitative Skills", "Logical Reasoning", "Full Mock Test"],
+                "MAT": ["Language Comprehension", "Mathematical Skills", "Data Analysis", "Intelligence & Critical Reasoning", "Indian & Global Environment", "Full Mock Test"],
+                "CMAT": ["Quantitative Techniques & Data Interpretation", "Logical Reasoning", "Language Comprehension", "General Awareness", "Innovation & Entrepreneurship", "Full Mock Test"]
+            }
+        },
+        "Commerce (B.Com / M.Com)": {
+            "Subjects": ["Financial Accounting", "Corporate Accounting", "Cost Accounting", "Income Tax Law & Practice", "Business Organization & Management", "Company Law", "Auditing & Corporate Governance", "Business Statistics", "Financial Management", "E-Commerce", "Goods & Services Tax (GST)"],
+            "Entrance Exams": {
+                "CUET (UG) - Commerce": ["Accountancy/Bookkeeping", "Business Studies", "Economics/Business Economics", "Full Mock Test"],
+                "CUET (PG) - Commerce": ["Commerce Subject Knowledge", "General Aptitude", "Full Mock Test"]
+            }
+        },
         "Accounting & Finance": ["Financial Accounting", "Corporate Finance", "Investment Banking", "Taxation", "Auditing", "Cost Accounting", "Wealth Management", "Risk Management"],
         "Management & Marketing": ["Strategic Management", "Organizational Behavior", "Digital Marketing", "Consumer Behavior", "Supply Chain Management", "Human Resource Management", "Operations Management", "Brand Management"],
         "Economics": ["Microeconomics", "Macroeconomics", "International Trade", "Econometrics", "Development Economics", "Behavioral Economics"],
-        "Management Entrance Exams": {
-            "CAT (Common Admission Test)": ["Verbal Ability & Reading Comprehension (VARC)", "Data Interpretation & Logical Reasoning (DILR)", "Quantitative Ability (QA)", "Full Mock Test"],
-            "XAT": ["Verbal & Logical Ability", "Decision Making", "Quantitative Ability & Data Interpretation", "General Knowledge", "Full Mock Test"],
-            "SNAP": ["General English", "Analytical & Logical Reasoning", "Quantitative, Data Interpretation & Data Sufficiency", "Full Mock Test"],
-            "GMAT": ["Analytical Writing Assessment", "Integrated Reasoning", "Quantitative Reasoning", "Verbal Reasoning", "Full Mock Test"],
-            "GRE": ["Analytical Writing", "Verbal Reasoning", "Quantitative Reasoning", "Full Mock Test"]
-        },
         "Professional Certifications": {
             "CFA Level 1": ["Ethical & Professional Standards", "Quantitative Methods", "Economics", "Financial Statement Analysis", "Corporate Issuers", "Equity Investments", "Fixed Income", "Derivatives", "Alternative Investments", "Portfolio Management", "Full Mock Test"],
             "CFA Level 2": ["Item Set Scenarios", "Valuation Focus", "Full Mock Test"],
