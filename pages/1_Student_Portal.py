@@ -443,9 +443,16 @@ if st.session_state.user_role != "admin":
                             
                             if (remaining <= 0) {{
                                 clearInterval(interval);
-                                timerText.innerHTML = "⏰ TIME UP!";
+                                timerText.innerHTML = "TIME UP! SUBMITTING...";
                                 timerContainer.style.color = "#ff4444";
                                 timerContainer.style.borderColor = "#ff4444";
+                                
+                                // Find and click the Finish & Submit button
+                                var btns = Array.from(window.parent.document.querySelectorAll('button'));
+                                var submitBtn = btns.find(b => b.innerText.includes('Finish & Submit'));
+                                if (submitBtn) {{
+                                    submitBtn.click();
+                                }}
                                 return;
                             }}
                             
