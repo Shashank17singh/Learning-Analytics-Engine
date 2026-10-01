@@ -74,9 +74,7 @@ def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Med
     """
 
     models_to_try = [
-        "gemini-1.5-flash",
-        "gemini-2.0-flash",
-        "gemini-1.5-pro"
+        "gemini-3.8-flash",
     ]
 
     import time
@@ -153,7 +151,7 @@ def explain_wrong_answer(question: str, selected_answer: str, correct_answer: st
     
     try:
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-3.8-flash",
             contents=prompt,
             config=types.GenerateContentConfig(temperature=0.7),
         )
