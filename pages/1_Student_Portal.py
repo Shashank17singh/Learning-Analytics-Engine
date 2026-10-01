@@ -379,7 +379,7 @@ if st.session_state.user_role != "admin":
                         st.rerun()
                     else:
                         st.error(
-                            f"{provider.split()[0]} failed to generate questions. Ensure API Key is valid and try again."
+                            "Failed to generate questions. Please try again."
                         )
                         st.session_state.student_assessment_started = False
                         st.stop()
