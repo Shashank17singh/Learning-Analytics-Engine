@@ -156,6 +156,7 @@ with admin_tabs[0]:
     if df_cohort.empty:
         st.warning("No assessment attempt records found.")
     else:
+        df_cohort["passed"] = df_cohort["passed"].astype(bool)
         df_cohort["Performance Tier"] = pd.cut(
             df_cohort["score_percentage"],
             bins=[-np.inf, 49.99, 74.99, 100],
