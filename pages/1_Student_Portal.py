@@ -559,7 +559,7 @@ if st.session_state.user_role != "admin":
                 col_res1, col_res2, col_res3, col_res4 = st.columns(4)
                 col_res1.metric("Your Score", f"{raw_score:.2f} / {max_possible_score}")
                 col_res2.metric("Accuracy", f"{score_percentage:.1f}%")
-                col_res3.metric("Duration", f"{duration}s")
+                col_res3.metric("Duration", format_time_str(duration))
                 col_res4.metric("Status", "Passed " if passed else "Completed ")
 
                 if st.session_state.get("incorrect_answers"):
