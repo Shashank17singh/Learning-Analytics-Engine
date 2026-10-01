@@ -473,6 +473,7 @@ if st.session_state.user_role != "admin":
                     ]
                 ],
                 width="stretch",
+                hide_index=True,
                 column_config={
                     "attempt_date": "Attempt Date",
                     "score": "Score",
@@ -511,7 +512,7 @@ if st.session_state.user_role != "admin":
                 for i in range(len(df_lb))
             ]
             df_lb.insert(0, "Rank", ranks)
-            st.dataframe(df_lb, width="stretch")
+            st.dataframe(df_lb, width="stretch", hide_index=True)
         else:
             st.info("Leaderboard is currently empty.")
 

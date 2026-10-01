@@ -258,6 +258,7 @@ with admin_tabs[0]:
         st.dataframe(
             df_cohort,
             width="stretch",
+            hide_index=True,
             column_config={
                 "attempt_id": "Attempt ID",
                 "student_name": "Student Name",
@@ -519,6 +520,7 @@ with admin_tabs[1]:
             st.dataframe(
                 df_feat[feature_cols].head(50),
                 width="stretch",
+                hide_index=True,
                 column_config={
                     "student_name": "Student Name",
                     "score_percentage": "Score %",
@@ -611,7 +613,7 @@ with admin_tabs[2]:
         "SELECT username as 'Username', role as 'Role', status as 'Status' FROM login",
         conn,
     )
-    st.dataframe(df_users, width="stretch")
+    st.dataframe(df_users, width="stretch", hide_index=True)
 
 # TAB 4: LEADERBOARD
 with admin_tabs[3]:
@@ -624,4 +626,4 @@ with admin_tabs[3]:
         f"SELECT name as 'Candidate', score as 'Score', [{t_col}] as 'Total', scoreper as 'Score %' FROM leaderboard ORDER BY scoreper DESC",
         conn,
     )
-    st.dataframe(df_admin_lb, width="stretch")
+    st.dataframe(df_admin_lb, width="stretch", hide_index=True)
