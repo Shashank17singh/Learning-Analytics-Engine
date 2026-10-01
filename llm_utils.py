@@ -7,6 +7,22 @@ from google import genai
 from google.genai import types
 
 def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Medium", context: str = None, exam_format: str = "Standard") -> list:
+    """
+    Generate assessment questions using the configured AI provider.
+    
+    Constructs a detailed prompt with the specified parameters and exam format constraints,
+    queries the selected LLM, and parses the returned JSON containing the questions.
+    
+    Args:
+        topic (str): The subject matter for the generated questions.
+        count (int): The number of questions to generate (default is 5).
+        difficulty (str): The desired difficulty level of the questions (default is "Medium").
+        context (str, optional): Additional contextual information or study material.
+        exam_format (str): The target format/style of the exam (default is "Standard").
+        
+    Returns:
+        list: A list of parsed question dictionaries matching the requested format.
+    """
     provider = st.session_state.get("custom_ai_provider", "System Default")
     custom_key = st.session_state.get("custom_api_key", "")
 
@@ -150,6 +166,21 @@ def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Med
         return []
 
 def explain_wrong_answer(question: str, selected_answer: str, correct_answer: str, base_explanation: str) -> str:
+    """
+    Generate a dynamic, targeted explanation for a student's incorrect answer.
+    
+    Uses the configured AI provider to create a concise response explaining why the
+    student's specific selection was wrong, while reinforcing the correct reasoning.
+    
+    Args:
+        question (str): The original question text.
+        selected_answer (str): The incorrect answer chosen by the student.
+        correct_answer (str): The actual correct answer.
+        base_explanation (str): The generic explanation for the correct answer.
+        
+    Returns:
+        str: A dynamically generated explanation addressing the student's specific misconception.
+    """
     provider = st.session_state.get("custom_ai_provider", "System Default")
     custom_key = st.session_state.get("custom_api_key", "")
     

@@ -18,10 +18,22 @@ import streamlit as st
 import extra_streamlit_components as stx
 
 def get_cookie_manager():
+    """
+    Initialize and return a Streamlit cookie manager component.
+    
+    Returns:
+        stx.CookieManager: The configured cookie manager instance.
+    """
     return stx.CookieManager(key="auth_cookie_manager")
 
 def sync_session_state():
-    """Sync session state from cookies to survive F5 refreshes."""
+    """
+    Synchronize the application session state from cookies.
+    
+    Ensures that user authentication status survives browser refreshes
+    by checking for a valid session token in cookies and restoring
+    the corresponding user data from the session file.
+    """
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
     if "username" not in st.session_state:
@@ -44,7 +56,16 @@ def sync_session_state():
             pass
 
 def login_user(username, role):
-    """Log the user in and persist the session via cookie."""
+    """
+    Authenticate a user and persist their session.
+    
+    Updates the active Streamlit session state and creates a persistent
+    session file linked to a secure cookie token.
+    
+    Args:
+        username (str): The authenticated user's username.
+        role (str): The role assigned to the user (e.g., 'student' or 'admin').
+    """
     st.session_state.authenticated = True
     st.session_state.username = username
     st.session_state.user_role = role
@@ -58,7 +79,12 @@ def login_user(username, role):
     cm.set("session_token", token, max_age=86400) # 1 day
 
 def logout_user():
-    """Log the user out and clear the session."""
+    """
+    Terminate the user session and clear associated authentication data.
+    
+    Resets the Streamlit session state, deletes the persistent session file,
+    and removes the authentication cookie.
+    """
     st.session_state.authenticated = False
     st.session_state.username = ""
     st.session_state.user_role = ""

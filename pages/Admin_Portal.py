@@ -8,9 +8,6 @@ import analytics
 import ml_models
 from db_utils import get_db_connection, init_db
 
-# -------------------------------------------------------------
-# PAGE CONFIGURATION (NO SIDEBAR, FULL BROWSER APP LAYOUT)
-# -------------------------------------------------------------
 st.set_page_config(
     page_title="Assessment & Analytics Portal",
     page_icon="",
@@ -19,15 +16,22 @@ st.set_page_config(
 )
 
 
-# Initialize database on app startup
 _init_conn = get_db_connection()
 init_db(_init_conn)
 _init_conn.close()
 
-# -------------------------------------------------------------
-# HELPER FUNCTIONS
-# -------------------------------------------------------------
 def format_time_str(seconds):
+    """
+    Format a duration in seconds into a human-readable string.
+    
+    Converts raw seconds into a 'Xh Ym Zs' format. Handles missing values.
+    
+    Args:
+        seconds (float/int): The duration to format.
+        
+    Returns:
+        str: The formatted time string (e.g. '1h 30m 15s').
+    """
     if pd.isna(seconds):
         return ""
     s = int(seconds)
@@ -41,9 +45,6 @@ def format_time_str(seconds):
     else:
         return f"{s}s"
 
-# -------------------------------------------------------------
-# CUSTOM CSS: REMOVES SIDEBAR & ADDS MODERN PORTAL STYLING
-# -------------------------------------------------------------
 st.markdown(
     """
 <style>
@@ -132,12 +133,8 @@ st.markdown(
 
 import auth_utils
 
-# -------------------------------------------------------------
-# SESSION STATE INITIALIZATION
-# -------------------------------------------------------------
 auth_utils.sync_session_state()
 
-# Logout Button UI
 col1, col2 = st.columns([8, 1])
 with col2:
     if st.button("Logout", key="logout_btn", use_container_width=True):
@@ -151,9 +148,6 @@ if not st.session_state.authenticated or st.session_state.user_role != "admin":
 
 conn = get_db_connection()
 
-# =========================================================
-# ROLE B: ADMINISTRATOR DASHBOARD
-# =========================================================
 admin_tabs = st.tabs(
     [
         " Cohort Analytics & BI Dashboard",
@@ -163,7 +157,6 @@ admin_tabs = st.tabs(
     ]
 )
 
-# TAB 1: COHORT ANALYTICS & BI DASHBOARD
 with admin_tabs[0]:
     df_raw = pd.read_sql_query(
         "SELECT * FROM attempts ORDER BY attempt_id ASC", conn
@@ -199,7 +192,6 @@ with admin_tabs[0]:
             ],
         )
 
-        # KPIs
         k1, k2, k3, k4 = st.columns(4)
         tot = len(df_cohort)
         pass_cnt = int(df_cohort["passed"].sum())
@@ -320,7 +312,6 @@ with admin_tabs[0]:
             mime="text/csv",
         )
 
-# TAB 2: ML & PREDICTIVE ANALYTICS (Scikit-learn)
 with admin_tabs[1]:
     st.markdown("###  Machine Learning & Predictive Analytics")
     df_ml = pd.read_sql_query("SELECT * FROM attempts ORDER BY attempt_date ASC", conn)
@@ -341,7 +332,6 @@ with admin_tabs[1]:
             ]
         )
 
-        # --- Classification Tab ---
         with ml_sub_tabs[0]:
             st.markdown("#### Binary Classification: Pass/Fail Prediction")
             st.caption(
@@ -408,7 +398,6 @@ with admin_tabs[1]:
                     ax_fi.invert_yaxis()
                     st.pyplot(fig_fi)
 
-        # --- Regression Tab ---
         with ml_sub_tabs[1]:
             st.markdown("#### Linear Regression: Score Prediction")
             st.caption("Predicting score_percentage from engagement features")
@@ -460,7 +449,6 @@ with admin_tabs[1]:
                 ax_coef.set_title("Feature Coefficients", fontweight="bold")
                 st.pyplot(fig_coef)
 
-        # --- Clustering Tab ---
         with ml_sub_tabs[2]:
             st.markdown("#### K-Means Clustering: Learner Segmentation")
             st.caption(
@@ -537,7 +525,6 @@ with admin_tabs[1]:
                 ax_el.legend()
                 st.pyplot(fig_el)
 
-        # --- Feature Engineering Tab ---
         with ml_sub_tabs[3]:
             st.markdown("#### Feature Engineering: Derived Features")
             st.caption("New features computed from raw attempt data for ML modeling")
@@ -604,7 +591,6 @@ with admin_tabs[1]:
             ax_corr.set_title("Feature Correlation Heatmap", fontweight="bold")
             st.pyplot(fig_corr)
 
-        # --- Advanced SQL Tab ---
         with ml_sub_tabs[4]:
             st.markdown("#### Advanced SQL Analytics")
             st.caption(
@@ -645,7 +631,6 @@ with admin_tabs[1]:
             df_reviews = analytics.get_review_vs_passrate(conn)
             st.dataframe(df_reviews, width="stretch", hide_index=True)
 
-# TAB 3: REGISTERED ACCOUNTS
 with admin_tabs[2]:
     st.markdown("###  Registered Users & Student Accounts")
     df_users = pd.read_sql_query(
@@ -654,7 +639,6 @@ with admin_tabs[2]:
     )
     st.dataframe(df_users, width="stretch", hide_index=True)
 
-# TAB 4: LEADERBOARD
 with admin_tabs[3]:
     st.markdown("###  Full Assessment Leaderboard")
     

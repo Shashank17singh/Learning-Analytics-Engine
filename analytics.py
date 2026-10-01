@@ -143,11 +143,6 @@ def export_summary_csv(conn, output_filename="assessment_analytics_export.csv"):
     return True
 
 
-# ─────────────────────────────────────────────────────────
-# ADVANCED SQL ANALYTICS (GROUP BY, Aggregation, Ranking)
-# ─────────────────────────────────────────────────────────
-
-
 def get_top_performers(conn, limit=10):
     """Top students ranked by average score using SQL aggregation."""
     query = """

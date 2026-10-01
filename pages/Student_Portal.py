@@ -11,9 +11,6 @@ import llm_utils
 from db_utils import get_db_connection, init_db
 from pypdf import PdfReader
 
-# -------------------------------------------------------------
-# PAGE CONFIGURATION (NO SIDEBAR, FULL BROWSER APP LAYOUT)
-# -------------------------------------------------------------
 st.set_page_config(
     page_title="Assessment & Analytics Portal",
     page_icon="",
@@ -22,15 +19,22 @@ st.set_page_config(
 )
 
 
-# Initialize database on app startup
 _init_conn = get_db_connection()
 init_db(_init_conn)
 _init_conn.close()
 
-# -------------------------------------------------------------
-# HELPER FUNCTIONS
-# -------------------------------------------------------------
 def format_time_str(seconds):
+    """
+    Format a duration in seconds into a human-readable string.
+    
+    Converts raw seconds into a 'Xh Ym Zs' format. Handles missing values.
+    
+    Args:
+        seconds (float/int): The duration to format.
+        
+    Returns:
+        str: The formatted time string (e.g. '1h 30m 15s').
+    """
     if pd.isna(seconds):
         return ""
     s = int(seconds)
@@ -46,6 +50,12 @@ def format_time_str(seconds):
 
 @st.dialog("End Assessment Early")
 def confirm_end_assessment():
+    """
+    Render a Streamlit dialog prompting the user to confirm ending the test early.
+    
+    If confirmed, sets a session state flag to force submission of the test
+    and triggers a rerun to process the submission.
+    """
     st.warning("Are you sure you want to end the test? Your current progress will be saved if you have selected any option.")
     col1, col2 = st.columns(2)
     if col1.button("Yes, End Test"):
@@ -54,9 +64,6 @@ def confirm_end_assessment():
     if col2.button("No, Continue Test"):
         st.rerun()
 
-# -------------------------------------------------------------
-# CUSTOM CSS: REMOVES SIDEBAR & ADDS MODERN PORTAL STYLING
-# -------------------------------------------------------------
 st.markdown(
     """
 <style>
@@ -151,12 +158,8 @@ st.markdown(
 
 import auth_utils
 
-# -------------------------------------------------------------
-# SESSION STATE INITIALIZATION
-# -------------------------------------------------------------
 auth_utils.sync_session_state()
 
-# Logout Button UI
 col1, col2 = st.columns([8, 1])
 with col2:
     if st.button("Logout", key="logout_btn", use_container_width=True):
@@ -170,9 +173,6 @@ if not st.session_state.authenticated or st.session_state.user_role == "admin":
 
 conn = get_db_connection()
 
-# =========================================================
-# ROLE A: STUDENT DASHBOARD
-# =========================================================
 if st.session_state.user_role != "admin":
     student_tabs = st.tabs(
         [
@@ -182,7 +182,6 @@ if st.session_state.user_role != "admin":
         ]
     )
 
-    # TAB 1: TAKE ASSESSMENT
     with student_tabs[0]:
         st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
         if not st.session_state.get("student_assessment_started", False):
@@ -736,7 +735,6 @@ if st.session_state.user_role != "admin":
                 if st.button(" Take Another Assessment"):
                     st.rerun()
 
-    # TAB 2: MY PERFORMANCE & ANALYTICS
     with student_tabs[1]:
         st.markdown(
             f"###  Personal Learning Analytics for: **{st.session_state.username.title()}**"
