@@ -177,29 +177,38 @@ if st.session_state.user_role != "admin":
                     "General": ["General Knowledge", "Custom Topic..."]
                 }
 
-            col_aid, col_ais = st.columns(2)
-            with col_aid:
-                ai_domain = st.selectbox(
-                    "Search/Select Broad Domain:", list(ai_domains_catalog.keys())
-                )
+            current_level = ai_domains_catalog
+            selections = []
+            labels = ["Broad Domain", "Branch / Course", "Category / Specialization", "Topic / Exam"]
+            
+            level_idx = 0
+            while isinstance(current_level, dict):
+                options = list(current_level.keys())
+                label = labels[level_idx] if level_idx < len(labels) else f"Level {level_idx+1}"
+                selection = st.selectbox(f"Search/Select {label}:", options, key=f"sel_{level_idx}")
+                selections.append(selection)
+                current_level = current_level[selection]
+                level_idx += 1
+                
+            if isinstance(current_level, list):
+                options = current_level + ["Custom Topic..."]
+                label = labels[level_idx] if level_idx < len(labels) else "Specific Subject"
+                final_selection = st.selectbox(f"Search/Select {label}:", options, key=f"sel_final")
+                selections.append(final_selection)
 
-            with col_ais:
-                ai_subject = st.selectbox(
-                    "Search/Select Specific Subject:",
-                    ai_domains_catalog.get(ai_domain, ["Custom Topic..."]),
-                )
-
-            if ai_subject == "Custom Topic...":
+            ai_domain = selections[0] if selections else "General"
+            
+            if selections and selections[-1] == "Custom Topic...":
                 custom_topic = st.text_input(
                     "Type your completely custom topic here:", value=""
                 )
+                ai_subject = "Custom"
             else:
+                ai_subject = " - ".join(selections[1:]) if len(selections) > 1 else "General Knowledge"
                 custom_topic = f"{ai_domain} - {ai_subject}"
 
             st.session_state.selected_domain = ai_domain
-            st.session_state.selected_subject = (
-                ai_subject if ai_subject != "Custom Topic..." else "Custom"
-            )
+            st.session_state.selected_subject = ai_subject
             st.session_state.custom_topic = custom_topic
 
             q_options = [5, 10, 15, 20, 25]

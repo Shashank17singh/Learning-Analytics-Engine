@@ -1,82 +1,168 @@
 {
+    "Engineering": {
+        "Computer Science & Engineering": {
+            "Core Subjects": [
+                "Data Structures & Algorithms",
+                "Operating Systems",
+                "Computer Networks",
+                "Database Management Systems",
+                "Theory of Computation",
+                "Compiler Design",
+                "Computer Architecture",
+                "Software Engineering"
+            ],
+            "Electives / Advanced Topics": [
+                "Artificial Intelligence",
+                "Machine Learning",
+                "Deep Learning",
+                "Cryptography & Network Security",
+                "Cloud Computing",
+                "Blockchain",
+                "Computer Vision"
+            ],
+            "Competitive Exams": [
+                "GATE (Computer Science - CS)",
+                "JEE Mains (CS Focus)",
+                "JEE Advanced",
+                "ISRO Scientist Exam (CS)",
+                "NIC Scientist B Exam"
+            ]
+        },
+        "Mechanical Engineering": {
+            "Core Subjects": [
+                "Thermodynamics",
+                "Fluid Mechanics",
+                "Heat Transfer",
+                "Theory of Machines",
+                "Strength of Materials",
+                "Manufacturing Processes",
+                "Machine Design"
+            ],
+            "Competitive Exams": [
+                "GATE (Mechanical - ME)",
+                "Engineering Services Exam (ESE - Mechanical)",
+                "ISRO Scientist Exam (ME)"
+            ]
+        },
+        "Electrical Engineering": {
+            "Core Subjects": [
+                "Circuit Theory",
+                "Electromagnetic Fields",
+                "Signals and Systems",
+                "Electrical Machines",
+                "Power Systems",
+                "Control Systems",
+                "Power Electronics"
+            ],
+            "Competitive Exams": [
+                "GATE (Electrical - EE)",
+                "Engineering Services Exam (ESE - Electrical)"
+            ]
+        },
+        "Civil Engineering": {
+            "Core Subjects": [
+                "Structural Analysis",
+                "Geotechnical Engineering",
+                "Fluid Mechanics",
+                "Transportation Engineering",
+                "Environmental Engineering",
+                "Surveying",
+                "Construction Materials"
+            ],
+            "Competitive Exams": [
+                "GATE (Civil - CE)",
+                "Engineering Services Exam (ESE - Civil)"
+            ]
+        },
+        "Electronics & Communication Engineering": {
+            "Core Subjects": [
+                "Electronic Devices",
+                "Analog Circuits",
+                "Digital Circuits",
+                "Signals and Systems",
+                "Communications Systems",
+                "Electromagnetics",
+                "Microprocessors & Microcontrollers"
+            ],
+            "Competitive Exams": [
+                "GATE (ECE)",
+                "Engineering Services Exam (ESE - ECE)",
+                "ISRO Scientist Exam (Electronics)"
+            ]
+        }
+    },
+    "Medical Sciences": {
+        "MBBS / Undergrad": [
+            "Human Anatomy",
+            "Physiology",
+            "Biochemistry",
+            "Pathology",
+            "Pharmacology",
+            "Microbiology",
+            "Forensic Medicine"
+        ],
+        "Postgrad / Specializations": [
+            "General Surgery",
+            "Internal Medicine",
+            "Pediatrics",
+            "Orthopedics",
+            "Dermatology"
+        ],
+        "Competitive Exams": [
+            "NEET (UG)",
+            "NEET (PG)",
+            "USMLE Step 1",
+            "USMLE Step 2 CK",
+            "AIIMS PG / INI-CET"
+        ]
+    },
+    "Business & Finance": {
+        "Accounting & Finance": [
+            "Financial Accounting",
+            "Corporate Finance",
+            "Investment Banking",
+            "Taxation",
+            "Auditing"
+        ],
+        "Management & Marketing": [
+            "Strategic Management",
+            "Organizational Behavior",
+            "Digital Marketing",
+            "Consumer Behavior",
+            "Supply Chain Management"
+        ],
+        "Competitive Exams": [
+            "CAT (Common Admission Test)",
+            "GMAT (Graduate Management Admission Test)",
+            "CFA Level 1",
+            "CPA Exam"
+        ]
+    },
     "Mathematics": [
         "Calculus",
         "Linear Algebra",
-        "Discrete Math",
-        "Statistics",
-        "Probability",
+        "Discrete Mathematics",
+        "Statistics & Probability",
         "Differential Equations",
-        "Geometry",
-        "Trigonometry"
+        "Topology",
+        "Number Theory"
     ],
     "Physics": [
         "Classical Mechanics",
         "Quantum Mechanics",
         "Electromagnetism",
-        "Thermodynamics",
+        "Thermodynamics & Statistical Mechanics",
         "Optics",
-        "Relativity",
         "Astrophysics"
-    ],
-    "Chemistry": [
-        "Organic Chemistry",
-        "Inorganic Chemistry",
-        "Physical Chemistry",
-        "Biochemistry",
-        "Analytical Chemistry"
-    ],
-    "Biology": [
-        "Anatomy",
-        "Genetics",
-        "Microbiology",
-        "Ecology",
-        "Botany",
-        "Zoology",
-        "Evolution",
-        "Cell Biology"
-    ],
-    "Business & Finance": [
-        "Accounting",
-        "Marketing",
-        "Microeconomics",
-        "Macroeconomics",
-        "Entrepreneurship",
-        "Investment Banking",
-        "Corporate Finance"
     ],
     "Humanities & Arts": [
         "World History",
-        "European History",
-        "American History",
-        "Philosophy",
-        "Ethics",
-        "Literature",
-        "Art History",
-        "Music Theory"
-    ],
-    "Social Sciences": [
-        "Psychology",
+        "Philosophy & Ethics",
         "Sociology",
         "Political Science",
-        "Anthropology",
-        "Geography",
-        "International Relations"
-    ],
-    "Medical Sciences": [
-        "Pharmacology",
-        "Pathology",
-        "Nursing",
-        "Dentistry",
-        "Immunology",
-        "Public Health"
-    ],
-    "Engineering": [
-        "Mechanical Engineering",
-        "Electrical Engineering",
-        "Civil Engineering",
-        "Aerospace Engineering",
-        "Chemical Engineering",
-        "Computer Science & Engineering"
+        "Psychology",
+        "Literature",
+        "Art History"
     ],
     "Other/Custom": [
         "Custom Topic..."
