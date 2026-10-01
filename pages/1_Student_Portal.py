@@ -21,22 +21,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-with st.sidebar:
-    st.title("AI Configuration")
-    st.markdown("Use your own API key to generate custom assessments.")
-    provider = st.selectbox(
-        "Select AI Provider",
-        ["System Default", "Google Gemini", "OpenAI", "Groq", "Anthropic"]
-    )
-    user_api_key = ""
-    if provider != "System Default":
-        user_api_key = st.text_input("Enter API Key", type="password")
-        if user_api_key:
-            st.success(f"{provider} API Key applied!")
-            
-    st.session_state.custom_ai_provider = provider
-    st.session_state.custom_api_key = user_api_key
-
 
 # Initialize database on app startup
 _init_conn = get_db_connection()
@@ -202,6 +186,19 @@ if st.session_state.user_role != "admin":
     with student_tabs[0]:
         st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
         if not st.session_state.get("student_assessment_started", False):
+            st.markdown("#### ⚙️ AI Configuration")
+            provider = st.selectbox(
+                "Select AI Provider (Use your own API key)",
+                ["System Default", "Google Gemini", "OpenAI", "Groq", "Anthropic"]
+            )
+            user_api_key = ""
+            if provider != "System Default":
+                user_api_key = st.text_input("Enter your API Key", type="password")
+                if user_api_key:
+                    st.success(f"{provider} API Key applied!")
+            st.session_state.custom_ai_provider = provider
+            st.session_state.custom_api_key = user_api_key
+            st.markdown("---")
             
             source_type = st.radio("Select Assessment Source:", ["Select Topic from Catalog", "Upload Study Material (PDF)"], horizontal=True)
             
