@@ -25,7 +25,7 @@ def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Med
     format_instructions = ""
     
     # Categorize exams by their question format requirements
-    multi_and_numerical_exams = ["JEE Advanced"]
+    multi_and_numerical_exams = ["JEE Advanced Paper 1", "JEE Advanced Paper 2"]
     mcq_and_numerical_exams = ["JEE Mains", "GATE", "CAT", "BITSAT"] # Note: CAT has TITA (Type In The Answer) which is numerical/text. BITSAT has some numericals in some variants, but mostly MCQ.
     
     if exam_format in multi_and_numerical_exams:
@@ -74,10 +74,9 @@ def generate_gemini_questions(topic: str, count: int = 5, difficulty: str = "Med
     """
 
     models_to_try = [
-        "gemini-3.8-flash",
-        "gemini-3.5-flash",
-        "gemini-3.7-flash",
-        "gemini-3.6-flash",
+        "gemini-1.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-pro"
     ]
 
     import time
@@ -154,7 +153,7 @@ def explain_wrong_answer(question: str, selected_answer: str, correct_answer: st
     
     try:
         response = client.models.generate_content(
-            model="gemini-3.8-flash",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(temperature=0.7),
         )
