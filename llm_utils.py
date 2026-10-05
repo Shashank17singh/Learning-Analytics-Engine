@@ -11,7 +11,7 @@ def generate_gemini_questions(
     topic: str,
     count: int = 5,
     difficulty: str = "Medium",
-    context: str = None,
+    context: str | None = None,
     exam_format: str = "Standard",
 ) -> list:
     """
@@ -36,7 +36,7 @@ def generate_gemini_questions(
     if provider == "System Default":
         try:
             api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
-        except Exception:
+        except Exception:  # noqa: BLE001
             api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             st.error("GEMINI_API_KEY is not set. Add it to .streamlit/secrets.toml.")
@@ -104,7 +104,7 @@ def generate_gemini_questions(
     try:
         if provider in ["System Default", "Google Gemini"]:
             models_to_try = (
-                ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]
+                ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]  # noqa: RUF034
                 if provider == "System Default"
                 else ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]
             )
@@ -140,7 +140,7 @@ def generate_gemini_questions(
                         ):
                             time.sleep(3)
                             continue
-                        raise e
+                        raise
             if last_error:
                 raise last_error
 
@@ -199,7 +199,7 @@ def generate_gemini_questions(
             )
             return json.loads(text.strip())
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         error_str = str(e)
         if (
             "503" in error_str
@@ -303,6 +303,6 @@ def explain_wrong_answer(
             )
             return response.content[0].text.strip()
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Error generating dynamic explanation ({provider}): {e}")
         return base_explanation

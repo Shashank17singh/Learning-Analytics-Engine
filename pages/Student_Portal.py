@@ -202,6 +202,7 @@ if st.session_state.user_role != "admin":
     with student_tabs[0]:
         st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
         if not st.session_state.get("student_assessment_started", False):
+
             @st.fragment
             def render_ai_config():
                 st.markdown("#### AI Configuration")
@@ -254,7 +255,7 @@ if st.session_state.user_role != "admin":
                             st.session_state.selected_subject = ai_subject
                             st.session_state.custom_topic = custom_topic
                             st.session_state.pdf_context = pdf_context
-                        except Exception as e:
+                        except Exception as e:  # noqa: BLE001
                             st.error(f"Error reading PDF: {e}")
                 else:
                     try:
@@ -285,7 +286,11 @@ if st.session_state.user_role != "admin":
                             else f"Level {level_idx + 1}"
                         )
                         selection = st.selectbox(
-                            f"Search/Select {label}:", options, key=f"sel_{level_idx}", index=None, placeholder="Select an option..."
+                            f"Search/Select {label}:",
+                            options,
+                            key=f"sel_{level_idx}",
+                            index=None,
+                            placeholder="Select an option...",
                         )
 
                         if selection is None:
@@ -307,7 +312,11 @@ if st.session_state.user_role != "admin":
                             else "Specific Subject"
                         )
                         final_selection = st.selectbox(
-                            f"Search/Select {label}:", options, key="sel_final", index=None, placeholder="Select an option..."
+                            f"Search/Select {label}:",
+                            options,
+                            key="sel_final",
+                            index=None,
+                            placeholder="Select an option...",
                         )
 
                         if final_selection is None:
@@ -355,7 +364,13 @@ if st.session_state.user_role != "admin":
                         st.session_state.pdf_context = None
 
                 exam_rules = {
-                    "JEE Mains": {"q": 75, "cm": 4, "im": -1, "time": 180, "diff": "Hard"},
+                    "JEE Mains": {
+                        "q": 75,
+                        "cm": 4,
+                        "im": -1,
+                        "time": 180,
+                        "diff": "Hard",
+                    },
                     "JEE Advanced Paper 1": {
                         "q": 54,
                         "cm": 3,
@@ -370,18 +385,66 @@ if st.session_state.user_role != "admin":
                         "time": 180,
                         "diff": "Hard",
                     },
-                    "BITSAT": {"q": 130, "cm": 3, "im": -1, "time": 180, "diff": "Medium"},
-                    "GATE": {"q": 65, "cm": 1, "im": -0.33, "time": 180, "diff": "Hard"},
-                    "NEET": {"q": 180, "cm": 4, "im": -1, "time": 200, "diff": "Medium"},
+                    "BITSAT": {
+                        "q": 130,
+                        "cm": 3,
+                        "im": -1,
+                        "time": 180,
+                        "diff": "Medium",
+                    },
+                    "GATE": {
+                        "q": 65,
+                        "cm": 1,
+                        "im": -0.33,
+                        "time": 180,
+                        "diff": "Hard",
+                    },
+                    "NEET": {
+                        "q": 180,
+                        "cm": 4,
+                        "im": -1,
+                        "time": 200,
+                        "diff": "Medium",
+                    },
                     "CAT": {"q": 66, "cm": 3, "im": -1, "time": 120, "diff": "Hard"},
-                    "XAT": {"q": 105, "cm": 1, "im": -0.25, "time": 210, "diff": "Hard"},
-                    "SNAP": {"q": 60, "cm": 1, "im": -0.25, "time": 60, "diff": "Medium"},
+                    "XAT": {
+                        "q": 105,
+                        "cm": 1,
+                        "im": -0.25,
+                        "time": 210,
+                        "diff": "Hard",
+                    },
+                    "SNAP": {
+                        "q": 60,
+                        "cm": 1,
+                        "im": -0.25,
+                        "time": 60,
+                        "diff": "Medium",
+                    },
                     "GMAT": {"q": 80, "cm": 1, "im": 0, "time": 195, "diff": "Hard"},
                     "GRE": {"q": 80, "cm": 1, "im": 0, "time": 225, "diff": "Hard"},
                     "NMAT": {"q": 108, "cm": 1, "im": 0, "time": 120, "diff": "Medium"},
-                    "MAT": {"q": 200, "cm": 1, "im": -0.25, "time": 150, "diff": "Easy"},
-                    "CMAT": {"q": 100, "cm": 4, "im": -1, "time": 180, "diff": "Medium"},
-                    "CUET (UG)": {"q": 50, "cm": 5, "im": -1, "time": 45, "diff": "Medium"},
+                    "MAT": {
+                        "q": 200,
+                        "cm": 1,
+                        "im": -0.25,
+                        "time": 150,
+                        "diff": "Easy",
+                    },
+                    "CMAT": {
+                        "q": 100,
+                        "cm": 4,
+                        "im": -1,
+                        "time": 180,
+                        "diff": "Medium",
+                    },
+                    "CUET (UG)": {
+                        "q": 50,
+                        "cm": 5,
+                        "im": -1,
+                        "time": 45,
+                        "diff": "Medium",
+                    },
                     "CUET (PG)": {
                         "q": 75,
                         "cm": 4,
@@ -391,7 +454,13 @@ if st.session_state.user_role != "admin":
                     },
                     "IPMAT": {"q": 90, "cm": 4, "im": -1, "time": 120, "diff": "Hard"},
                     "NPAT": {"q": 120, "cm": 1, "im": 0, "time": 100, "diff": "Medium"},
-                    "UPSC": {"q": 100, "cm": 2, "im": -0.66, "time": 120, "diff": "Hard"},
+                    "UPSC": {
+                        "q": 100,
+                        "cm": 2,
+                        "im": -0.66,
+                        "time": 120,
+                        "diff": "Hard",
+                    },
                     "NDA": {
                         "q": 120,
                         "cm": 2.5,
@@ -399,13 +468,19 @@ if st.session_state.user_role != "admin":
                         "time": 150,
                         "diff": "Medium",
                     },
-                    "CLAT": {"q": 120, "cm": 1, "im": -0.25, "time": 120, "diff": "Medium"},
+                    "CLAT": {
+                        "q": 120,
+                        "cm": 1,
+                        "im": -0.25,
+                        "time": 120,
+                        "diff": "Medium",
+                    },
                 }
                 if source_type == "Upload Study Material (PDF)" and not uploaded_file:
                     pass
                 else:
                     matched_exam = None
-                    for ex, rules in exam_rules.items():
+                    for ex in exam_rules:
                         if ex in ai_subject or ex in ai_domain or ex in custom_topic:
                             matched_exam = ex
                             break
@@ -449,7 +524,9 @@ if st.session_state.user_role != "admin":
                         im_val = 0
                         time_val = None
 
-                if not (source_type == "Upload Study Material (PDF)" and not uploaded_file):
+                if not (
+                    source_type == "Upload Study Material (PDF)" and not uploaded_file
+                ):
                     st.write("")
                     _, center_col, _ = st.columns([1, 2, 1])
                     with center_col:
@@ -465,7 +542,9 @@ if st.session_state.user_role != "admin":
                             st.session_state.time_limit_mins = time_val
                             st.session_state.num_questions = num_questions_chosen
 
-                            topic_for_gen = st.session_state.get("custom_topic", "General")
+                            topic_for_gen = st.session_state.get(
+                                "custom_topic", "General"
+                            )
                             if not topic_for_gen.strip():
                                 topic_for_gen = "General Knowledge"
 
@@ -492,8 +571,11 @@ if st.session_state.user_role != "admin":
                                 st.session_state.assessment_start_time = time.time()
                                 st.rerun()
                             else:
-                                st.error("Failed to generate questions. Please try again.")
+                                st.error(
+                                    "Failed to generate questions. Please try again."
+                                )
                                 st.session_state.student_assessment_started = False
+
             render_ai_config()
         else:
             assessment_set = st.session_state.get("assessment_set")
@@ -605,9 +687,8 @@ if st.session_state.user_role != "admin":
                     width=0,
                 )
 
-
             def clear_radio(qno):
-                st.session_state[f'sq_{qno}'] = None
+                st.session_state[f"sq_{qno}"] = None
 
             @st.fragment
             def render_assessment():
@@ -644,7 +725,12 @@ if st.session_state.user_role != "admin":
                             index=None,
                             key=f"sq_{qno}",
                         )
-                        st.button('Clear Selection', key=f'clear_{qno}', on_click=clear_radio, args=(qno,))
+                        st.button(
+                            "Clear Selection",
+                            key=f"clear_{qno}",
+                            on_click=clear_radio,
+                            args=(qno,),
+                        )
 
                     user_choices[qno] = {
                         "type": qtype,
@@ -821,7 +907,7 @@ if st.session_state.user_role != "admin":
                     )
                     cols = [r[0] for r in cur.fetchall()]
                     t_col = (
-                        "total_questions"
+                        "total_questions"  # noqa: RUF034
                         if "total_questions" in cols
                         else "total_questions"
                     )
@@ -852,7 +938,9 @@ if st.session_state.user_role != "admin":
                         )
 
                     col_res1, col_res2, col_res3, col_res4 = st.columns(4)
-                    col_res1.metric("Your Score", f"{raw_score:.2f} / {max_possible_score}")
+                    col_res1.metric(
+                        "Your Score", f"{raw_score:.2f} / {max_possible_score}"
+                    )
                     col_res2.metric("Accuracy", f"{score_percentage:.1f}%")
                     col_res3.metric("Duration", format_time_str(duration))
                     col_res4.metric("Status", "Passed " if passed else "Completed ")
@@ -1041,6 +1129,7 @@ if st.session_state.user_role != "admin":
             )
 
     with student_tabs[2]:
+
         @st.fragment
         def render_leaderboard():
             st.markdown("###  Real-Time Hall of Fame")
@@ -1059,11 +1148,17 @@ if st.session_state.user_role != "admin":
 
             col1, col2, col3 = st.columns(3)
             with col1:
-                domains = ["All"] + sorted(df_filters["domain"].dropna().unique().tolist())
-                selected_domain = st.selectbox("Filter by Domain", domains, key="lb_domain")
+                domains = ["All"] + sorted(
+                    df_filters["domain"].dropna().unique().tolist()
+                )
+                selected_domain = st.selectbox(
+                    "Filter by Domain", domains, key="lb_domain"
+                )
             with col2:
                 if selected_domain == "All":
-                    subjects_list = sorted(df_filters["subject"].dropna().unique().tolist())
+                    subjects_list = sorted(
+                        df_filters["subject"].dropna().unique().tolist()
+                    )
                 else:
                     subjects_list = sorted(
                         df_filters[df_filters["domain"] == selected_domain]["subject"]
@@ -1101,10 +1196,14 @@ if st.session_state.user_role != "admin":
             df_all = pd.read_sql_query(query, conn, params=params)
 
             if not df_all.empty:
-                allowed_combinations = set(zip(df_filters["domain"], df_filters["subject"]))
+                allowed_combinations = set(
+                    zip(df_filters["domain"], df_filters["subject"])
+                )
                 df_all = df_all[
                     df_all.apply(
-                        lambda row: (row["domain"], row["subject"]) in allowed_combinations,
+                        lambda row: (
+                            (row["domain"], row["subject"]) in allowed_combinations
+                        ),
                         axis=1,
                     )
                 ]
@@ -1114,7 +1213,9 @@ if st.session_state.user_role != "admin":
                 idx = df_all.groupby("student_name")["score_percentage"].idxmax()
                 df_lb = (
                     df_all.loc[idx]
-                    .sort_values(by=["score_percentage", "score"], ascending=[False, False])
+                    .sort_values(
+                        by=["score_percentage", "score"], ascending=[False, False]
+                    )
                     .head(50)
                     .reset_index(drop=True)
                 )
@@ -1150,7 +1251,9 @@ if st.session_state.user_role != "admin":
                     width="stretch",
                     hide_index=True,
                     column_config={
-                        "Score %": st.column_config.NumberColumn("Score %", format="%.1f%%")
+                        "Score %": st.column_config.NumberColumn(
+                            "Score %", format="%.1f%%"
+                        )
                     },
                 )
             else:
