@@ -55,7 +55,7 @@ def sync_session_state():
                 st.session_state.authenticated = True
                 st.session_state.username = data.get("username")
                 st.session_state.user_role = data.get("user_role")
-        except Exception:
+        except Exception:  # noqa: BLE001, S110
             pass
 
 
@@ -99,6 +99,6 @@ def logout_user():
     if token:
         try:
             Path(f".session_{token}.json").unlink(missing_ok=True)
-        except:
+        except:  # noqa: E722, S110
             pass
         cm.delete("session_token")
