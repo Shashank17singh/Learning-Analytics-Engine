@@ -644,7 +644,7 @@ if st.session_state.user_role != "admin":
                             index=None,
                             key=f"sq_{qno}",
                         )
-                        st.button(f'Clear Selection for Q{idx}', key=f'clear_{qno}', on_click=clear_radio, args=(qno,))
+                        st.button('Clear Selection', key=f'clear_{qno}', on_click=clear_radio, args=(qno,))
 
                     user_choices[qno] = {
                         "type": qtype,
