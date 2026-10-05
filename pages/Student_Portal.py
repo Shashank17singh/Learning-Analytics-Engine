@@ -624,20 +624,17 @@ if st.session_state.user_role != "admin":
                         c_val = c_val.strip() if c_val.strip() else None
                     elif qtype == "multi_mcq":
                         opts = [f"{k}) {v}" for k, v in options.items() if v]
-                        c_val = st.pills(
-                            f"Select answer(s) for Q{idx}:",
-                            opts,
-                            key=f"sq_{qno}",
-                            selection_mode="multi",
-                            label_visibility="collapsed",
-                        )
+                        c_val = []
+                        for i, opt in enumerate(opts):
+                            if st.checkbox(opt, key=f"sq_{qno}_{i}"):
+                                c_val.append(opt)
                     else:  # single_mcq
                         opts = [f"{k}) {v}" for k, v in options.items() if v]
-                        c_val = st.pills(
+                        c_val = st.radio(
                             f"Select answer for Q{idx}:",
                             opts,
                             key=f"sq_{qno}",
-                            selection_mode="single",
+                            index=None,
                             label_visibility="collapsed",
                         )
 
