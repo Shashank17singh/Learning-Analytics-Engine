@@ -637,9 +637,8 @@ if st.session_state.user_role != "admin":
                             index=None,
                             label_visibility="collapsed",
                         )
-                        st.button(
+                        st.form_submit_button(
                             "Clear selection",
-                            key=f"clear_btn_{qno}",
                             on_click=lambda k: st.session_state.update({k: None}),
                             args=(f"sq_{qno}",)
                         )
