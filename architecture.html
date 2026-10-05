@@ -1,229 +1,272 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Architecture - Learning Analytics Engine</title>
-              <meta name="color-scheme" content="dark">
-  <meta name="darkreader-lock">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Geist+Mono&family=Geist:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap');
-    
-    :root {
-      color-scheme: dark;
-      --bg-body: #050505;
-      --bg-container: #0a0a0a;
-      --node-fill: #171717;
-      --node-stroke: #404040;
-      --node-text: #f5f5f5;
-      --node-sub: #a3a3a3;
-      --edge-stroke: #525252;
-      --edge-text: #a3a3a3;
-      --hover-node-stroke: #a3a3a3;
-      --hover-node-fill: #262626;
-      --hover-edge: #d4d4d4;
-    }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Architecture - Learning Analytics Engine</title>
+    <meta name="color-scheme" content="dark" />
+    <meta name="darkreader-lock" />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Geist+Mono&family=Geist:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap");
 
-    body { 
-      margin: 0; 
-      padding: 2rem; 
-      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
-      background-color: var(--bg-body); 
-      color: var(--node-text);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .diagram-container { 
-      width: 100%; 
-      max-width: 1200px;
-      overflow-x: auto; 
-      background-color: var(--bg-container); 
-      border: 1px solid #262626; 
-      border-radius: 12px; 
-      padding: 3rem; 
-      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-    }
-    
-    svg { 
-      width: 100%; 
-      min-width: 960px; 
-      display: block; 
-    }
+      :root {
+        color-scheme: dark;
+        --bg-body: #050505;
+        --bg-container: #0a0a0a;
+        --node-fill: #171717;
+        --node-stroke: #404040;
+        --node-text: #f5f5f5;
+        --node-sub: #a3a3a3;
+        --edge-stroke: #525252;
+        --edge-text: #a3a3a3;
+        --hover-node-stroke: #a3a3a3;
+        --hover-node-fill: #262626;
+        --hover-edge: #d4d4d4;
+      }
 
-    .node rect { 
-      fill: var(--node-fill); 
-      stroke: var(--node-stroke); 
-      stroke-width: 1.5; 
-      rx: 6; 
-      transition: all 0.2s ease;
-    }
-    .node:hover rect {
-      stroke: var(--hover-node-stroke);
-      fill: var(--hover-node-fill);
-    }
-    
-    .node text { 
-      fill: var(--node-text); 
-      font-size: 10px; 
-      font-weight: 600; 
-      transition: all 0.2s ease;
-      letter-spacing: 0.02em;
-    }
-    .node .sub { 
-      font-family: 'Geist Mono', 'Consolas', 'Courier New', monospace; 
-      font-size: 7.5px; 
-      font-weight: normal; 
-      fill: var(--node-sub); 
-    }
-    .node:hover text {
-      fill: #ffffff;
-    }
-    .node:hover .sub {
-      fill: #d4d4d4;
-    }
-    
-    .edge path { 
-      fill: none; 
-      stroke: var(--edge-stroke); 
-      stroke-width: 1.5; 
-      transition: all 0.2s ease;
-    }
-    .edge:hover path {
-      stroke: var(--hover-edge);
-      stroke-width: 2;
-    }
-    
-    .edge text { 
-      font-family: 'Geist Mono', 'Consolas', 'Courier New', monospace; 
-      font-size: 8px; 
-      fill: var(--edge-text); 
-      paint-order: stroke fill;
-      stroke: var(--bg-container);
-      stroke-width: 8px;
-      stroke-linejoin: round;
-      stroke-linecap: round;
-    }
-    
-    .title { 
-      font-family: 'Instrument Serif', Georgia, serif; 
-      font-size: 26px; 
-      fill: var(--node-text); 
-    }
-    .subtitle { 
-      font-family: 'Geist Mono', 'Consolas', 'Courier New', monospace; 
-      font-size: 9px; 
-      fill: #737373; 
-    }
-    
-    .zone { 
-      fill: rgba(255,255,255,0.02); 
-      stroke: rgba(255,255,255,0.1); 
-      stroke-width: 1; 
-      rx: 8; 
-    }
-    .zone-label { 
-      font-family: 'Geist Mono', 'Consolas', 'Courier New', monospace; 
-      font-size: 7px; 
-      fill: rgba(255,255,255,0.4); 
-      letter-spacing: 0.14em; 
-    }
+      body {
+        margin: 0;
+        padding: 2rem;
+        font-family:
+          "Geist",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Arial,
+          sans-serif;
+        background-color: var(--bg-body);
+        color: var(--node-text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-    @keyframes flow {
-      to { stroke-dashoffset: -20; }
-    }
-    .edge path[stroke-dasharray] {
-      animation: flow 1.5s linear infinite;
-      stroke: var(--node-sub);
-    }
-  </style>
-</head>
-<body>
-  <div class="diagram-container">
-    <svg viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
-      <title id="title">Learning Analytics Engine Architecture</title>
-      <desc id="desc">Application, LLM, and Data Science workflow</desc>
-      
-                                    <defs>
-        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#525252" style="fill: context-stroke;" />
-        </marker>
-      </defs>
+      .diagram-container {
+        width: 100%;
+        max-width: 1200px;
+        overflow-x: auto;
+        background-color: var(--bg-container);
+        border: 1px solid #262626;
+        border-radius: 12px;
+        padding: 3rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+      }
 
-      <text x="40" y="60" class="title">Learning Analytics Engine</text>
-      <text x="40" y="80" class="subtitle">AI Assessment and Data Analytics Pipeline</text>
+      svg {
+        width: 100%;
+        min-width: 960px;
+        display: block;
+      }
 
-      <!-- Zones -->
-      <rect x="40" y="120" width="300" height="160" class="zone" />
-      <text x="50" y="135" class="zone-label">APPLICATION LAYER</text>
+      .node rect {
+        fill: var(--node-fill);
+        stroke: var(--node-stroke);
+        stroke-width: 1.5;
+        rx: 6;
+        transition: all 0.2s ease;
+      }
+      .node:hover rect {
+        stroke: var(--hover-node-stroke);
+        fill: var(--hover-node-fill);
+      }
 
-      <rect x="380" y="120" width="240" height="160" class="zone" />
-      <text x="390" y="135" class="zone-label">AI / LLM LAYER</text>
+      .node text {
+        fill: var(--node-text);
+        font-size: 10px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        letter-spacing: 0.02em;
+      }
+      .node .sub {
+        font-family: "Geist Mono", "Consolas", "Courier New", monospace;
+        font-size: 7.5px;
+        font-weight: normal;
+        fill: var(--node-sub);
+      }
+      .node:hover text {
+        fill: #ffffff;
+      }
+      .node:hover .sub {
+        fill: #d4d4d4;
+      }
 
-      <rect x="40" y="320" width="400" height="200" class="zone" />
-      <text x="50" y="335" class="zone-label">DATA SCIENCE & ANALYTICS LAYER</text>
-      
-      <rect x="480" y="320" width="240" height="200" class="zone" />
-      <text x="490" y="335" class="zone-label">PRESENTATION LAYER</text>
+      .edge path {
+        fill: none;
+        stroke: var(--edge-stroke);
+        stroke-width: 1.5;
+        transition: all 0.2s ease;
+      }
+      .edge:hover path {
+        stroke: var(--hover-edge);
+        stroke-width: 2;
+      }
 
-      <!-- Nodes -->
-      <g class="node" transform="translate(60, 180)">
-        <rect x="0" y="0" width="120" height="60" />
-        <text x="60" y="25" text-anchor="middle" >Student Portal</text>
-        <text x="60" y="40" class="sub" text-anchor="middle" >UI / RAG PDF</text>
-      </g>
-      <g class="node" transform="translate(200, 180)">
-        <rect x="0" y="0" width="120" height="60" />
-        <text x="60" y="25" text-anchor="middle" >Supabase</text>
-        <text x="60" y="40" class="sub" text-anchor="middle" >PostgreSQL</text>
-      </g>
+      .edge text {
+        font-family: "Geist Mono", "Consolas", "Courier New", monospace;
+        font-size: 8px;
+        fill: var(--edge-text);
+        paint-order: stroke fill;
+        stroke: var(--bg-container);
+        stroke-width: 8px;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
 
-      <g class="node" transform="translate(420, 180)">
-        <rect x="0" y="0" width="160" height="60" />
-        <text x="80" y="25" text-anchor="middle" >LLM APIs</text>
-        <text x="80" y="40" class="sub" text-anchor="middle" >Gemini/OpenAI/Groq</text>
-      </g>
+      .title {
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: 26px;
+        fill: var(--node-text);
+      }
+      .subtitle {
+        font-family: "Geist Mono", "Consolas", "Courier New", monospace;
+        font-size: 9px;
+        fill: #737373;
+      }
 
-      <g class="node" transform="translate(80, 400)">
-        <rect x="0" y="0" width="140" height="60" />
-        <text x="70" y="25" text-anchor="middle" >Data Ingestion</text>
-        <text x="70" y="40" class="sub" text-anchor="middle" >Pandas DataFrames</text>
-      </g>
-      <g class="node" transform="translate(260, 400)">
-        <rect x="0" y="0" width="140" height="60" />
-        <text x="70" y="25" text-anchor="middle" >ML Models</text>
-        <text x="70" y="40" class="sub" text-anchor="middle" >Scikit-Learn</text>
-      </g>
+      .zone {
+        fill: rgba(255, 255, 255, 0.02);
+        stroke: rgba(255, 255, 255, 0.1);
+        stroke-width: 1;
+        rx: 8;
+      }
+      .zone-label {
+        font-family: "Geist Mono", "Consolas", "Courier New", monospace;
+        font-size: 7px;
+        fill: rgba(255, 255, 255, 0.4);
+        letter-spacing: 0.14em;
+      }
 
-      <g class="node" transform="translate(520, 400)">
-        <rect x="0" y="0" width="140" height="60" />
-        <text x="70" y="25" text-anchor="middle" >Streamlit Dashboard</text>
-        <text x="70" y="40" class="sub" text-anchor="middle" >Visualizations</text>
-      </g>
+      @keyframes flow {
+        to {
+          stroke-dashoffset: -20;
+        }
+      }
+      .edge path[stroke-dasharray] {
+        animation: flow 1.5s linear infinite;
+        stroke: var(--node-sub);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+        <title id="title">Learning Analytics Engine Architecture</title>
+        <desc id="desc">Application, LLM, and Data Science workflow</desc>
 
-      <!-- Edges -->
-      <g class="edge">
-        <!-- Application -->
-        <path d="M 180 210 L 200 210" marker-end="url(#arrow)" />
-        
-        <!-- App to LLM -->
-        <path d="M 120 180 L 120 160 L 500 160 L 500 180" marker-end="url(#arrow)" />
-        
-        <!-- App to DS -->
-        <path d="M 260 240 L 260 380 L 150 380 L 150 400" marker-end="url(#arrow)" />
-        
-        <!-- DS internal -->
-        <path d="M 220 430 L 260 430" marker-end="url(#arrow)" />
+        <defs>
+          <marker
+            id="arrow"
+            viewBox="0 0 10 10"
+            refX="8"
+            refY="5"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto-start-reverse"
+          >
+            <path
+              d="M 0 0 L 10 5 L 0 10 z"
+              fill="#525252"
+              style="fill: context-stroke"
+            />
+          </marker>
+        </defs>
 
-        <!-- DS to Presentation -->
-        <path d="M 400 430 L 520 430" marker-end="url(#arrow)" />
-        
-        <!-- App to Presentation -->
-        <path d="M 120 240 L 120 300 L 590 300 L 590 400" marker-end="url(#arrow)" />
-      </g>
-    </svg>
-  </div>
-</body>
+        <text x="40" y="60" class="title">Learning Analytics Engine</text>
+        <text x="40" y="80" class="subtitle">
+          AI Assessment and Data Analytics Pipeline
+        </text>
+
+        <!-- Zones -->
+        <rect x="40" y="120" width="300" height="160" class="zone" />
+        <text x="50" y="135" class="zone-label">APPLICATION LAYER</text>
+
+        <rect x="380" y="120" width="240" height="160" class="zone" />
+        <text x="390" y="135" class="zone-label">AI / LLM LAYER</text>
+
+        <rect x="40" y="320" width="400" height="200" class="zone" />
+        <text x="50" y="335" class="zone-label">
+          DATA SCIENCE & ANALYTICS LAYER
+        </text>
+
+        <rect x="480" y="320" width="240" height="200" class="zone" />
+        <text x="490" y="335" class="zone-label">PRESENTATION LAYER</text>
+
+        <!-- Nodes -->
+        <g class="node" transform="translate(60, 180)">
+          <rect x="0" y="0" width="120" height="60" />
+          <text x="60" y="25" text-anchor="middle">Student Portal</text>
+          <text x="60" y="40" class="sub" text-anchor="middle">
+            UI / RAG PDF
+          </text>
+        </g>
+        <g class="node" transform="translate(200, 180)">
+          <rect x="0" y="0" width="120" height="60" />
+          <text x="60" y="25" text-anchor="middle">Supabase</text>
+          <text x="60" y="40" class="sub" text-anchor="middle">PostgreSQL</text>
+        </g>
+
+        <g class="node" transform="translate(420, 180)">
+          <rect x="0" y="0" width="160" height="60" />
+          <text x="80" y="25" text-anchor="middle">LLM APIs</text>
+          <text x="80" y="40" class="sub" text-anchor="middle">
+            Gemini/OpenAI/Groq
+          </text>
+        </g>
+
+        <g class="node" transform="translate(80, 400)">
+          <rect x="0" y="0" width="140" height="60" />
+          <text x="70" y="25" text-anchor="middle">Data Ingestion</text>
+          <text x="70" y="40" class="sub" text-anchor="middle">
+            Pandas DataFrames
+          </text>
+        </g>
+        <g class="node" transform="translate(260, 400)">
+          <rect x="0" y="0" width="140" height="60" />
+          <text x="70" y="25" text-anchor="middle">ML Models</text>
+          <text x="70" y="40" class="sub" text-anchor="middle">
+            Scikit-Learn
+          </text>
+        </g>
+
+        <g class="node" transform="translate(520, 400)">
+          <rect x="0" y="0" width="140" height="60" />
+          <text x="70" y="25" text-anchor="middle">Streamlit Dashboard</text>
+          <text x="70" y="40" class="sub" text-anchor="middle">
+            Visualizations
+          </text>
+        </g>
+
+        <!-- Edges -->
+        <g class="edge">
+          <!-- Application -->
+          <path d="M 180 210 L 200 210" marker-end="url(#arrow)" />
+
+          <!-- App to LLM -->
+          <path
+            d="M 120 180 L 120 160 L 500 160 L 500 180"
+            marker-end="url(#arrow)"
+          />
+
+          <!-- App to DS -->
+          <path
+            d="M 260 240 L 260 380 L 150 380 L 150 400"
+            marker-end="url(#arrow)"
+          />
+
+          <!-- DS internal -->
+          <path d="M 220 430 L 260 430" marker-end="url(#arrow)" />
+
+          <!-- DS to Presentation -->
+          <path d="M 400 430 L 520 430" marker-end="url(#arrow)" />
+
+          <!-- App to Presentation -->
+          <path
+            d="M 120 240 L 120 300 L 590 300 L 590 400"
+            marker-end="url(#arrow)"
+          />
+        </g>
+      </svg>
+    </div>
+  </body>
 </html>
