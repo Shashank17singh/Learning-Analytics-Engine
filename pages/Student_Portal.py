@@ -602,6 +602,26 @@ if st.session_state.user_role != "admin":
                     width=0,
                 )
 
+            st.markdown("""
+            <style>
+            /* Make pills stack vertically */
+            div[data-testid="stPills"] > div {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+            }
+            div[data-testid="stPills"] button {
+                width: 100%;
+                justify-content: flex-start;
+                text-align: left;
+                height: auto;
+                min-height: 2.5rem;
+                padding: 8px 12px;
+                white-space: normal;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
             with st.form("student_assessment_form"):
                 st.markdown(
                     f"**Answering {len(assessment_set)} Randomized Questions**{time_str}{mark_str}"
@@ -630,18 +650,12 @@ if st.session_state.user_role != "admin":
                                 c_val.append(opt)
                     else:  # single_mcq
                         opts = [f"{k}) {v}" for k, v in options.items() if v]
-                        c_val = st.radio(
+                        c_val = st.pills(
                             f"Select answer for Q{idx}:",
                             opts,
                             key=f"sq_{qno}",
-                            index=None,
+                            selection_mode="single",
                             label_visibility="collapsed",
-                        )
-                        st.form_submit_button(
-                            "Clear selection",
-                            key=f"clear_btn_{qno}",
-                            on_click=lambda k: st.session_state.update({k: None}),
-                            args=(f"sq_{qno}",)
                         )
 
                     user_choices[qno] = {
