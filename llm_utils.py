@@ -104,14 +104,14 @@ def generate_gemini_questions(
     try:
         if provider in ["System Default", "Google Gemini"]:
             models_to_try = (
-                ["gemini-3.8-flash"]
+                ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]
                 if provider == "System Default"
-                else ["gemini-3.8-flash"]
+                else ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]
             )
             client = genai.Client(api_key=api_key)
             last_error = None
             for model_name in models_to_try:
-                for attempt in range(2):
+                for attempt in range(3):
                     try:
                         response = client.models.generate_content(
                             model=model_name,
@@ -138,7 +138,7 @@ def generate_gemini_questions(
                             or "429" in str(e)
                             or "overloaded" in str(e).lower()
                         ):
-                            time.sleep(2)
+                            time.sleep(3)
                             continue
                         raise e
             if last_error:
