@@ -202,296 +202,299 @@ if st.session_state.user_role != "admin":
     with student_tabs[0]:
         st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
         if not st.session_state.get("student_assessment_started", False):
-            st.markdown("#### AI Configuration")
-            provider = st.selectbox(
-                "Select AI Provider (Use your own API key)",
-                ["System Default", "Google Gemini", "OpenAI", "Groq", "Anthropic"],
-            )
-            user_api_key = ""
-            if provider != "System Default":
-                user_api_key = st.text_input("Enter your API Key", type="password")
-                if user_api_key:
-                    st.success(f"{provider} API Key applied!")
-            st.session_state.custom_ai_provider = provider
-            st.session_state.custom_api_key = user_api_key
-            st.markdown("---")
-
-            source_type = st.radio(
-                "Select Assessment Source:",
-                ["Select Topic from Catalog", "Upload Study Material (PDF)"],
-                horizontal=True,
-            )
-
-            pdf_context = None
-            ai_domain = ""
-            ai_subject = ""
-            custom_topic = ""
-
-            if source_type == "Upload Study Material (PDF)":
-                uploaded_file = st.file_uploader(
-                    "Upload a PDF document to generate questions from its contents",
-                    type=["pdf"],
+            @st.fragment
+            def render_ai_config():
+                st.markdown("#### AI Configuration")
+                provider = st.selectbox(
+                    "Select AI Provider (Use your own API key)",
+                    ["System Default", "Google Gemini", "OpenAI", "Groq", "Anthropic"],
                 )
-                if uploaded_file is not None:
+                user_api_key = ""
+                if provider != "System Default":
+                    user_api_key = st.text_input("Enter your API Key", type="password")
+                    if user_api_key:
+                        st.success(f"{provider} API Key applied!")
+                st.session_state.custom_ai_provider = provider
+                st.session_state.custom_api_key = user_api_key
+                st.markdown("---")
+
+                source_type = st.radio(
+                    "Select Assessment Source:",
+                    ["Select Topic from Catalog", "Upload Study Material (PDF)"],
+                    horizontal=True,
+                )
+
+                pdf_context = None
+                ai_domain = ""
+                ai_subject = ""
+                custom_topic = ""
+
+                if source_type == "Upload Study Material (PDF)":
+                    uploaded_file = st.file_uploader(
+                        "Upload a PDF document to generate questions from its contents",
+                        type=["pdf"],
+                    )
+                    if uploaded_file is not None:
+                        try:
+                            reader = PdfReader(uploaded_file)
+                            text = ""
+                            for page in reader.pages:
+                                page_text = page.extract_text()
+                                if page_text:
+                                    text += page_text + "\n"
+                            pdf_context = text[:30000]
+                            st.success(
+                                f"Successfully extracted {len(pdf_context)} characters from the PDF."
+                            )
+
+                            ai_domain = "Custom PDF"
+                            ai_subject = uploaded_file.name
+                            custom_topic = f"PDF: {uploaded_file.name}"
+                            st.session_state.selected_domain = ai_domain
+                            st.session_state.selected_subject = ai_subject
+                            st.session_state.custom_topic = custom_topic
+                            st.session_state.pdf_context = pdf_context
+                        except Exception as e:
+                            st.error(f"Error reading PDF: {e}")
+                else:
                     try:
-                        reader = PdfReader(uploaded_file)
-                        text = ""
-                        for page in reader.pages:
-                            page_text = page.extract_text()
-                            if page_text:
-                                text += page_text + "\n"
-                        pdf_context = text[:30000]
-                        st.success(
-                            f"Successfully extracted {len(pdf_context)} characters from the PDF."
+                        with open("domains_catalog.json", "r") as f:
+                            ai_domains_catalog = json.load(f)
+                    except FileNotFoundError:
+                        ai_domains_catalog = {
+                            "General": ["General Knowledge", "Custom Topic..."]
+                        }
+
+                    current_level = ai_domains_catalog
+                    selections = []
+                    labels = [
+                        "Broad Domain",
+                        "Branch / Course",
+                        "Category / Specialization",
+                        "Topic / Exam",
+                    ]
+
+                    level_idx = 0
+                    custom_triggered = False
+
+                    while isinstance(current_level, dict):
+                        options = list(current_level.keys()) + ["Other / Custom..."]
+                        label = (
+                            labels[level_idx]
+                            if level_idx < len(labels)
+                            else f"Level {level_idx + 1}"
+                        )
+                        selection = st.selectbox(
+                            f"Search/Select {label}:", options, key=f"sel_{level_idx}", index=None, placeholder="Select an option..."
                         )
 
-                        ai_domain = "Custom PDF"
-                        ai_subject = uploaded_file.name
-                        custom_topic = f"PDF: {uploaded_file.name}"
+                        if selection is None:
+                            break
+
+                        if selection == "Other / Custom...":
+                            custom_triggered = True
+                            break
+
+                        selections.append(selection)
+                        current_level = current_level[selection]
+                        level_idx += 1
+
+                    if not custom_triggered and isinstance(current_level, list):
+                        options = current_level + ["Other / Custom..."]
+                        label = (
+                            labels[level_idx]
+                            if level_idx < len(labels)
+                            else "Specific Subject"
+                        )
+                        final_selection = st.selectbox(
+                            f"Search/Select {label}:", options, key="sel_final", index=None, placeholder="Select an option..."
+                        )
+
+                        if final_selection is None:
+                            pass
+                        elif final_selection == "Other / Custom...":
+                            custom_triggered = True
+                        else:
+                            selections.append(final_selection)
+
+                    ai_domain = selections[0] if selections else "Custom"
+
+                    if custom_triggered:
+                        custom_topic_input = st.text_input(
+                            "Type your custom topic / specialization here:", value=""
+                        )
+                        if not selections:
+                            ai_domain = "Custom"
+                            ai_subject = custom_topic_input
+                            custom_topic = custom_topic_input
+                        else:
+                            ai_subject = " - ".join(selections[1:]) + (
+                                " - " + custom_topic_input if custom_topic_input else ""
+                            )
+                            ai_subject = ai_subject.strip(" -")
+                            custom_topic = (
+                                f"{ai_domain} - {ai_subject}"
+                                if ai_domain != "Custom"
+                                else custom_topic_input
+                            )
+                    else:
+                        ai_subject = (
+                            " - ".join(selections[1:])
+                            if len(selections) > 1
+                            else "General Knowledge"
+                        )
+                        custom_topic = f"{ai_domain} - {ai_subject}"
+
+                        if not custom_topic.strip() or custom_topic.strip() == "-":
+                            custom_topic = "General Knowledge"
+                            ai_subject = "General Knowledge"
+
                         st.session_state.selected_domain = ai_domain
                         st.session_state.selected_subject = ai_subject
                         st.session_state.custom_topic = custom_topic
-                        st.session_state.pdf_context = pdf_context
-                    except Exception as e:
-                        st.error(f"Error reading PDF: {e}")
-            else:
-                try:
-                    with open("domains_catalog.json", "r") as f:
-                        ai_domains_catalog = json.load(f)
-                except FileNotFoundError:
-                    ai_domains_catalog = {
-                        "General": ["General Knowledge", "Custom Topic..."]
-                    }
+                        st.session_state.pdf_context = None
 
-                current_level = ai_domains_catalog
-                selections = []
-                labels = [
-                    "Broad Domain",
-                    "Branch / Course",
-                    "Category / Specialization",
-                    "Topic / Exam",
-                ]
-
-                level_idx = 0
-                custom_triggered = False
-
-                while isinstance(current_level, dict):
-                    options = list(current_level.keys()) + ["Other / Custom..."]
-                    label = (
-                        labels[level_idx]
-                        if level_idx < len(labels)
-                        else f"Level {level_idx + 1}"
-                    )
-                    selection = st.selectbox(
-                        f"Search/Select {label}:", options, key=f"sel_{level_idx}", index=None, placeholder="Select an option..."
-                    )
-
-                    if selection is None:
-                        break
-
-                    if selection == "Other / Custom...":
-                        custom_triggered = True
-                        break
-
-                    selections.append(selection)
-                    current_level = current_level[selection]
-                    level_idx += 1
-
-                if not custom_triggered and isinstance(current_level, list):
-                    options = current_level + ["Other / Custom..."]
-                    label = (
-                        labels[level_idx]
-                        if level_idx < len(labels)
-                        else "Specific Subject"
-                    )
-                    final_selection = st.selectbox(
-                        f"Search/Select {label}:", options, key="sel_final", index=None, placeholder="Select an option..."
-                    )
-                    
-                    if final_selection is None:
-                        pass
-                    elif final_selection == "Other / Custom...":
-                        custom_triggered = True
-                    else:
-                        selections.append(final_selection)
-
-                ai_domain = selections[0] if selections else "Custom"
-
-                if custom_triggered:
-                    custom_topic_input = st.text_input(
-                        "Type your custom topic / specialization here:", value=""
-                    )
-                    if not selections:
-                        ai_domain = "Custom"
-                        ai_subject = custom_topic_input
-                        custom_topic = custom_topic_input
-                    else:
-                        ai_subject = " - ".join(selections[1:]) + (
-                            " - " + custom_topic_input if custom_topic_input else ""
-                        )
-                        ai_subject = ai_subject.strip(" -")
-                        custom_topic = (
-                            f"{ai_domain} - {ai_subject}"
-                            if ai_domain != "Custom"
-                            else custom_topic_input
-                        )
+                exam_rules = {
+                    "JEE Mains": {"q": 75, "cm": 4, "im": -1, "time": 180, "diff": "Hard"},
+                    "JEE Advanced Paper 1": {
+                        "q": 54,
+                        "cm": 3,
+                        "im": -1,
+                        "time": 180,
+                        "diff": "Hard",
+                    },
+                    "JEE Advanced Paper 2": {
+                        "q": 54,
+                        "cm": 4,
+                        "im": -2,
+                        "time": 180,
+                        "diff": "Hard",
+                    },
+                    "BITSAT": {"q": 130, "cm": 3, "im": -1, "time": 180, "diff": "Medium"},
+                    "GATE": {"q": 65, "cm": 1, "im": -0.33, "time": 180, "diff": "Hard"},
+                    "NEET": {"q": 180, "cm": 4, "im": -1, "time": 200, "diff": "Medium"},
+                    "CAT": {"q": 66, "cm": 3, "im": -1, "time": 120, "diff": "Hard"},
+                    "XAT": {"q": 105, "cm": 1, "im": -0.25, "time": 210, "diff": "Hard"},
+                    "SNAP": {"q": 60, "cm": 1, "im": -0.25, "time": 60, "diff": "Medium"},
+                    "GMAT": {"q": 80, "cm": 1, "im": 0, "time": 195, "diff": "Hard"},
+                    "GRE": {"q": 80, "cm": 1, "im": 0, "time": 225, "diff": "Hard"},
+                    "NMAT": {"q": 108, "cm": 1, "im": 0, "time": 120, "diff": "Medium"},
+                    "MAT": {"q": 200, "cm": 1, "im": -0.25, "time": 150, "diff": "Easy"},
+                    "CMAT": {"q": 100, "cm": 4, "im": -1, "time": 180, "diff": "Medium"},
+                    "CUET (UG)": {"q": 50, "cm": 5, "im": -1, "time": 45, "diff": "Medium"},
+                    "CUET (PG)": {
+                        "q": 75,
+                        "cm": 4,
+                        "im": -1,
+                        "time": 105,
+                        "diff": "Medium",
+                    },
+                    "IPMAT": {"q": 90, "cm": 4, "im": -1, "time": 120, "diff": "Hard"},
+                    "NPAT": {"q": 120, "cm": 1, "im": 0, "time": 100, "diff": "Medium"},
+                    "UPSC": {"q": 100, "cm": 2, "im": -0.66, "time": 120, "diff": "Hard"},
+                    "NDA": {
+                        "q": 120,
+                        "cm": 2.5,
+                        "im": -0.83,
+                        "time": 150,
+                        "diff": "Medium",
+                    },
+                    "CLAT": {"q": 120, "cm": 1, "im": -0.25, "time": 120, "diff": "Medium"},
+                }
+                if source_type == "Upload Study Material (PDF)" and not uploaded_file:
+                    pass
                 else:
-                    ai_subject = (
-                        " - ".join(selections[1:])
-                        if len(selections) > 1
-                        else "General Knowledge"
-                    )
-                    custom_topic = f"{ai_domain} - {ai_subject}"
+                    matched_exam = None
+                    for ex, rules in exam_rules.items():
+                        if ex in ai_subject or ex in ai_domain or ex in custom_topic:
+                            matched_exam = ex
+                            break
 
-                    if not custom_topic.strip() or custom_topic.strip() == "-":
-                        custom_topic = "General Knowledge"
-                        ai_subject = "General Knowledge"
-
-                    st.session_state.selected_domain = ai_domain
-                    st.session_state.selected_subject = ai_subject
-                    st.session_state.custom_topic = custom_topic
-                    st.session_state.pdf_context = None
-
-            exam_rules = {
-                "JEE Mains": {"q": 75, "cm": 4, "im": -1, "time": 180, "diff": "Hard"},
-                "JEE Advanced Paper 1": {
-                    "q": 54,
-                    "cm": 3,
-                    "im": -1,
-                    "time": 180,
-                    "diff": "Hard",
-                },
-                "JEE Advanced Paper 2": {
-                    "q": 54,
-                    "cm": 4,
-                    "im": -2,
-                    "time": 180,
-                    "diff": "Hard",
-                },
-                "BITSAT": {"q": 130, "cm": 3, "im": -1, "time": 180, "diff": "Medium"},
-                "GATE": {"q": 65, "cm": 1, "im": -0.33, "time": 180, "diff": "Hard"},
-                "NEET": {"q": 180, "cm": 4, "im": -1, "time": 200, "diff": "Medium"},
-                "CAT": {"q": 66, "cm": 3, "im": -1, "time": 120, "diff": "Hard"},
-                "XAT": {"q": 105, "cm": 1, "im": -0.25, "time": 210, "diff": "Hard"},
-                "SNAP": {"q": 60, "cm": 1, "im": -0.25, "time": 60, "diff": "Medium"},
-                "GMAT": {"q": 80, "cm": 1, "im": 0, "time": 195, "diff": "Hard"},
-                "GRE": {"q": 80, "cm": 1, "im": 0, "time": 225, "diff": "Hard"},
-                "NMAT": {"q": 108, "cm": 1, "im": 0, "time": 120, "diff": "Medium"},
-                "MAT": {"q": 200, "cm": 1, "im": -0.25, "time": 150, "diff": "Easy"},
-                "CMAT": {"q": 100, "cm": 4, "im": -1, "time": 180, "diff": "Medium"},
-                "CUET (UG)": {"q": 50, "cm": 5, "im": -1, "time": 45, "diff": "Medium"},
-                "CUET (PG)": {
-                    "q": 75,
-                    "cm": 4,
-                    "im": -1,
-                    "time": 105,
-                    "diff": "Medium",
-                },
-                "IPMAT": {"q": 90, "cm": 4, "im": -1, "time": 120, "diff": "Hard"},
-                "NPAT": {"q": 120, "cm": 1, "im": 0, "time": 100, "diff": "Medium"},
-                "UPSC": {"q": 100, "cm": 2, "im": -0.66, "time": 120, "diff": "Hard"},
-                "NDA": {
-                    "q": 120,
-                    "cm": 2.5,
-                    "im": -0.83,
-                    "time": 150,
-                    "diff": "Medium",
-                },
-                "CLAT": {"q": 120, "cm": 1, "im": -0.25, "time": 120, "diff": "Medium"},
-            }
-            if source_type == "Upload Study Material (PDF)" and not uploaded_file:
-                pass
-            else:
-                matched_exam = None
-                for ex, rules in exam_rules.items():
-                    if ex in ai_subject or ex in ai_domain or ex in custom_topic:
-                        matched_exam = ex
-                        break
-
-                if matched_exam:
-                    st.info(
-                        f" **{matched_exam} Format Detected!** Applying official marking scheme and settings."
-                    )
-                    q_val = exam_rules[matched_exam]["q"]
-                    if "Mock" not in ai_subject and "Mock" not in custom_topic:
-                        q_val = max(10, q_val // 3)
-                        st.caption(
-                            f"Note: Adjusted to {q_val} questions for a single subject section."
+                    if matched_exam:
+                        st.info(
+                            f" **{matched_exam} Format Detected!** Applying official marking scheme and settings."
                         )
+                        q_val = exam_rules[matched_exam]["q"]
+                        if "Mock" not in ai_subject and "Mock" not in custom_topic:
+                            q_val = max(10, q_val // 3)
+                            st.caption(
+                                f"Note: Adjusted to {q_val} questions for a single subject section."
+                            )
 
-                    num_questions_chosen = q_val
-                    cm_val = exam_rules[matched_exam]["cm"]
-                    im_val = exam_rules[matched_exam]["im"]
-                    time_val = exam_rules[matched_exam]["time"]
-                    difficulty_level = exam_rules[matched_exam]["diff"]
+                        num_questions_chosen = q_val
+                        cm_val = exam_rules[matched_exam]["cm"]
+                        im_val = exam_rules[matched_exam]["im"]
+                        time_val = exam_rules[matched_exam]["time"]
+                        difficulty_level = exam_rules[matched_exam]["diff"]
 
-                    st.write(
-                        f"**Questions:** {q_val} | **Time Limit:** {time_val} mins | **Marking:** +{cm_val} / {im_val} | **Difficulty:** {difficulty_level}"
-                    )
-                else:
-                    q_options = [5, 10, 15, 20, 25, 30, 40, 50]
-                    col_q, col_diff = st.columns(2)
-                    with col_q:
-                        num_questions_chosen = st.select_slider(
-                            " Number of Questions:",
-                            options=q_options,
-                            value=10,
+                        st.write(
+                            f"**Questions:** {q_val} | **Time Limit:** {time_val} mins | **Marking:** +{cm_val} / {im_val} | **Difficulty:** {difficulty_level}"
                         )
-                    with col_diff:
-                        difficulty_level = st.select_slider(
-                            " Select Difficulty:",
-                            options=["Easy", "Medium", "Hard"],
-                            value="Medium",
-                        )
-                    cm_val = 1
-                    im_val = 0
-                    time_val = None
+                    else:
+                        q_options = [5, 10, 15, 20, 25, 30, 40, 50]
+                        col_q, col_diff = st.columns(2)
+                        with col_q:
+                            num_questions_chosen = st.select_slider(
+                                " Number of Questions:",
+                                options=q_options,
+                                value=10,
+                            )
+                        with col_diff:
+                            difficulty_level = st.select_slider(
+                                " Select Difficulty:",
+                                options=["Easy", "Medium", "Hard"],
+                                value="Medium",
+                            )
+                        cm_val = 1
+                        im_val = 0
+                        time_val = None
 
-            if not (source_type == "Upload Study Material (PDF)" and not uploaded_file):
-                st.write("")
-                _, center_col, _ = st.columns([1, 2, 1])
-                with center_col:
-                    if st.button(
-                        "Start Assessment Now ",
-                        type="primary",
-                        use_container_width=True,
-                    ):
-                        st.session_state.student_assessment_started = True
-                        st.session_state.difficulty_level = difficulty_level
-                        st.session_state.cm_val = cm_val
-                        st.session_state.im_val = im_val
-                        st.session_state.time_limit_mins = time_val
-                        st.session_state.num_questions = num_questions_chosen
-
-                        topic_for_gen = st.session_state.get("custom_topic", "General")
-                        if not topic_for_gen.strip():
-                            topic_for_gen = "General Knowledge"
-
-                        pdf_context = st.session_state.get("pdf_context", None)
-
-                        with st.spinner(
-                            f"Preparing your {difficulty_level.lower()} assessment module on '{topic_for_gen}'..."
+                if not (source_type == "Upload Study Material (PDF)" and not uploaded_file):
+                    st.write("")
+                    _, center_col, _ = st.columns([1, 2, 1])
+                    with center_col:
+                        if st.button(
+                            "Start Assessment Now ",
+                            type="primary",
+                            use_container_width=True,
                         ):
-                            exam_fmt = (
-                                matched_exam
-                                if "matched_exam" in locals() and matched_exam
-                                else "Standard"
-                            )
-                            gen_qs = llm_utils.generate_gemini_questions(
-                                topic_for_gen,
-                                num_questions_chosen,
-                                difficulty_level,
-                                context=pdf_context,
-                                exam_format=exam_fmt,
-                            )
+                            st.session_state.student_assessment_started = True
+                            st.session_state.difficulty_level = difficulty_level
+                            st.session_state.cm_val = cm_val
+                            st.session_state.im_val = im_val
+                            st.session_state.time_limit_mins = time_val
+                            st.session_state.num_questions = num_questions_chosen
 
-                        if gen_qs:
-                            st.session_state.assessment_set = gen_qs
-                            st.session_state.assessment_start_time = time.time()
-                            st.rerun()
-                        else:
-                            st.error("Failed to generate questions. Please try again.")
-                            st.session_state.student_assessment_started = False
+                            topic_for_gen = st.session_state.get("custom_topic", "General")
+                            if not topic_for_gen.strip():
+                                topic_for_gen = "General Knowledge"
+
+                            pdf_context = st.session_state.get("pdf_context", None)
+
+                            with st.spinner(
+                                f"Preparing your {difficulty_level.lower()} assessment module on '{topic_for_gen}'..."
+                            ):
+                                exam_fmt = (
+                                    matched_exam
+                                    if "matched_exam" in locals() and matched_exam
+                                    else "Standard"
+                                )
+                                gen_qs = llm_utils.generate_gemini_questions(
+                                    topic_for_gen,
+                                    num_questions_chosen,
+                                    difficulty_level,
+                                    context=pdf_context,
+                                    exam_format=exam_fmt,
+                                )
+
+                            if gen_qs:
+                                st.session_state.assessment_set = gen_qs
+                                st.session_state.assessment_start_time = time.time()
+                                st.rerun()
+                            else:
+                                st.error("Failed to generate questions. Please try again.")
+                                st.session_state.student_assessment_started = False
+            render_ai_config()
         else:
             assessment_set = st.session_state.get("assessment_set")
             if not assessment_set:
@@ -602,25 +605,6 @@ if st.session_state.user_role != "admin":
                     width=0,
                 )
 
-            st.markdown("""
-            <style>
-            /* Make pills stack vertically */
-            div[data-testid="stPills"] > div {
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-            }
-            div[data-testid="stPills"] button {
-                width: 100%;
-                justify-content: flex-start;
-                text-align: left;
-                height: auto;
-                min-height: 2.5rem;
-                padding: 8px 12px;
-                white-space: normal;
-            }
-            </style>
-            """, unsafe_allow_html=True)
 
             with st.form("student_assessment_form"):
                 st.markdown(
@@ -650,13 +634,16 @@ if st.session_state.user_role != "admin":
                                 c_val.append(opt)
                     else:  # single_mcq
                         opts = [f"{k}) {v}" for k, v in options.items() if v]
-                        c_val = st.pills(
+                        clear_opt = "Leave unattempted"
+                        opts_with_clear = [clear_opt] + opts
+                        c_val = st.radio(
                             f"Select answer for Q{idx}:",
-                            opts,
+                            opts_with_clear,
+                            index=0,
                             key=f"sq_{qno}",
-                            selection_mode="single",
-                            label_visibility="collapsed",
                         )
+                        if c_val == clear_opt:
+                            c_val = None
 
                     user_choices[qno] = {
                         "type": qtype,
@@ -1052,115 +1039,119 @@ if st.session_state.user_role != "admin":
             )
 
     with student_tabs[2]:
-        st.markdown("###  Real-Time Hall of Fame")
+        @st.fragment
+        def render_leaderboard():
+            st.markdown("###  Real-Time Hall of Fame")
 
-        df_filters = pd.read_sql_query(
-            "SELECT DISTINCT domain, subject FROM attempts WHERE student_name = %s",
-            conn,
-            params=(st.session_state.username,),
-        )
-
-        if df_filters.empty:
-            st.info(
-                "You haven't taken any assessments yet. Complete an assessment to unlock its leaderboard!"
+            df_filters = pd.read_sql_query(
+                "SELECT DISTINCT domain, subject FROM attempts WHERE student_name = %s",
+                conn,
+                params=(st.session_state.username,),
             )
-            st.stop()
 
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            domains = ["All"] + sorted(df_filters["domain"].dropna().unique().tolist())
-            selected_domain = st.selectbox("Filter by Domain", domains, key="lb_domain")
-        with col2:
-            if selected_domain == "All":
-                subjects_list = sorted(df_filters["subject"].dropna().unique().tolist())
+            if df_filters.empty:
+                st.info(
+                    "You haven't taken any assessments yet. Complete an assessment to unlock its leaderboard!"
+                )
+                return
+
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                domains = ["All"] + sorted(df_filters["domain"].dropna().unique().tolist())
+                selected_domain = st.selectbox("Filter by Domain", domains, key="lb_domain")
+            with col2:
+                if selected_domain == "All":
+                    subjects_list = sorted(df_filters["subject"].dropna().unique().tolist())
+                else:
+                    subjects_list = sorted(
+                        df_filters[df_filters["domain"] == selected_domain]["subject"]
+                        .dropna()
+                        .unique()
+                        .tolist()
+                    )
+                subjects = ["All"] + subjects_list
+                selected_subject = st.selectbox(
+                    "Filter by Subject", subjects, key="lb_subject"
+                )
+            with col3:
+                df_diffs = pd.read_sql_query(
+                    "SELECT DISTINCT difficulty FROM attempts", conn
+                )
+                difficulties = ["All"] + sorted(
+                    df_diffs["difficulty"].dropna().unique().tolist()
+                )
+                selected_difficulty = st.selectbox(
+                    "Filter by Difficulty", difficulties, key="lb_diff"
+                )
+
+            query = "SELECT student_name, score, total_questions, score_percentage, domain, subject, difficulty FROM attempts WHERE 1=1"
+            params = []
+            if selected_domain != "All":
+                query += " AND domain = %s"
+                params.append(selected_domain)
+            if selected_subject != "All":
+                query += " AND subject = %s"
+                params.append(selected_subject)
+            if selected_difficulty != "All":
+                query += " AND difficulty = %s"
+                params.append(selected_difficulty)
+
+            df_all = pd.read_sql_query(query, conn, params=params)
+
+            if not df_all.empty:
+                allowed_combinations = set(zip(df_filters["domain"], df_filters["subject"]))
+                df_all = df_all[
+                    df_all.apply(
+                        lambda row: (row["domain"], row["subject"]) in allowed_combinations,
+                        axis=1,
+                    )
+                ]
+
+            if not df_all.empty:
+                # Get best attempt per student
+                idx = df_all.groupby("student_name")["score_percentage"].idxmax()
+                df_lb = (
+                    df_all.loc[idx]
+                    .sort_values(by=["score_percentage", "score"], ascending=[False, False])
+                    .head(50)
+                    .reset_index(drop=True)
+                )
+
+                df_lb.rename(
+                    columns={
+                        "student_name": "Student",
+                        "score": "Score",
+                        "total_questions": "Total",
+                        "score_percentage": "Score %",
+                        "domain": "Domain",
+                        "subject": "Subject",
+                        "difficulty": "Difficulty",
+                    },
+                    inplace=True,
+                )
+
+                ranks = [
+                    (
+                        " 1st"
+                        if i == 0
+                        else " 2nd"
+                        if i == 1
+                        else " 3rd"
+                        if i == 2
+                        else f"{i + 1}th"
+                    )
+                    for i in range(len(df_lb))
+                ]
+                df_lb.insert(0, "Rank", ranks)
+                st.dataframe(
+                    df_lb,
+                    width="stretch",
+                    hide_index=True,
+                    column_config={
+                        "Score %": st.column_config.NumberColumn("Score %", format="%.1f%%")
+                    },
+                )
             else:
-                subjects_list = sorted(
-                    df_filters[df_filters["domain"] == selected_domain]["subject"]
-                    .dropna()
-                    .unique()
-                    .tolist()
-                )
-            subjects = ["All"] + subjects_list
-            selected_subject = st.selectbox(
-                "Filter by Subject", subjects, key="lb_subject"
-            )
-        with col3:
-            df_diffs = pd.read_sql_query(
-                "SELECT DISTINCT difficulty FROM attempts", conn
-            )
-            difficulties = ["All"] + sorted(
-                df_diffs["difficulty"].dropna().unique().tolist()
-            )
-            selected_difficulty = st.selectbox(
-                "Filter by Difficulty", difficulties, key="lb_diff"
-            )
+                st.info("Leaderboard is currently empty for the selected filters.")
 
-        query = "SELECT student_name, score, total_questions, score_percentage, domain, subject, difficulty FROM attempts WHERE 1=1"
-        params = []
-        if selected_domain != "All":
-            query += " AND domain = %s"
-            params.append(selected_domain)
-        if selected_subject != "All":
-            query += " AND subject = %s"
-            params.append(selected_subject)
-        if selected_difficulty != "All":
-            query += " AND difficulty = %s"
-            params.append(selected_difficulty)
-
-        df_all = pd.read_sql_query(query, conn, params=params)
-
-        if not df_all.empty:
-            allowed_combinations = set(zip(df_filters["domain"], df_filters["subject"]))
-            df_all = df_all[
-                df_all.apply(
-                    lambda row: (row["domain"], row["subject"]) in allowed_combinations,
-                    axis=1,
-                )
-            ]
-
-        if not df_all.empty:
-            # Get best attempt per student
-            idx = df_all.groupby("student_name")["score_percentage"].idxmax()
-            df_lb = (
-                df_all.loc[idx]
-                .sort_values(by=["score_percentage", "score"], ascending=[False, False])
-                .head(50)
-                .reset_index(drop=True)
-            )
-
-            df_lb.rename(
-                columns={
-                    "student_name": "Student",
-                    "score": "Score",
-                    "total_questions": "Total",
-                    "score_percentage": "Score %",
-                    "domain": "Domain",
-                    "subject": "Subject",
-                    "difficulty": "Difficulty",
-                },
-                inplace=True,
-            )
-
-            ranks = [
-                (
-                    " 1st"
-                    if i == 0
-                    else " 2nd"
-                    if i == 1
-                    else " 3rd"
-                    if i == 2
-                    else f"{i + 1}th"
-                )
-                for i in range(len(df_lb))
-            ]
-            df_lb.insert(0, "Rank", ranks)
-            st.dataframe(
-                df_lb,
-                width="stretch",
-                hide_index=True,
-                column_config={
-                    "Score %": st.column_config.NumberColumn("Score %", format="%.1f%%")
-                },
-            )
-        else:
-            st.info("Leaderboard is currently empty for the selected filters.")
+        render_leaderboard()
