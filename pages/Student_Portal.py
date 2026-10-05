@@ -90,12 +90,23 @@ st.markdown(
         padding-bottom: 3rem;
         max-width: 1200px;
     }
-    /* Force pills (used for quiz options) to stack vertically */
-    div[data-testid="stPills"] > div {
+    /* Force pills (used for quiz options) to stack vertically and take full width */
+    div[data-testid="stPills"] [role="radiogroup"], 
+    div[data-testid="stPills"] [role="group"], 
+    div[data-testid="stPills"] [data-testid="stButtonGroup"] {
         display: flex !important;
         flex-direction: column !important;
-        align-items: flex-start !important;
+        align-items: stretch !important;
+        width: 100% !important;
         gap: 0.5rem !important;
+    }
+    div[data-testid="stPills"] button {
+        width: 100% !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+        white-space: normal !important;
+        height: auto !important;
+        padding: 8px 16px !important;
     }
     /* Modern Header */
     .portal-navbar {
