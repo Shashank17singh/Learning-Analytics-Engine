@@ -440,7 +440,6 @@ if st.session_state.user_role != "admin":
                         use_container_width=True,
                     ):
                         st.session_state.student_assessment_started = True
-                        st.session_state.assessment_start_time = time.time()
                         st.session_state.difficulty_level = difficulty_level
                         st.session_state.cm_val = cm_val
                         st.session_state.im_val = im_val
@@ -471,6 +470,7 @@ if st.session_state.user_role != "admin":
 
                         if gen_qs:
                             st.session_state.assessment_set = gen_qs
+                            st.session_state.assessment_start_time = time.time()
                             st.rerun()
                         else:
                             st.error("Failed to generate questions. Please try again.")
@@ -503,19 +503,23 @@ if st.session_state.user_role != "admin":
                     """
                     <div id="exam-timer-container" style="
                         position: fixed;
-                        top: 60px;
-                        right: 20px;
-                        background: #1e1e2f;
-                        color: #00ffcc;
-                        padding: 10px 20px;
-                        border-radius: 8px;
-                        font-family: monospace;
-                        font-size: 24px;
-                        font-weight: bold;
+                        bottom: 30px;
+                        right: 30px;
+                        background: white;
+                        color: #1e293b;
+                        padding: 12px 24px;
+                        border-radius: 12px;
+                        font-family: 'Inter', system-ui, sans-serif;
+                        font-size: 20px;
+                        font-weight: 600;
                         z-index: 999999;
-                        border: 2px solid #00ffcc;
-                        box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+                        border: 1px solid #e2e8f0;
+                        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
                     ">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="exam-timer-icon" style="color: #3b82f6;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         <span id="exam-timer-text">Loading...</span>
                     </div>
                     """,
@@ -528,6 +532,7 @@ if st.session_state.user_role != "admin":
                     var remaining = {remaining};
                     var timerText = window.parent.document.getElementById('exam-timer-text');
                     var timerContainer = window.parent.document.getElementById('exam-timer-container');
+                    var timerIcon = window.parent.document.getElementById('exam-timer-icon');
                     
                     if (timerText) {{
                         var interval = setInterval(function() {{
@@ -539,8 +544,9 @@ if st.session_state.user_role != "admin":
                             if (remaining <= 0) {{
                                 clearInterval(interval);
                                 timerText.innerHTML = "TIME UP! SUBMITTING...";
-                                timerContainer.style.color = "#ff4444";
-                                timerContainer.style.borderColor = "#ff4444";
+                                timerText.style.color = "#ef4444";
+                                if (timerIcon) timerIcon.style.color = "#ef4444";
+                                timerContainer.style.borderColor = "#ef4444";
                                 
                                 // Find and click the Finish & Submit button
                                 var btns = Array.from(window.parent.document.querySelectorAll('button'));
@@ -558,14 +564,16 @@ if st.session_state.user_role != "admin":
                             if (h > 0) timeStr += (h < 10 ? "0" : "") + h + ":";
                             timeStr += (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
                             
-                            timerText.innerHTML = "⏱️ " + timeStr;
+                            timerText.innerHTML = timeStr;
                             
                             if (remaining < 300 && remaining > 60) {{ 
-                                timerContainer.style.color = "#ffaa00";
-                                timerContainer.style.borderColor = "#ffaa00";
+                                timerText.style.color = "#f59e0b";
+                                if (timerIcon) timerIcon.style.color = "#f59e0b";
+                                timerContainer.style.borderColor = "#fcd34d";
                             }} else if (remaining <= 60) {{ 
-                                timerContainer.style.color = "#ff4444";
-                                timerContainer.style.borderColor = "#ff4444";
+                                timerText.style.color = "#ef4444";
+                                if (timerIcon) timerIcon.style.color = "#ef4444";
+                                timerContainer.style.borderColor = "#fca5a5";
                             }}
                             
                             remaining--;
