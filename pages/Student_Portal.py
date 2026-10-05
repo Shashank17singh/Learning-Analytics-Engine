@@ -503,8 +503,8 @@ if st.session_state.user_role != "admin":
                     """
                     <div id="exam-timer-container" style="
                         position: fixed;
-                        bottom: 30px;
-                        right: 30px;
+                        top: 30px;
+                        left: 30px;
                         background: white;
                         color: #1e293b;
                         padding: 12px 24px;
