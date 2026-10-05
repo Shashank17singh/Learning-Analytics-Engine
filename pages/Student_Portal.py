@@ -283,8 +283,11 @@ if st.session_state.user_role != "admin":
                         else f"Level {level_idx + 1}"
                     )
                     selection = st.selectbox(
-                        f"Search/Select {label}:", options, key=f"sel_{level_idx}"
+                        f"Search/Select {label}:", options, key=f"sel_{level_idx}", index=None, placeholder="Select an option..."
                     )
+
+                    if selection is None:
+                        break
 
                     if selection == "Other / Custom...":
                         custom_triggered = True
@@ -302,9 +305,12 @@ if st.session_state.user_role != "admin":
                         else "Specific Subject"
                     )
                     final_selection = st.selectbox(
-                        f"Search/Select {label}:", options, key="sel_final"
+                        f"Search/Select {label}:", options, key="sel_final", index=None, placeholder="Select an option..."
                     )
-                    if final_selection == "Other / Custom...":
+                    
+                    if final_selection is None:
+                        pass
+                    elif final_selection == "Other / Custom...":
                         custom_triggered = True
                     else:
                         selections.append(final_selection)
