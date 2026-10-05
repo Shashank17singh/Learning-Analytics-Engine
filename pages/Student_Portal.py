@@ -1,13 +1,13 @@
 import json
 import time
+import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import warnings
 
-warnings.filterwarnings('ignore', category=UserWarning, module='pandas')
+warnings.filterwarnings("ignore", category=UserWarning, module="pandas")
 import streamlit as st
 from pypdf import PdfReader
 
