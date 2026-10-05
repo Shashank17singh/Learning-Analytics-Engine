@@ -606,7 +606,11 @@ if st.session_state.user_role != "admin":
                 )
 
 
-            with st.form("student_assessment_form"):
+            def clear_radio(qno):
+                st.session_state[f'sq_{qno}'] = None
+
+            @st.fragment
+            def render_assessment():
                 st.markdown(
                     f"**Answering {len(assessment_set)} Randomized Questions**{time_str}{mark_str}"
                 )
@@ -634,16 +638,13 @@ if st.session_state.user_role != "admin":
                                 c_val.append(opt)
                     else:  # single_mcq
                         opts = [f"{k}) {v}" for k, v in options.items() if v]
-                        clear_opt = "Leave unattempted"
-                        opts_with_clear = [clear_opt] + opts
                         c_val = st.radio(
                             f"Select answer for Q{idx}:",
-                            opts_with_clear,
-                            index=0,
+                            opts,
+                            index=None,
                             key=f"sq_{qno}",
                         )
-                        if c_val == clear_opt:
-                            c_val = None
+                        st.button(f'Clear Selection for Q{idx}', key=f'clear_{qno}', on_click=clear_radio, args=(qno,))
 
                     user_choices[qno] = {
                         "type": qtype,
@@ -658,233 +659,234 @@ if st.session_state.user_role != "admin":
 
                 col_btn1, col_btn2 = st.columns(2)
                 with col_btn1:
-                    submit_assessment = st.form_submit_button(
+                    submit_assessment = st.button(
                         " Finish & Submit Assessment",
                         type="primary",
                         use_container_width=True,
                     )
                 with col_btn2:
-                    cancel_assessment = st.form_submit_button(
+                    cancel_assessment = st.button(
                         " Go Back / End Test Early",
                         type="secondary",
                         use_container_width=True,
                     )
 
-            if cancel_assessment:
-                st.session_state.show_cancel_warning = True
+                if cancel_assessment:
+                    st.session_state.show_cancel_warning = True
 
-            if st.session_state.get("show_cancel_warning", False):
-                st.warning(
-                    "Are you sure you want to end the test early? Your progress will be lost and not saved."
-                )
-                col_y, col_n = st.columns(2)
-                with col_y:
-                    if st.button("Yes, End Test", type="primary"):
-                        st.session_state.show_cancel_warning = False
-                        st.session_state.assessment_set = None
-                        st.session_state.assessment_start_time = None
-                        st.rerun()
-                with col_n:
-                    if st.button("No, Continue Test"):
-                        st.session_state.show_cancel_warning = False
-                        st.rerun()
-
-            if submit_assessment or st.session_state.get("force_submit", False):
-                if st.session_state.get("force_submit"):
-                    st.session_state.force_submit = False
-
-                duration = max(
-                    1, int(time.time() - st.session_state.assessment_start_time)
-                )
-                correct_count = 0
-                incorrect_count = 0
-                unattempted_count = 0
-                total_q = len(assessment_set)
-                reviews_used_count = sum(
-                    1
-                    for qno in user_choices
-                    if st.session_state.get(f"review_{qno}", False)
-                )
-
-                for qno, choice_data in user_choices.items():
-                    c_val = choice_data["selected"]
-                    qtype = choice_data["type"]
-                    correct = choice_data["correct"]
-                    options = choice_data["options"]
-                    exp = choice_data["explanation"]
-                    ques = choice_data["ques"]
-
-                    if (
-                        c_val is None
-                        or (isinstance(c_val, list) and len(c_val) == 0)
-                        or c_val == ""
-                    ):
-                        unattempted_count += 1
-                        continue
-
-                    is_correct = False
-
-                    if qtype == "numerical":
-                        if str(c_val).strip() == str(correct).strip():
-                            is_correct = True
-                    elif qtype == "multi_mcq":
-                        selected_letters = sorted(
-                            [str(v).split(")")[0].strip().lower() for v in c_val]
-                        )
-                        correct_letters = (
-                            sorted([str(c).strip().lower() for c in correct])
-                            if isinstance(correct, list)
-                            else sorted([str(correct).strip().lower()])
-                        )
-                        if selected_letters == correct_letters:
-                            is_correct = True
-                    else:  # single_mcq
-                        selected_letter = str(c_val).split(")")[0].strip().lower()
-                        clean_corr = str(correct).strip().lower()
-
-                        opt_map = {
-                            str(k).lower(): str(v).strip().lower()
-                            for k, v in options.items()
-                        }
-
-                        if selected_letter in opt_map:
-                            if (
-                                selected_letter == clean_corr
-                                or opt_map.get(selected_letter) == clean_corr
-                            ):
-                                is_correct = True
-                        elif str(c_val).strip().lower() == clean_corr:
-                            is_correct = True
-
-                    if is_correct:
-                        correct_count += 1
-                    else:
-                        incorrect_count += 1
-                        st.session_state.setdefault("incorrect_answers", []).append(
-                            {
-                                "qno": qno,
-                                "ques": ques,
-                                "selected": c_val,
-                                "correct": correct,
-                                "explanation": exp,
-                            }
-                        )
-
-                cm_val = st.session_state.get("cm_val", 1)
-                im_val = st.session_state.get("im_val", 0)
-
-                raw_score = (correct_count * cm_val) + (incorrect_count * im_val)
-                max_possible_score = total_q * cm_val
-
-                score_percentage = (
-                    max(0.0, (raw_score / max_possible_score) * 100.0)
-                    if max_possible_score > 0
-                    else 0.0
-                )
-                passed = 1 if score_percentage >= 50.0 else 0
-
-                if unattempted_count == total_q:
+                if st.session_state.get("show_cancel_warning", False):
                     st.warning(
-                        "You did not attempt any questions. This attempt will not be saved."
+                        "Are you sure you want to end the test early? Your progress will be lost and not saved."
                     )
-                    if st.button("Return to Dashboard"):
-                        st.session_state.assessment_set = None
-                        st.session_state.assessment_start_time = None
+                    col_y, col_n = st.columns(2)
+                    with col_y:
+                        if st.button("Yes, End Test", type="primary"):
+                            st.session_state.show_cancel_warning = False
+                            st.session_state.assessment_set = None
+                            st.session_state.assessment_start_time = None
+                            st.rerun()
+                    with col_n:
+                        if st.button("No, Continue Test"):
+                            st.session_state.show_cancel_warning = False
+                            st.rerun()
+
+                if submit_assessment or st.session_state.get("force_submit", False):
+                    if st.session_state.get("force_submit"):
+                        st.session_state.force_submit = False
+
+                    duration = max(
+                        1, int(time.time() - st.session_state.assessment_start_time)
+                    )
+                    correct_count = 0
+                    incorrect_count = 0
+                    unattempted_count = 0
+                    total_q = len(assessment_set)
+                    reviews_used_count = sum(
+                        1
+                        for qno in user_choices
+                        if st.session_state.get(f"review_{qno}", False)
+                    )
+
+                    for qno, choice_data in user_choices.items():
+                        c_val = choice_data["selected"]
+                        qtype = choice_data["type"]
+                        correct = choice_data["correct"]
+                        options = choice_data["options"]
+                        exp = choice_data["explanation"]
+                        ques = choice_data["ques"]
+
+                        if (
+                            c_val is None
+                            or (isinstance(c_val, list) and len(c_val) == 0)
+                            or c_val == ""
+                        ):
+                            unattempted_count += 1
+                            continue
+
+                        is_correct = False
+
+                        if qtype == "numerical":
+                            if str(c_val).strip() == str(correct).strip():
+                                is_correct = True
+                        elif qtype == "multi_mcq":
+                            selected_letters = sorted(
+                                [str(v).split(")")[0].strip().lower() for v in c_val]
+                            )
+                            correct_letters = (
+                                sorted([str(c).strip().lower() for c in correct])
+                                if isinstance(correct, list)
+                                else sorted([str(correct).strip().lower()])
+                            )
+                            if selected_letters == correct_letters:
+                                is_correct = True
+                        else:  # single_mcq
+                            selected_letter = str(c_val).split(")")[0].strip().lower()
+                            clean_corr = str(correct).strip().lower()
+
+                            opt_map = {
+                                str(k).lower(): str(v).strip().lower()
+                                for k, v in options.items()
+                            }
+
+                            if selected_letter in opt_map:
+                                if (
+                                    selected_letter == clean_corr
+                                    or opt_map.get(selected_letter) == clean_corr
+                                ):
+                                    is_correct = True
+                            elif str(c_val).strip().lower() == clean_corr:
+                                is_correct = True
+
+                        if is_correct:
+                            correct_count += 1
+                        else:
+                            incorrect_count += 1
+                            st.session_state.setdefault("incorrect_answers", []).append(
+                                {
+                                    "qno": qno,
+                                    "ques": ques,
+                                    "selected": c_val,
+                                    "correct": correct,
+                                    "explanation": exp,
+                                }
+                            )
+
+                    cm_val = st.session_state.get("cm_val", 1)
+                    im_val = st.session_state.get("im_val", 0)
+
+                    raw_score = (correct_count * cm_val) + (incorrect_count * im_val)
+                    max_possible_score = total_q * cm_val
+
+                    score_percentage = (
+                        max(0.0, (raw_score / max_possible_score) * 100.0)
+                        if max_possible_score > 0
+                        else 0.0
+                    )
+                    passed = 1 if score_percentage >= 50.0 else 0
+
+                    if unattempted_count == total_q:
+                        st.warning(
+                            "You did not attempt any questions. This attempt will not be saved."
+                        )
+                        if st.button("Return to Dashboard"):
+                            st.session_state.assessment_set = None
+                            st.session_state.assessment_start_time = None
+                            st.rerun()
+                        st.stop()
+
+                    cur = conn.cursor()
+                    cur.execute(
+                        """
+                        INSERT INTO attempts (
+                            student_name, score, total_questions, score_percentage,
+                            time_taken_seconds, reviews_used, attempt_date, passed, domain, subject, difficulty
+                        ) VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, %s, %s, %s)
+                        """,
+                        (
+                            st.session_state.username,
+                            correct_count,
+                            total_q,
+                            score_percentage,
+                            duration,
+                            reviews_used_count,
+                            passed,
+                            st.session_state.get("selected_domain", "General"),
+                            st.session_state.get("selected_subject", "General"),
+                            st.session_state.get("difficulty_level", "Medium"),
+                        ),
+                    )
+
+                    cur.execute(
+                        "SELECT column_name FROM information_schema.columns WHERE table_name='leaderboard'"
+                    )
+                    cols = [r[0] for r in cur.fetchall()]
+                    t_col = (
+                        "total_questions"
+                        if "total_questions" in cols
+                        else "total_questions"
+                    )
+                    cur.execute(
+                        f"INSERT INTO leaderboard (name, score, {t_col}, scoreper) VALUES (%s, %s, %s, %s)",
+                        (
+                            st.session_state.username,
+                            correct_count,
+                            total_q,
+                            score_percentage,
+                        ),
+                    )
+                    conn.commit()
+
+                    if score_percentage >= 75.0:
+                        st.balloons()
+                        st.success(
+                            f" **Outstanding Performance, {st.session_state.username.title()}!** You scored **{raw_score:.2f} out of {max_possible_score}** ({score_percentage:.1f}%)."
+                        )
+                    elif score_percentage >= 50.0:
+                        st.balloons()
+                        st.success(
+                            f" **Great Job, {st.session_state.username.title()}!** You successfully completed the assessment with **{raw_score:.2f}/{max_possible_score}** ({score_percentage:.1f}%)."
+                        )
+                    else:
+                        st.success(
+                            f" **Assessment Completed Successfully!** Good effort, **{st.session_state.username.title()}**! Score: **{raw_score:.2f}/{max_possible_score}** ({score_percentage:.1f}%)."
+                        )
+
+                    col_res1, col_res2, col_res3, col_res4 = st.columns(4)
+                    col_res1.metric("Your Score", f"{raw_score:.2f} / {max_possible_score}")
+                    col_res2.metric("Accuracy", f"{score_percentage:.1f}%")
+                    col_res3.metric("Duration", format_time_str(duration))
+                    col_res4.metric("Status", "Passed " if passed else "Completed ")
+
+                    if st.session_state.get("incorrect_answers"):
+                        st.divider()
+                        st.markdown("###  Detailed Review of Incorrect Answers")
+                        st.info(
+                            "Here is a breakdown of the questions you got wrong, including a specific explanation of why your chosen answer was incorrect."
+                        )
+
+                        for d in st.session_state.incorrect_answers:
+                            with st.expander(f"Question {d['qno']}: {d['ques']}"):
+                                st.markdown(f" **Your Answer:** {d['selected']}")
+                                st.markdown(f" **Correct Answer:** {d['correct']}")
+
+                                with st.spinner("Generating targeted explanation..."):
+                                    targeted_exp = llm_utils.explain_wrong_answer(
+                                        d["ques"],
+                                        d["selected"],
+                                        d["correct"],
+                                        d["explanation"],
+                                    )
+
+                                st.markdown(f"**Explanation:** {targeted_exp}")
+
+                    st.session_state.student_assessment_started = False
+                    st.session_state.assessment_set = None
+                    st.session_state.incorrect_answers = []
+
+                    if st.button(" Take Another Assessment"):
                         st.rerun()
-                    st.stop()
 
-                cur = conn.cursor()
-                cur.execute(
-                    """
-                    INSERT INTO attempts (
-                        student_name, score, total_questions, score_percentage,
-                        time_taken_seconds, reviews_used, attempt_date, passed, domain, subject, difficulty
-                    ) VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, %s, %s, %s)
-                    """,
-                    (
-                        st.session_state.username,
-                        correct_count,
-                        total_q,
-                        score_percentage,
-                        duration,
-                        reviews_used_count,
-                        passed,
-                        st.session_state.get("selected_domain", "General"),
-                        st.session_state.get("selected_subject", "General"),
-                        st.session_state.get("difficulty_level", "Medium"),
-                    ),
-                )
-
-                cur.execute(
-                    "SELECT column_name FROM information_schema.columns WHERE table_name='leaderboard'"
-                )
-                cols = [r[0] for r in cur.fetchall()]
-                t_col = (
-                    "total_questions"
-                    if "total_questions" in cols
-                    else "total_questions"
-                )
-                cur.execute(
-                    f"INSERT INTO leaderboard (name, score, {t_col}, scoreper) VALUES (%s, %s, %s, %s)",
-                    (
-                        st.session_state.username,
-                        correct_count,
-                        total_q,
-                        score_percentage,
-                    ),
-                )
-                conn.commit()
-
-                if score_percentage >= 75.0:
-                    st.balloons()
-                    st.success(
-                        f" **Outstanding Performance, {st.session_state.username.title()}!** You scored **{raw_score:.2f} out of {max_possible_score}** ({score_percentage:.1f}%)."
-                    )
-                elif score_percentage >= 50.0:
-                    st.balloons()
-                    st.success(
-                        f" **Great Job, {st.session_state.username.title()}!** You successfully completed the assessment with **{raw_score:.2f}/{max_possible_score}** ({score_percentage:.1f}%)."
-                    )
-                else:
-                    st.success(
-                        f" **Assessment Completed Successfully!** Good effort, **{st.session_state.username.title()}**! Score: **{raw_score:.2f}/{max_possible_score}** ({score_percentage:.1f}%)."
-                    )
-
-                col_res1, col_res2, col_res3, col_res4 = st.columns(4)
-                col_res1.metric("Your Score", f"{raw_score:.2f} / {max_possible_score}")
-                col_res2.metric("Accuracy", f"{score_percentage:.1f}%")
-                col_res3.metric("Duration", format_time_str(duration))
-                col_res4.metric("Status", "Passed " if passed else "Completed ")
-
-                if st.session_state.get("incorrect_answers"):
-                    st.divider()
-                    st.markdown("###  Detailed Review of Incorrect Answers")
-                    st.info(
-                        "Here is a breakdown of the questions you got wrong, including a specific explanation of why your chosen answer was incorrect."
-                    )
-
-                    for d in st.session_state.incorrect_answers:
-                        with st.expander(f"Question {d['qno']}: {d['ques']}"):
-                            st.markdown(f" **Your Answer:** {d['selected']}")
-                            st.markdown(f" **Correct Answer:** {d['correct']}")
-
-                            with st.spinner("Generating targeted explanation..."):
-                                targeted_exp = llm_utils.explain_wrong_answer(
-                                    d["ques"],
-                                    d["selected"],
-                                    d["correct"],
-                                    d["explanation"],
-                                )
-
-                            st.markdown(f"**Explanation:** {targeted_exp}")
-
-                st.session_state.student_assessment_started = False
-                st.session_state.assessment_set = None
-                st.session_state.incorrect_answers = []
-
-                if st.button(" Take Another Assessment"):
-                    st.rerun()
-
+            render_assessment()
     with student_tabs[1]:
         st.markdown(
             f"###  Personal Learning Analytics for: **{st.session_state.username.title()}**"
