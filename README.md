@@ -65,14 +65,14 @@ graph TD
 
 ## Features
 
-| Capability                   | Description                                                                                                                                                                          |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Multi-Provider AI Engine** | Dynamically generates custom, on-the-fly multiple-choice questions tailored to the user's selected difficulty. Supports **Google Gemini, OpenAI, Groq, and Anthropic** APIs.         |
-| **RAG PDF Ingestion**        | Upload your own course material (PDFs) and let the engine extract context, synthesize data, and generate high-quality examination questions based strictly on the syllabus provided. |
-| **Cloud PostgreSQL Backend** | Integrated with **Supabase Serverless PostgreSQL** for permanent, robust data persistence of user logins, telemetry, and analytics records.                                          |
-| **Dynamic Leaderboards**     | Real-time, grouped hall of fame with explicit ranking. Filter top performers dynamically across specific Domains, Subjects, or Difficulty levels (Easy, Medium, Hard).               |
-| **Personalized Analytics**   | Students have access to a dedicated analytics tab showcasing their own personal seaborn charts (Score Distribution, Duration vs. Score, and Competency Breakdown).                   |
-| **Machine Learning**         | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation).                                                          |
+| Capability                   | Description                                                                                                                                                                                                                                                |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Multi-Provider AI Engine** | Dynamically generates custom, on-the-fly questions (Single Choice, Multiple Choice, and Numerical) tailored to the user's selected difficulty and target exam format (e.g., JEE, GATE, CAT). Supports **Google Gemini, OpenAI, Groq, and Anthropic** APIs. |
+| **RAG PDF Ingestion**        | Upload your own course material (PDFs) and let the engine extract context, synthesize data, and generate high-quality examination questions based strictly on the syllabus provided.                                                                       |
+| **Cloud PostgreSQL Backend** | Integrated with **Supabase Serverless PostgreSQL** for permanent, robust data persistence of user logins, telemetry, and analytics records.                                                                                                                |
+| **Dynamic Leaderboards**     | Real-time, grouped hall of fame with explicit ranking. Filter top performers dynamically across specific Domains, Subjects, or Difficulty levels (Easy, Medium, Hard).                                                                                     |
+| **Personalized Analytics**   | Students have access to a dedicated analytics tab showcasing their own personal seaborn charts (Score Distribution, Duration vs. Score, and Competency Breakdown).                                                                                         |
+| **Machine Learning**         | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation).                                                                                                                                |
 
 ---
 
@@ -88,13 +88,13 @@ graph TD
 
 ## Directory Structure
 
-```
+```text
 Learning-Analytics-Engine/
 │
 ├── app.py                              # Main Streamlit Web Application (Authentication & Routing)
 ├── pages/                              # Streamlit Multi-Page Components
-│   ├── 1_Student_Portal.py             # Interactive Assessment Engine & Student Dashboard
-│   └── 2_Admin_Portal.py               # Secure Admin Auth, User Management & Analytics
+│   ├── Student_Portal.py               # Interactive Assessment Engine & Student Dashboard
+│   └── Admin_Portal.py                 # Secure Admin Auth, User Management & Analytics
 ├── auth_utils.py                       # Secure Authentication & Password Hashing
 ├── db_utils.py                         # Supabase PostgreSQL Connection & Schema Setup
 ├── llm_utils.py                        # Multi-LLM Provider API Integrations & RAG Logic
