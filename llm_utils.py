@@ -104,9 +104,9 @@ def generate_gemini_questions(
     try:
         if provider in ["System Default", "Google Gemini"]:
             models_to_try = (
-                ["gemini-2.5-flash"]
+                ["gemini-3.8-flash"]
                 if provider == "System Default"
-                else ["gemini-2.5-flash", "gemini-2.5-pro"]
+                else ["gemini-3.8-flash"]
             )
             client = genai.Client(api_key=api_key)
             last_error = None
@@ -253,10 +253,10 @@ def explain_wrong_answer(
                 api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
                 if not api_key:
                     api_key = os.getenv("GEMINI_API_KEY")
-                model_name = "gemini-2.5-flash"
+                model_name = "gemini-3.8-flash"
             else:
                 api_key = custom_key
-                model_name = "gemini-2.5-flash"
+                model_name = "gemini-3.8-flash"
 
             if not api_key:
                 return base_explanation
