@@ -630,6 +630,7 @@ if st.session_state.user_role != "admin":
                                 c_val.append(opt)
                     else:  # single_mcq
                         opts = [f"{k}) {v}" for k, v in options.items() if v]
+                        opts.append("Clear selection (Leave unattempted)")
                         c_val = st.radio(
                             f"Select answer for Q{idx}:",
                             opts,
@@ -637,6 +638,8 @@ if st.session_state.user_role != "admin":
                             index=None,
                             label_visibility="collapsed",
                         )
+                        if c_val == "Clear selection (Leave unattempted)":
+                            c_val = None
 
                     user_choices[qno] = {
                         "type": qtype,
