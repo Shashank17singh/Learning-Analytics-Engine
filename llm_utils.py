@@ -54,8 +54,8 @@ def generate_gemini_questions(
     )
 
     format_instructions = ""
-    multi_and_numerical_exams = ["JEE Advanced Paper 1", "JEE Advanced Paper 2"]
-    mcq_and_numerical_exams = ["JEE Mains", "GATE", "CAT", "BITSAT"]
+    multi_and_numerical_exams = []
+    mcq_and_numerical_exams = ["GATE", "CAT"]
 
     if exam_format in multi_and_numerical_exams:
         format_instructions = """
