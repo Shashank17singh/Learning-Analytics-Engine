@@ -364,34 +364,6 @@ if st.session_state.user_role != "admin":
                         st.session_state.pdf_context = None
 
                 exam_rules = {
-                    "JEE Mains": {
-                        "q": 75,
-                        "cm": 4,
-                        "im": -1,
-                        "time": 180,
-                        "diff": "Hard",
-                    },
-                    "JEE Advanced Paper 1": {
-                        "q": 54,
-                        "cm": 3,
-                        "im": -1,
-                        "time": 180,
-                        "diff": "Hard",
-                    },
-                    "JEE Advanced Paper 2": {
-                        "q": 54,
-                        "cm": 4,
-                        "im": -2,
-                        "time": 180,
-                        "diff": "Hard",
-                    },
-                    "BITSAT": {
-                        "q": 130,
-                        "cm": 3,
-                        "im": -1,
-                        "time": 180,
-                        "diff": "Medium",
-                    },
                     "GATE": {
                         "q": 65,
                         "cm": 1,
@@ -399,45 +371,7 @@ if st.session_state.user_role != "admin":
                         "time": 180,
                         "diff": "Hard",
                     },
-                    "NEET": {
-                        "q": 180,
-                        "cm": 4,
-                        "im": -1,
-                        "time": 200,
-                        "diff": "Medium",
-                    },
                     "CAT": {"q": 66, "cm": 3, "im": -1, "time": 120, "diff": "Hard"},
-                    "XAT": {
-                        "q": 105,
-                        "cm": 1,
-                        "im": -0.25,
-                        "time": 210,
-                        "diff": "Hard",
-                    },
-                    "SNAP": {
-                        "q": 60,
-                        "cm": 1,
-                        "im": -0.25,
-                        "time": 60,
-                        "diff": "Medium",
-                    },
-                    "GMAT": {"q": 80, "cm": 1, "im": 0, "time": 195, "diff": "Hard"},
-                    "GRE": {"q": 80, "cm": 1, "im": 0, "time": 225, "diff": "Hard"},
-                    "NMAT": {"q": 108, "cm": 1, "im": 0, "time": 120, "diff": "Medium"},
-                    "MAT": {
-                        "q": 200,
-                        "cm": 1,
-                        "im": -0.25,
-                        "time": 150,
-                        "diff": "Easy",
-                    },
-                    "CMAT": {
-                        "q": 100,
-                        "cm": 4,
-                        "im": -1,
-                        "time": 180,
-                        "diff": "Medium",
-                    },
                     "CUET (UG)": {
                         "q": 50,
                         "cm": 5,
@@ -452,21 +386,12 @@ if st.session_state.user_role != "admin":
                         "time": 105,
                         "diff": "Medium",
                     },
-                    "IPMAT": {"q": 90, "cm": 4, "im": -1, "time": 120, "diff": "Hard"},
-                    "NPAT": {"q": 120, "cm": 1, "im": 0, "time": 100, "diff": "Medium"},
                     "UPSC": {
                         "q": 100,
                         "cm": 2,
                         "im": -0.66,
                         "time": 120,
                         "diff": "Hard",
-                    },
-                    "NDA": {
-                        "q": 120,
-                        "cm": 2.5,
-                        "im": -0.83,
-                        "time": 150,
-                        "diff": "Medium",
                     },
                     "CLAT": {
                         "q": 120,
