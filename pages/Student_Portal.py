@@ -504,22 +504,22 @@ if st.session_state.user_role != "admin":
                     <div id="exam-timer-container" style="
                         position: fixed;
                         top: 30px;
-                        left: 30px;
+                        left: 10px;
                         background: white;
                         color: #1e293b;
-                        padding: 12px 24px;
+                        padding: 8px 16px;
                         border-radius: 12px;
                         font-family: 'Inter', system-ui, sans-serif;
-                        font-size: 20px;
+                        font-size: 16px;
                         font-weight: 600;
                         z-index: 999999;
                         border: 1px solid #e2e8f0;
                         box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
                         display: flex;
                         align-items: center;
-                        gap: 10px;
+                        gap: 8px;
                     ">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="exam-timer-icon" style="color: #3b82f6;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="exam-timer-icon" style="color: #3b82f6;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         <span id="exam-timer-text">Loading...</span>
                     </div>
                     """,
