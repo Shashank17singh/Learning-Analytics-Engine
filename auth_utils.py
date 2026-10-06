@@ -2,6 +2,7 @@
 Authentication utilities for securely hashing passwords and managing session state.
 Handles cookie-based persistence for seamless logins.
 """
+
 import hashlib
 import os
 

@@ -2,9 +2,10 @@
 Machine Learning models for assessment analytics.
 Provides a unified interface for classification, regression, and clustering.
 """
+
 import logging
 from dataclasses import dataclass
-from typing import Dict, Any, List
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -40,11 +41,12 @@ CLASSIFICATION_FEATURES = BASE_FEATURES + ["is_fast"]
 @dataclass
 class ModelResult:
     """Standardized container for machine learning evaluation results."""
+
     model: Any
     predictions: np.ndarray
-    metrics: Dict[str, float]
-    feature_names: List[str]
-    additional_data: Dict[str, Any]
+    metrics: dict[str, float]
+    feature_names: list[str]
+    additional_data: dict[str, Any]
 
 
 class AssessmentAnalyticsModel:
@@ -59,7 +61,7 @@ class AssessmentAnalyticsModel:
     def engineer_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Derives velocity and progression metrics from raw assessment attempts."""
         df = df.copy()
-        
+
         # Calculate speed (score per second)
         df["speed"] = df["score"] / df["time_taken_seconds"].replace(0, 1)
 
@@ -70,18 +72,22 @@ class AssessmentAnalyticsModel:
         # Calculate attempt trajectory
         df = df.sort_values(["student_name", "attempt_date"])
         df["attempt_number"] = df.groupby("student_name").cumcount() + 1
-        df["score_improvement"] = df.groupby("student_name")["score_percentage"].diff().fillna(0)
+        df["score_improvement"] = (
+            df.groupby("student_name")["score_percentage"].diff().fillna(0)
+        )
 
         return df
 
-    def train_classifiers(self, df: pd.DataFrame) -> Dict[str, ModelResult]:
+    def train_classifiers(self, df: pd.DataFrame) -> dict[str, ModelResult]:
         """Trains Logistic Regression and Random Forest models to predict pass/fail."""
         df = self.engineer_features(df)
         X = df[CLASSIFICATION_FEATURES].fillna(0)
         y = df["passed"].astype(int)
 
         if len(y.unique()) < 2:
-            logger.warning("Insufficient class variance (needs both pass and fail records).")
+            logger.warning(
+                "Insufficient class variance (needs both pass and fail records)."
+            )
             return {}
 
         X_train, X_test, y_train, y_test = train_test_split(
@@ -115,16 +121,20 @@ class AssessmentAnalyticsModel:
             additional_data={
                 "confusion_matrix": confusion_matrix(y_test, lr_preds),
                 "report": classification_report(y_test, lr_preds, output_dict=True),
-            }
+            },
         )
 
         # Random Forest
-        rf = RandomForestClassifier(n_estimators=100, random_state=self.random_state, max_depth=5)
+        rf = RandomForestClassifier(
+            n_estimators=100, random_state=self.random_state, max_depth=5
+        )
         rf.fit(X_train, y_train)
         rf_preds = rf.predict(X_test)
         rf_cv = cross_val_score(rf, X, y, cv=5, scoring="accuracy")
-        
-        importances = pd.Series(rf.feature_importances_, index=CLASSIFICATION_FEATURES).sort_values(ascending=False)
+
+        importances = pd.Series(
+            rf.feature_importances_, index=CLASSIFICATION_FEATURES
+        ).sort_values(ascending=False)
 
         results["random_forest"] = ModelResult(
             model=rf,
@@ -142,7 +152,7 @@ class AssessmentAnalyticsModel:
                 "confusion_matrix": confusion_matrix(y_test, rf_preds),
                 "report": classification_report(y_test, rf_preds, output_dict=True),
                 "feature_importances": importances,
-            }
+            },
         )
 
         return results
@@ -174,11 +184,11 @@ class AssessmentAnalyticsModel:
             additional_data={
                 "intercept": model.intercept_,
                 "coefficients": pd.Series(model.coef_, index=BASE_FEATURES),
-                "y_test": y_test
-            }
+                "y_test": y_test,
+            },
         )
 
-    def train_clustering(self, df: pd.DataFrame, n_clusters: int = 3) -> Dict[str, Any]:
+    def train_clustering(self, df: pd.DataFrame, n_clusters: int = 3) -> dict[str, Any]:
         """Segments learners based on performance and time utilization using K-Means."""
         df = df.copy()
         cluster_features = ["score_percentage", "time_taken_seconds"]
@@ -187,7 +197,9 @@ class AssessmentAnalyticsModel:
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
-        kmeans = KMeans(n_clusters=n_clusters, random_state=self.random_state, n_init=10)
+        kmeans = KMeans(
+            n_clusters=n_clusters, random_state=self.random_state, n_init=10
+        )
         labels = kmeans.fit_predict(X_scaled)
         df["cluster"] = labels
 
@@ -203,8 +215,11 @@ class AssessmentAnalyticsModel:
 
         # Assign semantic labels based on score performance
         segment_labels = ["High Performers", "Average Learners", "Needs Support"]
-        cluster_names = {idx: segment_labels[min(rank, 2)] for rank, idx in enumerate(cluster_summary.index)}
-        
+        cluster_names = {
+            idx: segment_labels[min(rank, 2)]
+            for rank, idx in enumerate(cluster_summary.index)
+        }
+
         cluster_summary["segment"] = cluster_summary.index.map(cluster_names)
         df["segment"] = df["cluster"].map(cluster_names)
 

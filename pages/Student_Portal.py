@@ -3,6 +3,7 @@ Student portal interface.
 Handles assessment configuration (topic, difficulty, AI selection),
 assessment execution, scoring, and personal analytics tracking.
 """
+
 import json
 import time
 import warnings
@@ -33,9 +34,12 @@ _init_conn.close()
 
 
 def format_time_str(seconds):
-    if pd.isna(seconds): return ""
+    if pd.isna(seconds):
+        return ""
     s = int(seconds)
-    return f"{s//3600}h {(s%3600)//60}m {s%60}s".replace("0h ", "").replace("0m ", "")
+    return f"{s // 3600}h {(s % 3600) // 60}m {s % 60}s".replace("0h ", "").replace(
+        "0m ", ""
+    )
 
 
 @st.dialog("End Assessment Early")
@@ -55,7 +59,6 @@ def confirm_end_assessment():
         st.rerun()
     if col2.button("No, Continue Test"):
         st.rerun()
-
 
 
 import auth_utils
@@ -408,7 +411,9 @@ if st.session_state.user_role != "admin":
             if time_limit:
                 elapsed = time.time() - st.session_state.assessment_start_time
                 remaining = max(0, (time_limit * 60) - elapsed)
-                st.info(f"Time limit: {time_limit}m. Remaining: {int(remaining//60)}m {int(remaining%60)}s")
+                st.info(
+                    f"Time limit: {time_limit}m. Remaining: {int(remaining // 60)}m {int(remaining % 60)}s"
+                )
 
             def clear_radio(qno):
                 st.session_state[f"sq_{qno}"] = None
