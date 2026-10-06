@@ -1,3 +1,7 @@
+"""
+Authentication utilities for securely hashing passwords and managing session state.
+Handles cookie-based persistence for seamless logins.
+"""
 import hashlib
 import os
 
@@ -21,23 +25,12 @@ import streamlit as st
 
 
 def get_cookie_manager():
-    """
-    Initialize and return a Streamlit cookie manager component.
-
-    Returns:
-        stx.CookieManager: The configured cookie manager instance.
-    """
+    """Initialize and return a Streamlit cookie manager component."""
     return stx.CookieManager(key="auth_cookie_manager")
 
 
 def sync_session_state():
-    """
-    Synchronize the application session state from cookies.
-
-    Ensures that user authentication status survives browser refreshes
-    by checking for a valid session token in cookies and restoring
-    the corresponding user data from the session file.
-    """
+    """Synchronize the application session state from cookies."""
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
     if "username" not in st.session_state:
@@ -60,16 +53,7 @@ def sync_session_state():
 
 
 def login_user(username, role):
-    """
-    Authenticate a user and persist their session.
-
-    Updates the active Streamlit session state and creates a persistent
-    session file linked to a secure cookie token.
-
-    Args:
-        username (str): The authenticated user's username.
-        role (str): The role assigned to the user (e.g., 'student' or 'admin').
-    """
+    """Authenticate a user and persist their session."""
     st.session_state.authenticated = True
     st.session_state.username = username
     st.session_state.user_role = role
@@ -84,12 +68,7 @@ def login_user(username, role):
 
 
 def logout_user():
-    """
-    Terminate the user session and clear associated authentication data.
-
-    Resets the Streamlit session state, deletes the persistent session file,
-    and removes the authentication cookie.
-    """
+    """Terminate the user session and clear associated authentication data."""
     st.session_state.authenticated = False
     st.session_state.username = ""
     st.session_state.user_role = ""
