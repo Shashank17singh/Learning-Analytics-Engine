@@ -1,3 +1,6 @@
+"""
+Database connection and schema initialization using psycopg2.
+"""
 import os
 
 import psycopg2
@@ -7,13 +10,7 @@ import auth_utils
 
 
 def get_db_connection():
-    """
-    Establish and return a connection to the PostgreSQL database.
-
-    Retrieves the database URL from Streamlit secrets or environment variables.
-    Returns:
-        psycopg2.extensions.connection: A connection object to the database, or None if the URL is missing.
-    """
+    """Establish and return a connection to the PostgreSQL database."""
     db_url = st.secrets.get("DATABASE_URL", os.getenv("DATABASE_URL"))
     if not db_url:
         st.error("DATABASE_URL not found in secrets.")
@@ -22,15 +19,7 @@ def get_db_connection():
 
 
 def init_db(conn):
-    """
-    Initialize the database schema if it doesn't already exist.
-
-    Creates necessary tables (login, leaderboard, attempts), handles schema migrations,
-    and ensures a default admin user is present.
-
-    Args:
-        conn (psycopg2.extensions.connection): The database connection object.
-    """
+    """Initialize the database schema if it doesn't already exist."""
     if not conn:
         return
     cur = conn.cursor()

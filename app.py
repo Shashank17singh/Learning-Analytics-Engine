@@ -1,3 +1,8 @@
+"""
+Main entry point for the Streamlit web application.
+Handles routing, database initialization, and user authentication.
+Architecture note: Relies on `auth_utils` and `db_utils` to keep state sync and auth routing decoupled from UI code.
+"""
 import streamlit as st
 
 import auth_utils
@@ -15,155 +20,7 @@ _init_conn = get_db_connection()
 init_db(_init_conn)
 _init_conn.close()
 
-st.markdown(
-    """
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Comic+Neue:wght@300;400;700&display=swap');
 
-    html, body, [class*="css"]  {
-        font-family: 'Comic Neue', cursive !important;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Baloo 2', cursive !important;
-        color: #4F46E5 !important;
-    }
-
-    .stApp {
-        background-color: #EEF2FF;
-        color: #1E1B4B;
-    }
-
-    [data-testid="stHeader"] {
-        background-color: rgba(238,242,255,0.9) !important;
-    }
-
-    /* Claymorphism Buttons */
-    .stButton > button {
-        background-color: #4F46E5;
-        color: #FFFFFF;
-        font-family: 'Baloo 2', cursive;
-        font-weight: 600;
-        font-size: 1.1rem;
-        border: none;
-        border-radius: 16px;
-        box-shadow: inset 2px 2px 5px rgba(255,255,255,0.4), inset -3px -3px 7px rgba(0,0,0,0.2), 3px 3px 6px rgba(0,0,0,0.15);
-        transition: all 0.2s ease-out;
-    }
-    
-    .stButton > button:hover {
-        background-color: #818CF8;
-        transform: translateY(-2px);
-    }
-    .stButton > button:active {
-        box-shadow: inset 3px 3px 7px rgba(0,0,0,0.3);
-        transform: translateY(1px);
-    }
-
-    /* Containers */
-    [data-testid="stExpander"], [data-testid="stVerticalBlock"] > div > div > div[data-testid="stContainer"] {
-        background-color: #FFFFFF;
-        border-radius: 20px;
-        border: none;
-        box-shadow: inset 1px 1px 3px rgba(255,255,255,0.7), inset -1px -1px 3px rgba(0,0,0,0.05), 4px 4px 10px rgba(0,0,0,0.05);
-        padding: 10px;
-    }
-
-    /* Inputs */
-    .stTextInput > div > div > input, .stTextArea > div > div > textarea {
-        background-color: #FAFAFA;
-        border: 2px solid #C7D2FE;
-        border-radius: 12px;
-        color: #1E1B4B;
-        box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05);
-    }
-    .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {
-        border-color: #4F46E5;
-        background-color: #FFFFFF;
-    }
-
-    /* Completely hide sidebar and collapse button */
-    [data-testid="stSidebar"] {
-        display: none !important;
-    }
-    [data-testid="stSidebarNav"] {
-        display: none !important;
-    }
-    [data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"] {
-        display: none !important;
-    }
-    .block-container {
-        padding-top: 4rem;
-        padding-bottom: 3rem;
-        max-width: 1200px;
-    }
-    /* Modern Header */
-    .portal-navbar {
-        background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
-        padding: 18px 24px;
-        border-radius: 12px;
-        color: white;
-        margin-bottom: 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
-    }
-    .portal-title {
-        font-size: 1.6rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin: 0;
-        color: white;
-    }
-    .portal-subtitle {
-        font-size: 0.85rem;
-        opacity: 0.9;
-        margin: 0;
-        color: #DBEAFE;
-    }
-    .badge-iitk {
-        background-color: #FEF3C7;
-        color: #92400E;
-        padding: 4px 10px;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        display: inline-block;
-        margin-left: 10px;
-    }
-    .auth-card {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 32px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        max-width: 480px;
-        margin: 0 auto;
-    }
-    div[data-testid="stMetricValue"] {
-        font-size: 1.7rem;
-        font-weight: 700;
-        color: #1E3A8A;
-    }
-
-    
-    
-    
-    /* Fix Streamlit tab and button text clipping */
-    [data-testid="stTabs"] [role="tablist"] {
-        padding-top: 15px !important;
-        height: auto !important;
-    }
-    [data-testid="stTabs"] [role="tab"] p {
-        margin-top: 10px !important;
-        margin-bottom: 0 !important;
-        line-height: normal !important;
-    }
-</style>
-""",
-    unsafe_allow_html=True,
-)
 
 auth_utils.sync_session_state()
 

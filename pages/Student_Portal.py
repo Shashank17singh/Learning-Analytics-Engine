@@ -1,3 +1,8 @@
+"""
+Student portal interface.
+Handles assessment configuration (topic, difficulty, AI selection),
+assessment execution, scoring, and personal analytics tracking.
+"""
 import json
 import time
 import warnings
@@ -28,29 +33,9 @@ _init_conn.close()
 
 
 def format_time_str(seconds):
-    """
-    Format a duration in seconds into a human-readable string.
-
-    Converts raw seconds into a 'Xh Ym Zs' format. Handles missing values.
-
-    Args:
-        seconds (float/int): The duration to format.
-
-    Returns:
-        str: The formatted time string (e.g. '1h 30m 15s').
-    """
-    if pd.isna(seconds):
-        return ""
+    if pd.isna(seconds): return ""
     s = int(seconds)
-    h = s // 3600
-    m = (s % 3600) // 60
-    s = s % 60
-    if h > 0:
-        return f"{h}h {m}m {s}s"
-    elif m > 0:
-        return f"{m}m {s}s"
-    else:
-        return f"{s}s"
+    return f"{s//3600}h {(s%3600)//60}m {s%60}s".replace("0h ", "").replace("0m ", "")
 
 
 @st.dialog("End Assessment Early")
@@ -72,106 +57,6 @@ def confirm_end_assessment():
         st.rerun()
 
 
-st.markdown(
-    """
-<style>
-    /* Completely hide sidebar and collapse button */
-    [data-testid="stSidebar"] {
-        display: none !important;
-    }
-    [data-testid="stSidebarNav"] {
-        display: none !important;
-    }
-    [data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"] {
-        display: none !important;
-    }
-    .block-container {
-        padding-top: 4rem;
-        padding-bottom: 3rem;
-        max-width: 1200px;
-    }
-    /* Force pills (used for quiz options) to stack vertically and take full width */
-    div[data-testid="stPills"] [role="radiogroup"], 
-    div[data-testid="stPills"] [role="group"], 
-    div[data-testid="stPills"] [data-testid="stButtonGroup"] {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-        width: 100% !important;
-        gap: 0.5rem !important;
-    }
-    div[data-testid="stPills"] button {
-        width: 100% !important;
-        justify-content: flex-start !important;
-        text-align: left !important;
-        white-space: normal !important;
-        height: auto !important;
-        padding: 8px 16px !important;
-    }
-    /* Modern Header */
-    .portal-navbar {
-        background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
-        padding: 18px 24px;
-        border-radius: 12px;
-        color: white;
-        margin-bottom: 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
-    }
-    .portal-title {
-        font-size: 1.6rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin: 0;
-        color: white;
-    }
-    .portal-subtitle {
-        font-size: 0.85rem;
-        opacity: 0.9;
-        margin: 0;
-        color: #DBEAFE;
-    }
-    .badge-iitk {
-        background-color: #FEF3C7;
-        color: #92400E;
-        padding: 4px 10px;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        display: inline-block;
-        margin-left: 10px;
-    }
-    .auth-card {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 32px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        max-width: 480px;
-        margin: 0 auto;
-    }
-    div[data-testid="stMetricValue"] {
-        font-size: 1.7rem;
-        font-weight: 700;
-        color: #1E3A8A;
-    }
-
-    /* Fix Streamlit tab and button text clipping */
-    [data-testid="stTabs"] [role="tablist"] {
-        padding-top: 15px !important;
-        height: auto !important;
-    }
-    [data-testid="stTabs"] [role="tab"] p {
-        margin-top: 10px !important;
-        margin-bottom: 0 !important;
-        line-height: normal !important;
-    }
-</style>
-""",
-    unsafe_allow_html=True,
-)
 
 import auth_utils
 
@@ -521,96 +406,9 @@ if st.session_state.user_role != "admin":
             )
 
             if time_limit:
-                import streamlit.components.v1 as components
-
                 elapsed = time.time() - st.session_state.assessment_start_time
                 remaining = max(0, (time_limit * 60) - elapsed)
-
-                st.markdown(
-                    """
-                    <div id="exam-timer-container" style="
-                        position: fixed;
-                        top: 30px;
-                        left: 10px;
-                        background: white;
-                        color: #1e293b;
-                        padding: 8px 16px;
-                        border-radius: 12px;
-                        font-family: 'Inter', system-ui, sans-serif;
-                        font-size: 16px;
-                        font-weight: 600;
-                        z-index: 999999;
-                        border: 1px solid #e2e8f0;
-                        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                    ">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="exam-timer-icon" style="color: #3b82f6;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        <span id="exam-timer-text">Loading...</span>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-
-                components.html(
-                    f"""
-                <script>
-                    var remaining = {remaining};
-                    var timerText = window.parent.document.getElementById('exam-timer-text');
-                    var timerContainer = window.parent.document.getElementById('exam-timer-container');
-                    var timerIcon = window.parent.document.getElementById('exam-timer-icon');
-                    
-                    if (timerText) {{
-                        var interval = setInterval(function() {{
-                            if (!window.parent.document.getElementById('exam-timer-text')) {{
-                                clearInterval(interval);
-                                return;
-                            }}
-                            
-                            if (remaining <= 0) {{
-                                clearInterval(interval);
-                                timerText.innerHTML = "TIME UP! SUBMITTING...";
-                                timerText.style.color = "#ef4444";
-                                if (timerIcon) timerIcon.style.color = "#ef4444";
-                                timerContainer.style.borderColor = "#ef4444";
-                                
-                                // Find and click the Finish & Submit button
-                                var btns = Array.from(window.parent.document.querySelectorAll('button'));
-                                var submitBtn = btns.find(b => b.innerText.includes('Finish & Submit'));
-                                if (submitBtn) {{
-                                    submitBtn.click();
-                                }}
-                                return;
-                            }}
-                            
-                            var h = Math.floor(remaining / 3600);
-                            var m = Math.floor((remaining % 3600) / 60);
-                            var s = Math.floor(remaining % 60);
-                            var timeStr = "";
-                            if (h > 0) timeStr += (h < 10 ? "0" : "") + h + ":";
-                            timeStr += (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
-                            
-                            timerText.innerHTML = timeStr;
-                            
-                            if (remaining < 300 && remaining > 60) {{ 
-                                timerText.style.color = "#f59e0b";
-                                if (timerIcon) timerIcon.style.color = "#f59e0b";
-                                timerContainer.style.borderColor = "#fcd34d";
-                            }} else if (remaining <= 60) {{ 
-                                timerText.style.color = "#ef4444";
-                                if (timerIcon) timerIcon.style.color = "#ef4444";
-                                timerContainer.style.borderColor = "#fca5a5";
-                            }}
-                            
-                            remaining--;
-                        }}, 1000);
-                    }}
-                </script>
-                """,
-                    height=0,
-                    width=0,
-                )
+                st.info(f"Time limit: {time_limit}m. Remaining: {int(remaining//60)}m {int(remaining%60)}s")
 
             def clear_radio(qno):
                 st.session_state[f"sq_{qno}"] = None

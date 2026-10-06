@@ -1,3 +1,7 @@
+"""
+Admin portal for exploring cohort analytics, evaluating ML models,
+managing user accounts, and viewing the global leaderboard.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -22,116 +26,11 @@ _init_conn.close()
 
 
 def format_time_str(seconds):
-    """
-    Format a duration in seconds into a human-readable string.
-
-    Converts raw seconds into a 'Xh Ym Zs' format. Handles missing values.
-
-    Args:
-        seconds (float/int): The duration to format.
-
-    Returns:
-        str: The formatted time string (e.g. '1h 30m 15s').
-    """
-    if pd.isna(seconds):
-        return ""
+    if pd.isna(seconds): return ""
     s = int(seconds)
-    h = s // 3600
-    m = (s % 3600) // 60
-    s = s % 60
-    if h > 0:
-        return f"{h}h {m}m {s}s"
-    elif m > 0:
-        return f"{m}m {s}s"
-    else:
-        return f"{s}s"
+    return f"{s//3600}h {(s%3600)//60}m {s%60}s".replace("0h ", "").replace("0m ", "")
 
 
-st.markdown(
-    """
-<style>
-    /* Completely hide sidebar and collapse button */
-    [data-testid="stSidebar"] {
-        display: none !important;
-    }
-    [data-testid="stSidebarNav"] {
-        display: none !important;
-    }
-    [data-testid="stSidebarCollapsedControl"], [data-testid="collapsedControl"] {
-        display: none !important;
-    }
-    .block-container {
-        padding-top: 4rem;
-        padding-bottom: 3rem;
-        max-width: 1200px;
-    }
-    /* Modern Header */
-    .portal-navbar {
-        background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
-        padding: 18px 24px;
-        border-radius: 12px;
-        color: white;
-        margin-bottom: 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
-    }
-    .portal-title {
-        font-size: 1.6rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin: 0;
-        color: white;
-    }
-    .portal-subtitle {
-        font-size: 0.85rem;
-        opacity: 0.9;
-        margin: 0;
-        color: #DBEAFE;
-    }
-    .badge-iitk {
-        background-color: #FEF3C7;
-        color: #92400E;
-        padding: 4px 10px;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        display: inline-block;
-        margin-left: 10px;
-    }
-    .auth-card {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 32px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        max-width: 480px;
-        margin: 0 auto;
-    }
-    div[data-testid="stMetricValue"] {
-        font-size: 1.7rem;
-        font-weight: 700;
-        color: #1E3A8A;
-    }
-
-    
-    
-    
-    /* Fix Streamlit tab and button text clipping */
-    [data-testid="stTabs"] [role="tablist"] {
-        padding-top: 15px !important;
-        height: auto !important;
-    }
-    [data-testid="stTabs"] [role="tab"] p {
-        margin-top: 10px !important;
-        margin-bottom: 0 !important;
-        line-height: normal !important;
-    }
-</style>
-""",
-    unsafe_allow_html=True,
-)
 
 import auth_utils
 
