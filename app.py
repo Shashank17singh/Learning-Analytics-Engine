@@ -3,6 +3,7 @@ Main entry point for the Streamlit web application.
 Handles routing, database initialization, and user authentication.
 Architecture note: Relies on `auth_utils` and `db_utils` to keep state sync and auth routing decoupled from UI code.
 """
+
 import streamlit as st
 
 import auth_utils
@@ -19,7 +20,6 @@ st.set_page_config(
 _init_conn = get_db_connection()
 init_db(_init_conn)
 _init_conn.close()
-
 
 
 auth_utils.sync_session_state()

@@ -1,6 +1,7 @@
 """
 Database connection and schema initialization using psycopg2.
 """
+
 import os
 
 import psycopg2

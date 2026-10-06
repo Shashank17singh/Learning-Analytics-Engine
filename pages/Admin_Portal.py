@@ -2,6 +2,7 @@
 Admin portal for exploring cohort analytics, evaluating ML models,
 managing user accounts, and viewing the global leaderboard.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -26,10 +27,12 @@ _init_conn.close()
 
 
 def format_time_str(seconds):
-    if pd.isna(seconds): return ""
+    if pd.isna(seconds):
+        return ""
     s = int(seconds)
-    return f"{s//3600}h {(s%3600)//60}m {s%60}s".replace("0h ", "").replace("0m ", "")
-
+    return f"{s // 3600}h {(s % 3600) // 60}m {s % 60}s".replace("0h ", "").replace(
+        "0m ", ""
+    )
 
 
 import auth_utils
