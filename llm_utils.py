@@ -93,11 +93,7 @@ def generate_gemini_questions(
 
     try:
         if provider in ["System Default", "Google Gemini"]:
-            models_to_try = (
-                ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]  # noqa: RUF034
-                if provider == "System Default"
-                else ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-flash-latest"]
-            )
+            models_to_try = ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-flash-latest"]
             client = genai.Client(api_key=api_key)
             last_error = None
             for model_name in models_to_try:
