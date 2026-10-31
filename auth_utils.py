@@ -1,28 +1,29 @@
 """
-Authentication utilities for securely hashing passwords and managing session state.
-Handles cookie-based persistence for seamless logins.
+Authentication utilities for managing session state.
+Handles cookie-based persistence of logins.
 """
 
-import hashlib
-import os
-
-
-def hash_password(password):
-    """Securely hash passwords for storage using SHA-256."""
-    return hashlib.sha256(password.encode("utf-8")).hexdigest()
-
-
-def get_default_admin_password():
-    """Get the default admin password from environment variable, or fallback to 'admin123'."""
-    return os.environ.get("ADMIN_PASSWORD", "admin123")
-
-
 import json
+import os
 import uuid
 from pathlib import Path
 
 import extra_streamlit_components as stx
 import streamlit as st
+
+from passwords import hash_password, legacy_hash, needs_upgrade, verify_password
+
+__all__ = ["hash_password", "legacy_hash", "needs_upgrade", "verify_password"]
+
+
+def get_admin_password():
+    """Return the admin password from Streamlit secrets or the environment, if set."""
+    return st.secrets.get("ADMIN_PASSWORD", os.getenv("ADMIN_PASSWORD")) or None
+
+
+def _session_path(token):
+    """Map a cookie token to its session file, rejecting anything but a UUID."""
+    return Path(f".session_{uuid.UUID(str(token))}.json")
 
 
 def get_cookie_manager():
@@ -42,7 +43,7 @@ def sync_session_state():
     token = st.context.cookies.get("session_token")
     if token:
         try:
-            session_file = Path(f".session_{token}.json")
+            session_file = _session_path(token)
             if session_file.exists():
                 with open(session_file, "r") as f:
                     data = json.load(f)
@@ -61,7 +62,7 @@ def login_user(username, role):
 
     token = str(uuid.uuid4())
 
-    with open(f".session_{token}.json", "w") as f:
+    with open(_session_path(token), "w") as f:
         json.dump({"username": username, "user_role": role}, f)
 
     cm = get_cookie_manager()
@@ -78,7 +79,7 @@ def logout_user():
     token = cm.get("session_token")
     if token:
         try:
-            Path(f".session_{token}.json").unlink(missing_ok=True)
-        except:  # noqa: E722, S110
+            _session_path(token).unlink(missing_ok=True)
+        except ValueError:
             pass
         cm.delete("session_token")

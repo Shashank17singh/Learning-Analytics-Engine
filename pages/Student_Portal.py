@@ -631,16 +631,7 @@ if st.session_state.user_role != "admin":
                     )
 
                     cur.execute(
-                        "SELECT column_name FROM information_schema.columns WHERE table_name='leaderboard'"
-                    )
-                    cols = [r[0] for r in cur.fetchall()]
-                    t_col = (
-                        "total_questions"  # noqa: RUF034
-                        if "total_questions" in cols
-                        else "total_questions"
-                    )
-                    cur.execute(
-                        f"INSERT INTO leaderboard (name, score, {t_col}, scoreper) VALUES (%s, %s, %s, %s)",
+                        "INSERT INTO leaderboard (name, score, total_questions, scoreper) VALUES (%s, %s, %s, %s)",
                         (
                             st.session_state.username,
                             correct_count,
