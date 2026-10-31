@@ -3,10 +3,12 @@ Database connection and schema initialization using psycopg2.
 """
 
 import os
+import time
 
 import psycopg2
 import streamlit as st
 
+import auth_rules
 import auth_utils
 
 
@@ -46,6 +48,38 @@ def _ensure_admin(cur, admin_password):
         cur.execute("UPDATE login SET status = 'disabled' WHERE username = 'admin'")
 
 
+def is_login_locked(cur, username):
+    """Return True while an account is locked out after repeated failed logins."""
+    cur.execute(
+        "SELECT failures, last_failure FROM login_failures WHERE username = %s",
+        (username,),
+    )
+    row = cur.fetchone()
+    return bool(row) and auth_rules.is_locked_out(row[0], row[1], time.time())
+
+
+def record_login_failure(cur, username):
+    """Count a failed login, starting again if the last one was long enough ago."""
+    now = time.time()
+    cur.execute(
+        """
+        INSERT INTO login_failures (username, failures, last_failure)
+        VALUES (%s, 1, %s)
+        ON CONFLICT (username) DO UPDATE SET
+            failures = CASE
+                WHEN login_failures.last_failure < %s THEN 1
+                ELSE login_failures.failures + 1
+            END,
+            last_failure = EXCLUDED.last_failure
+        """,
+        (username, now, now - auth_rules.LOCKOUT_SECONDS),
+    )
+
+
+def clear_login_failures(cur, username):
+    cur.execute("DELETE FROM login_failures WHERE username = %s", (username,))
+
+
 def init_db(conn):
     """Initialize the database schema if it doesn't already exist."""
     if not conn:
@@ -58,6 +92,13 @@ def init_db(conn):
         password TEXT,
         role TEXT,
         status TEXT
+    )""")
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS login_failures (
+        username TEXT PRIMARY KEY,
+        failures INTEGER NOT NULL,
+        last_failure DOUBLE PRECISION NOT NULL
     )""")
 
     cur.execute("""

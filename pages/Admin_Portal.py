@@ -547,7 +547,7 @@ with admin_tabs[1]:
 with admin_tabs[2]:
     st.markdown("###  Registered Users & Student Accounts")
     df_users = pd.read_sql_query(
-        "SELECT username as 'Username', role as 'Role', status as 'Status' FROM login",
+        'SELECT username AS "Username", role AS "Role", status AS "Status" FROM login',
         conn,
     )
     st.dataframe(df_users, width="stretch", hide_index=True)
