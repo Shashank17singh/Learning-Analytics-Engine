@@ -19,6 +19,33 @@ def get_db_connection():
     return psycopg2.connect(db_url)
 
 
+def _ensure_admin(cur, admin_password):
+    """
+    Create the admin account, and retire the old default password.
+
+    Without ADMIN_PASSWORD no admin is created. An existing admin still using the old
+    default gets the configured password, or is disabled if none is configured.
+    """
+    cur.execute("SELECT TRIM(password) FROM login WHERE username = 'admin'")
+    row = cur.fetchone()
+    if row is None:
+        if admin_password:
+            cur.execute(
+                "INSERT INTO login VALUES ('admin', %s, 'admin', 'active')",
+                (auth_utils.hash_password(admin_password),),
+            )
+        return
+    if row[0] != auth_utils.legacy_hash("admin123"):
+        return
+    if admin_password:
+        cur.execute(
+            "UPDATE login SET password = %s WHERE username = 'admin'",
+            (auth_utils.hash_password(admin_password),),
+        )
+    else:
+        cur.execute("UPDATE login SET status = 'disabled' WHERE username = 'admin'")
+
+
 def init_db(conn):
     """Initialize the database schema if it doesn't already exist."""
     if not conn:
@@ -66,13 +93,7 @@ def init_db(conn):
     if "difficulty" not in columns:
         cur.execute("ALTER TABLE attempts ADD COLUMN difficulty TEXT DEFAULT 'Medium'")
 
-    cur.execute("SELECT username FROM login WHERE username = 'admin'")
-    if not cur.fetchone():
-        admin_pass = auth_utils.get_default_admin_password()
-        pwd_hash = auth_utils.hash_password(admin_pass)
-        cur.execute(
-            "INSERT INTO login VALUES ('admin', %s, 'admin', 'active')", (pwd_hash,)
-        )
+    _ensure_admin(cur, auth_utils.get_admin_password())
 
     conn.commit()
     cur.close()

@@ -71,14 +71,19 @@ if not st.session_state.authenticated:
                     else:
                         conn = get_db_connection()
                         cur = conn.cursor()
-                        pwd_hash = auth_utils.hash_password(login_pwd)
                         cur.execute(
-                            "SELECT username, role FROM login WHERE LOWER(TRIM(username)) = %s AND TRIM(password) = %s AND status = 'active'",
-                            (login_user, pwd_hash),
+                            "SELECT username, role, TRIM(password) FROM login WHERE LOWER(TRIM(username)) = %s AND status = 'active'",
+                            (login_user,),
                         )
                         row = cur.fetchone()
 
-                        if row:
+                        if row and auth_utils.verify_password(login_pwd, row[2]):
+                            if auth_utils.needs_upgrade(row[2]):
+                                cur.execute(
+                                    "UPDATE login SET password = %s WHERE username = %s",
+                                    (auth_utils.hash_password(login_pwd), row[0]),
+                                )
+                                conn.commit()
                             auth_utils.login_user(row[0], row[1])
                             st.success(f"Welcome back, {row[0]}!")
                             st.rerun()
