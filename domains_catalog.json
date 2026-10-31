@@ -201,6 +201,159 @@
       "Infrastructure as Code (Terraform)"
     ]
   },
+  "Placements & Interview Preparation": {
+    "Aptitude Round": {
+      "Quantitative Aptitude": [
+        "Percentages",
+        "Profit & Loss",
+        "Ratio & Proportion",
+        "Time & Work",
+        "Time, Speed & Distance",
+        "Averages & Mixtures",
+        "Simple & Compound Interest",
+        "Number System",
+        "Permutations & Combinations",
+        "Probability"
+      ],
+      "Logical Reasoning": [
+        "Number & Letter Series",
+        "Coding-Decoding",
+        "Blood Relations",
+        "Direction Sense",
+        "Seating Arrangement",
+        "Syllogisms",
+        "Puzzles",
+        "Data Sufficiency"
+      ],
+      "Verbal Ability": [
+        "Reading Comprehension",
+        "Sentence Correction",
+        "Para Jumbles",
+        "Vocabulary",
+        "Fill in the Blanks"
+      ],
+      "Data Interpretation": [
+        "Tables",
+        "Caselets",
+        "Percentage & Ratio Comparison"
+      ]
+    },
+    "Technical MCQ Round": {
+      "Data Structures & Algorithms": [
+        "Arrays & Strings",
+        "Linked Lists",
+        "Stacks & Queues",
+        "Trees & Graphs",
+        "Sorting & Searching",
+        "Time & Space Complexity"
+      ],
+      "Core Computer Science": [
+        "Operating Systems",
+        "Database Management Systems",
+        "Computer Networks",
+        "Object-Oriented Programming",
+        "Software Engineering"
+      ],
+      "Programming Languages": [
+        "C",
+        "C++",
+        "Java",
+        "Python",
+        "JavaScript",
+        "SQL"
+      ],
+      "Output Prediction & Debugging": [
+        "C / C++",
+        "Java",
+        "Python"
+      ]
+    },
+    "Coding Round": {
+      "Data Structures": [
+        "Arrays & Strings",
+        "Hashing",
+        "Linked Lists",
+        "Stacks & Queues",
+        "Trees",
+        "Graphs",
+        "Heaps"
+      ],
+      "Algorithms": [
+        "Two Pointers & Sliding Window",
+        "Binary Search",
+        "Sorting",
+        "Greedy",
+        "Recursion & Backtracking",
+        "Dynamic Programming"
+      ],
+      "SQL": [
+        "Joins & Aggregation",
+        "Subqueries & Window Functions"
+      ]
+    },
+    "System Design Round": {
+      "High-Level Design": [
+        "URL Shortener",
+        "Chat Application",
+        "News Feed",
+        "Ride Hailing",
+        "Video Streaming",
+        "Rate Limiter",
+        "Notification Service",
+        "Distributed Cache",
+        "Payment System"
+      ],
+      "Low-Level Design": [
+        "Parking Lot",
+        "Elevator System",
+        "Library Management",
+        "Movie Ticket Booking",
+        "Expense Sharing",
+        "Snake & Ladder Game"
+      ]
+    },
+    "HR & Behavioural Round": {
+      "Behavioural Questions": [
+        "Teamwork & Conflict",
+        "Leadership & Ownership",
+        "Failure & Learning",
+        "Handling Pressure",
+        "Strengths & Weaknesses"
+      ],
+      "HR Questions": [
+        "Tell Me About Yourself",
+        "Why This Company",
+        "Career Goals",
+        "Resume & Project Walkthrough"
+      ]
+    },
+    "Group Discussion & Writing": {
+      "Group Discussion": [
+        "Technology & Society",
+        "Business & Economy",
+        "Abstract Topics"
+      ],
+      "Written Communication": [
+        "Email Writing",
+        "Essay Writing"
+      ]
+    },
+    "Company Mock Tests": {
+      "Service-Based Company Style": [
+        "TCS NQT Style",
+        "Infosys Style",
+        "Wipro Style",
+        "Accenture Style",
+        "Cognizant Style",
+        "Capgemini Style"
+      ],
+      "Product-Based Company Style": [
+        "Online Assessment: Amazon Style",
+        "Online Assessment: Microsoft Style",
+        "Online Assessment: Google Style"
+      ]
+    }
+  },
   "Business, Management & Finance": {
     "BBA (Bachelor of Business Administration)": {
       "Subjects": [

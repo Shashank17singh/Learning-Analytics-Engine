@@ -70,6 +70,7 @@ graph TD
 | **Multi-Provider AI Engine** | Dynamically generates custom, on-the-fly questions (Single Choice, Multiple Choice, and Numerical) tailored to the user's selected difficulty and target exam format (e.g., GATE, CAT, UPSC). Supports **Google Gemini, OpenAI, Groq, and Anthropic** APIs. |
 | **RAG PDF Ingestion**        | Upload your own course material (PDFs) and let the engine extract context, synthesize data, and generate high-quality examination questions based strictly on the syllabus provided.                                                                       |
 | **Cloud PostgreSQL Backend** | Integrated with **Supabase Serverless PostgreSQL** for persistent storage of user logins, telemetry, and analytics records.                                                                                                                |
+| **Placement Rounds**         | Aptitude, technical MCQ, coding, system design, HR, group discussion and company-style mock rounds, each with its own format and enforced timer. Written answers are reviewed by AI against a rubric, with partial marks. Submitted code is never executed.                                     |
 | **Dynamic Leaderboards**     | Real-time, grouped hall of fame with explicit ranking. Filter top performers dynamically across specific Domains, Subjects, or Difficulty levels (Easy, Medium, Hard).                                                                                     |
 | **Personalized Analytics**   | Students get a dedicated analytics tab with their own seaborn charts (Score Distribution, Duration vs. Score, and Competency Breakdown).                                                                                         |
 | **Machine Learning**         | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation).                                                                                                                                |
@@ -103,6 +104,7 @@ Learning-Analytics-Engine/
 │
 ├── Learning_Analytics_EDA.ipynb        # Jupyter Notebook for offline EDA
 ├── domains_catalog.json                # Pre-defined assessment domains & subjects catalog
+├── placement.py                        # Placement round formats, rubrics and answer rules
 └── README.md                           # Project Documentation
 ```
 
