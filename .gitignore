@@ -22,3 +22,9 @@ scratch/
 telemetry.db
 
 .streamlit/secrets.toml
+
+# Local AI assistant configuration
+.agents/
+
+# Editor settings
+.vscode/
