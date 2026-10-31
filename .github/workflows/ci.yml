@@ -24,8 +24,10 @@ jobs:
           pip install ruff
 
       - name: Lint with ruff
-        run: ruff check . || true --extend-ignore=EXE
+        run: ruff check .
 
       - name: Check formatting
         run: ruff format --check .
 
+      - name: Run tests
+        run: pip install pytest && pytest tests/ -v

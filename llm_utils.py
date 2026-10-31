@@ -101,7 +101,7 @@ def generate_gemini_questions(
             client = genai.Client(api_key=api_key)
             last_error = None
             for model_name in models_to_try:
-                for attempt in range(3):
+                for _attempt in range(3):
                     try:
                         response = client.models.generate_content(
                             model=model_name,
