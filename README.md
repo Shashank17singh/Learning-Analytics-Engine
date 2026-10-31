@@ -2,7 +2,7 @@
 
 # Learning Analytics Engine
 
-**An intelligent student assessment platform that dynamically generates AI-driven exams, tracks user behavior telemetry, and performs statistical analysis and predictive modeling.**
+**A student assessment platform that generates exams with AI, tracks behavior telemetry, and runs statistical analysis and predictive modeling.**
 
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
@@ -18,9 +18,9 @@
 
 ## Overview
 
-The **Learning Analytics Engine** is a comprehensive educational platform that merges real-time assessment delivery with advanced data science and generative AI. It allows students to take AI-generated, customized quizzes while administrators gain deep insights into cohort performance through interactive, predictive analytics.
+The **Learning Analytics Engine** is an educational platform that combines real-time assessment delivery with data science and generative AI. Students take AI-generated, customized quizzes, and administrators follow cohort performance through interactive, predictive analytics.
 
-The platform leverages **Retrieval-Augmented Generation (RAG)** via multiple LLM providers (Google Gemini, OpenAI, Groq, Anthropic) to synthesize quiz questions from user-uploaded PDF study materials, and relies on a persistent **Supabase PostgreSQL** backend for seamless behavioral telemetry.
+The platform uses **Retrieval-Augmented Generation (RAG)** through multiple LLM providers (Google Gemini, OpenAI, Groq, Anthropic) to generate quiz questions from uploaded PDF study materials, and stores behavioral telemetry in a **Supabase PostgreSQL** backend.
 
 ---
 
@@ -69,9 +69,9 @@ graph TD
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Multi-Provider AI Engine** | Dynamically generates custom, on-the-fly questions (Single Choice, Multiple Choice, and Numerical) tailored to the user's selected difficulty and target exam format (e.g., GATE, CAT, UPSC). Supports **Google Gemini, OpenAI, Groq, and Anthropic** APIs. |
 | **RAG PDF Ingestion**        | Upload your own course material (PDFs) and let the engine extract context, synthesize data, and generate high-quality examination questions based strictly on the syllabus provided.                                                                       |
-| **Cloud PostgreSQL Backend** | Integrated with **Supabase Serverless PostgreSQL** for permanent, robust data persistence of user logins, telemetry, and analytics records.                                                                                                                |
+| **Cloud PostgreSQL Backend** | Integrated with **Supabase Serverless PostgreSQL** for persistent storage of user logins, telemetry, and analytics records.                                                                                                                |
 | **Dynamic Leaderboards**     | Real-time, grouped hall of fame with explicit ranking. Filter top performers dynamically across specific Domains, Subjects, or Difficulty levels (Easy, Medium, Hard).                                                                                     |
-| **Personalized Analytics**   | Students have access to a dedicated analytics tab showcasing their own personal seaborn charts (Score Distribution, Duration vs. Score, and Competency Breakdown).                                                                                         |
+| **Personalized Analytics**   | Students get a dedicated analytics tab with their own seaborn charts (Score Distribution, Duration vs. Score, and Competency Breakdown).                                                                                         |
 | **Machine Learning**         | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation).                                                                                                                                |
 
 ---
@@ -101,7 +101,7 @@ Learning-Analytics-Engine/
 ├── analytics.py                        # EDA & Descriptive Statistics Logic
 ├── ml_models.py                        # Scikit-learn Modeling Pipelines (Clustering, Regression)
 │
-├── Learning_Analytics_EDA.ipynb        # Comprehensive Jupyter Notebook for offline EDA
+├── Learning_Analytics_EDA.ipynb        # Jupyter Notebook for offline EDA
 ├── domains_catalog.json                # Pre-defined assessment domains & subjects catalog
 └── README.md                           # Project Documentation
 ```
@@ -131,7 +131,7 @@ pip install -r requirements.txt
 
 ### 3. Configure API Keys & Database URL
 
-The app requires a PostgreSQL database URL for telemetry, and API keys for generating AI-powered assessment questions. Create a `.streamlit/secrets.toml` file in the project root:
+The app requires a PostgreSQL database URL for telemetry, and API keys for generating AI-powered assessment questions. Set `ADMIN_PASSWORD` as well: without it, no admin account is created. Create a `.streamlit/secrets.toml` file in the project root:
 
 ```toml
 # Database Connection (Required)
@@ -161,7 +161,7 @@ The app will open automatically in your browser at `http://localhost:8501`.
 
 1. **Dynamic RAG Generation:** Generates real-time, context-aware assessments via external LLM APIs based on student uploaded PDFs or categorized domains.
 2. **Immediate Feedback Loop:** Submitting an assessment provides students with instant grading and transparent AI-generated explanations for incorrect answers.
-3. **End-to-End Tracking:** Student actions (time taken, accuracy, domain chosen) are captured in PostgreSQL, rendered cleanly with standardized dates/times, and analyzed dynamically using Pandas.
+3. **End-to-End Tracking:** Student actions (time taken, accuracy, domain chosen) are stored in PostgreSQL with standardized dates and times, then analyzed with Pandas.
 4. **Statistical Rigor & Visualization:** Computes standard deviation, IQR, and Pearson correlation coefficients to identify conceptual bottlenecks. Visualized cleanly via Matplotlib and Seaborn for both students and admins.
 5. **Predictive Modeling:** Trains Random Forest and Logistic Regression models on-the-fly to predict student success based on behavioral telemetry.
 
