@@ -6,8 +6,15 @@ Architecture note: Relies on `auth_utils` and `db_utils` to keep state sync and 
 
 import streamlit as st
 
+import auth_rules
 import auth_utils
-from db_utils import get_db_connection, init_db
+from db_utils import (
+    clear_login_failures,
+    get_db_connection,
+    init_db,
+    is_login_locked,
+    record_login_failure,
+)
 
 st.set_page_config(
     page_title="Assessment & Analytics Portal",
@@ -77,7 +84,14 @@ if not st.session_state.authenticated:
                         )
                         row = cur.fetchone()
 
-                        if row and auth_utils.verify_password(login_pwd, row[2]):
+                        # Only real accounts are counted, so made-up names add no rows.
+                        if row and is_login_locked(cur, row[0]):
+                            st.error(
+                                "Too many failed attempts. Please try again in 15 minutes."
+                            )
+                        elif row and auth_utils.verify_password(login_pwd, row[2]):
+                            clear_login_failures(cur, row[0])
+                            conn.commit()
                             if auth_utils.needs_upgrade(row[2]):
                                 cur.execute(
                                     "UPDATE login SET password = %s WHERE username = %s",
@@ -88,6 +102,9 @@ if not st.session_state.authenticated:
                             st.success(f"Welcome back, {row[0]}!")
                             st.rerun()
                         else:
+                            if row:
+                                record_login_failure(cur, row[0])
+                                conn.commit()
                             st.error(
                                 "Invalid credentials. If you are a new student, please create an account."
                             )
@@ -120,7 +137,7 @@ if not st.session_state.authenticated:
                 reg_pwd = st.text_input(
                     "Create Password:",
                     type="password",
-                    placeholder="At least 4 characters",
+                    placeholder=f"At least {auth_rules.MIN_PASSWORD_LENGTH} characters",
                 ).strip()
                 reg_pwd2 = st.text_input(
                     "Confirm Password:", type="password", placeholder="Retype password"
@@ -135,8 +152,10 @@ if not st.session_state.authenticated:
                 if btn_register:
                     if not reg_name or not reg_user or not reg_pwd:
                         st.error("Please fill in all fields.")
-                    elif len(reg_pwd) < 4:
-                        st.error("Password must be at least 4 characters long.")
+                    elif len(reg_pwd) < auth_rules.MIN_PASSWORD_LENGTH:
+                        st.error(
+                            f"Password must be at least {auth_rules.MIN_PASSWORD_LENGTH} characters long."
+                        )
                     elif reg_pwd != reg_pwd2:
                         st.error("Passwords do not match. Please recheck.")
                     else:

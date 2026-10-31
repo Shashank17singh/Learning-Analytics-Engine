@@ -5,12 +5,14 @@ Handles cookie-based persistence of logins.
 
 import json
 import os
+import time
 import uuid
 from pathlib import Path
 
 import extra_streamlit_components as stx
 import streamlit as st
 
+from auth_rules import SESSION_SECONDS, session_is_active
 from passwords import hash_password, legacy_hash, needs_upgrade, verify_password
 
 __all__ = ["hash_password", "legacy_hash", "needs_upgrade", "verify_password"]
@@ -47,6 +49,9 @@ def sync_session_state():
             if session_file.exists():
                 with open(session_file, "r") as f:
                     data = json.load(f)
+                if not session_is_active(data, time.time()):
+                    session_file.unlink(missing_ok=True)
+                    return
                 st.session_state.authenticated = True
                 st.session_state.username = data.get("username")
                 st.session_state.user_role = data.get("user_role")
@@ -63,10 +68,17 @@ def login_user(username, role):
     token = str(uuid.uuid4())
 
     with open(_session_path(token), "w") as f:
-        json.dump({"username": username, "user_role": role}, f)
+        json.dump(
+            {
+                "username": username,
+                "user_role": role,
+                "expires_at": time.time() + SESSION_SECONDS,
+            },
+            f,
+        )
 
     cm = get_cookie_manager()
-    cm.set("session_token", token, max_age=86400)
+    cm.set("session_token", token, max_age=SESSION_SECONDS)
 
 
 def logout_user():
