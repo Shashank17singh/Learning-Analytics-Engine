@@ -18,6 +18,7 @@ import streamlit as st
 from pypdf import PdfReader
 
 import llm_utils
+import placement
 from db_utils import get_db_connection, init_db
 
 st.set_page_config(
@@ -246,10 +247,10 @@ if st.session_state.user_role != "admin":
                             custom_topic = "General Knowledge"
                             ai_subject = "General Knowledge"
 
-                        st.session_state.selected_domain = ai_domain
-                        st.session_state.selected_subject = ai_subject
-                        st.session_state.custom_topic = custom_topic
-                        st.session_state.pdf_context = None
+                    st.session_state.selected_domain = ai_domain
+                    st.session_state.selected_subject = ai_subject
+                    st.session_state.custom_topic = custom_topic
+                    st.session_state.pdf_context = None
 
                 exam_rules = {
                     "GATE": {
@@ -289,8 +290,29 @@ if st.session_state.user_role != "admin":
                         "diff": "Medium",
                     },
                 }
+                placement_round = placement.round_for(ai_domain, ai_subject)
                 if source_type == "Upload Study Material (PDF)" and not uploaded_file:
                     pass
+                elif placement_round:
+                    round_rules = placement.ROUNDS[placement_round]
+                    matched_exam = None
+                    num_questions_chosen = round_rules.questions
+                    time_val = round_rules.minutes
+                    cm_val = 1
+                    im_val = 0
+                    st.info(f"**{placement_round}:** {round_rules.summary}")
+                    difficulty_level = st.select_slider(
+                        " Select Difficulty:",
+                        options=["Easy", "Medium", "Hard"],
+                        value=round_rules.difficulty,
+                    )
+                    st.write(
+                        f"**Questions:** {round_rules.questions} | **Time Limit:** {round_rules.minutes} mins"
+                    )
+                    if placement_round in ("Coding Round", "Company Mock Tests"):
+                        st.caption(
+                            "Coding answers are reviewed by AI against a rubric. Your code is not run."
+                        )
                 else:
                     matched_exam = None
                     for ex in exam_rules:
@@ -354,6 +376,8 @@ if st.session_state.user_role != "admin":
                             st.session_state.im_val = im_val
                             st.session_state.time_limit_mins = time_val
                             st.session_state.num_questions = num_questions_chosen
+                            st.session_state.placement_round = placement_round
+                            st.session_state.placement_time_up = False
 
                             topic_for_gen = st.session_state.get(
                                 "custom_topic", "General"
@@ -377,7 +401,14 @@ if st.session_state.user_role != "admin":
                                     difficulty_level,
                                     context=pdf_context,
                                     exam_format=exam_fmt,
+                                    round_instructions=(
+                                        round_rules.instructions
+                                        if placement_round
+                                        else None
+                                    ),
                                 )
+                                if placement_round:
+                                    gen_qs = placement.clean_questions(gen_qs)
 
                             if gen_qs:
                                 st.session_state.assessment_set = gen_qs
@@ -408,7 +439,25 @@ if st.session_state.user_role != "admin":
                 else ""
             )
 
-            if time_limit:
+            if time_limit and st.session_state.get("placement_round"):
+
+                @st.fragment(run_every="15s")
+                def show_time_left():
+                    """Count down, and submit the saved answers when time runs out."""
+                    if not st.session_state.get("student_assessment_started"):
+                        return
+                    elapsed = time.time() - st.session_state.assessment_start_time
+                    remaining = max(0, (time_limit * 60) - elapsed)
+                    st.info(
+                        f"Time limit: {time_limit}m. Remaining: {int(remaining // 60)}m {int(remaining % 60)}s"
+                    )
+                    if remaining == 0 and not st.session_state.placement_time_up:
+                        st.session_state.placement_time_up = True
+                        st.session_state.force_submit = True
+                        st.rerun()
+
+                show_time_left()
+            elif time_limit:
                 elapsed = time.time() - st.session_state.assessment_start_time
                 remaining = max(0, (time_limit * 60) - elapsed)
                 st.info(
@@ -431,10 +480,29 @@ if st.session_state.user_role != "admin":
                     explanation = q_data.get("explanation", "")
                     options = q_data.get("options", {})
 
-                    st.markdown(f"**Q{idx}. {ques}**")
+                    if qtype in placement.WRITTEN_TYPES:
+                        st.markdown(f"**Q{idx}.**\n\n{ques}")
+                    else:
+                        st.markdown(f"**Q{idx}. {ques}**")
 
                     c_val = None
-                    if qtype == "numerical":
+                    language = ""
+                    if qtype in placement.WRITTEN_TYPES:
+                        if qtype == "coding":
+                            language = st.selectbox(
+                                f"Language for Q{idx}:",
+                                placement.LANGUAGES,
+                                key=f"sq_{qno}_language",
+                            )
+                        c_val = st.text_area(
+                            f"Your answer for Q{idx}:",
+                            height=320 if qtype != "written" else 180,
+                            max_chars=placement.MAX_ANSWER_CHARS,
+                            key=f"sq_{qno}",
+                            help="Your answer is saved when you click outside this box.",
+                        )
+                        c_val = c_val.strip() if c_val and c_val.strip() else None
+                    elif qtype == "numerical":
                         c_val = st.text_input(
                             f"Your answer for Q{idx}:", key=f"sq_{qno}"
                         )
@@ -467,6 +535,7 @@ if st.session_state.user_role != "admin":
                         "options": options,
                         "explanation": explanation,
                         "ques": ques,
+                        "language": language,
                     }
 
                     st.write("")
@@ -514,6 +583,8 @@ if st.session_state.user_role != "admin":
                     correct_count = 0
                     incorrect_count = 0
                     unattempted_count = 0
+                    written_marks = 0.0
+                    written_reviews = []
                     total_q = len(assessment_set)
                     reviews_used_count = sum(
                         1
@@ -537,10 +608,32 @@ if st.session_state.user_role != "admin":
                             unattempted_count += 1
                             continue
 
+                        if qtype in placement.WRITTEN_TYPES:
+                            with st.spinner(f"Reviewing your answer to Q{qno}..."):
+                                grade = llm_utils.grade_written_answer(
+                                    ques,
+                                    c_val,
+                                    f"{correct}\n{exp}",
+                                    qtype,
+                                    choice_data["language"],
+                                )
+                            if grade:
+                                written_marks += grade["score"] / 100
+                            written_reviews.append(
+                                {
+                                    "qno": qno,
+                                    "ques": ques,
+                                    "answer": c_val,
+                                    "reference": correct,
+                                    "grade": grade,
+                                }
+                            )
+                            continue
+
                         is_correct = False
 
                         if qtype == "numerical":
-                            if str(c_val).strip() == str(correct).strip():
+                            if placement.answer_matches(c_val, correct):
                                 is_correct = True
                         elif qtype == "multi_mcq":
                             selected_letters = sorted(
@@ -588,8 +681,14 @@ if st.session_state.user_role != "admin":
                     cm_val = st.session_state.get("cm_val", 1)
                     im_val = st.session_state.get("im_val", 0)
 
-                    raw_score = (correct_count * cm_val) + (incorrect_count * im_val)
-                    max_possible_score = total_q * cm_val
+                    # An answer the grader could not mark is left out, not scored as zero.
+                    graded_q = total_q - sum(
+                        1 for review in written_reviews if review["grade"] is None
+                    )
+                    raw_score = (
+                        correct_count + written_marks
+                    ) * cm_val + incorrect_count * im_val
+                    max_possible_score = graded_q * cm_val
 
                     score_percentage = (
                         max(0.0, (raw_score / max_possible_score) * 100.0)
@@ -608,6 +707,19 @@ if st.session_state.user_role != "admin":
                             st.rerun()
                         st.stop()
 
+                    if graded_q == 0:
+                        st.error(
+                            "Your answers could not be graded, so this attempt was not saved. Copy them below and try again later."
+                        )
+                        for review in written_reviews:
+                            st.code(review["answer"], language=None)
+                        if st.button("Return to Dashboard"):
+                            st.session_state.assessment_set = None
+                            st.session_state.assessment_start_time = None
+                            st.rerun()
+                        st.stop()
+
+                    marks_earned = correct_count + round(written_marks)
                     cur = conn.cursor()
                     cur.execute(
                         """
@@ -618,8 +730,8 @@ if st.session_state.user_role != "admin":
                         """,
                         (
                             st.session_state.username,
-                            correct_count,
-                            total_q,
+                            marks_earned,
+                            graded_q,
                             score_percentage,
                             duration,
                             reviews_used_count,
@@ -634,8 +746,8 @@ if st.session_state.user_role != "admin":
                         "INSERT INTO leaderboard (name, score, total_questions, scoreper) VALUES (%s, %s, %s, %s)",
                         (
                             st.session_state.username,
-                            correct_count,
-                            total_q,
+                            marks_earned,
+                            graded_q,
                             score_percentage,
                         ),
                     )
@@ -685,6 +797,38 @@ if st.session_state.user_role != "admin":
                                     )
 
                                 st.markdown(f"**Explanation:** {targeted_exp}")
+
+                    if written_reviews:
+                        st.divider()
+                        st.markdown("###  Review of Your Written Answers")
+                        for review in written_reviews:
+                            grade = review["grade"]
+                            label = (
+                                f"{grade['score']:.0f} / 100" if grade else "Not graded"
+                            )
+                            with st.expander(
+                                f"Question {review['qno']}: {label}", expanded=True
+                            ):
+                                st.markdown(review["ques"])
+                                st.code(review["answer"], language=None)
+                                if grade is None:
+                                    st.warning(
+                                        "The reviewer was unavailable, so this question was left out of your score."
+                                    )
+                                    continue
+                                st.markdown(grade["feedback"])
+                                for title, items in (
+                                    ("What went well", grade["strengths"]),
+                                    ("What to improve", grade["gaps"]),
+                                ):
+                                    if items:
+                                        st.markdown(f"**{title}**")
+                                        st.markdown(
+                                            "\n".join(f"- {item}" for item in items)
+                                        )
+                                st.markdown(
+                                    f"**Reference notes:** {review['reference']}"
+                                )
 
                     st.session_state.student_assessment_started = False
                     st.session_state.assessment_set = None

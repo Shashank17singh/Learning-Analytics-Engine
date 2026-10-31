@@ -11,6 +11,93 @@ import streamlit as st
 from google import genai
 from google.genai import types
 
+import placement
+
+
+def _strip_fence(text: str) -> str:
+    """Remove the markdown fence some models put around JSON."""
+    return (
+        text.strip()
+        .removeprefix("```json\n")
+        .removesuffix("\n```")
+        .removeprefix("```json")
+        .removesuffix("```")
+        .strip()
+    )
+
+
+def _ask_provider(provider: str, api_key: str, prompt: str, temperature: float) -> str:
+    """Send a prompt that expects JSON to the chosen provider and return its reply."""
+    if provider in ["System Default", "Google Gemini"]:
+        models_to_try = [
+            "gemini-3.8-flash",
+            "gemini-3.6-flash",
+            "gemini-flash-latest",
+        ]
+        client = genai.Client(api_key=api_key)
+        last_error = None
+        for model_name in models_to_try:
+            for _attempt in range(3):
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            temperature=temperature,
+                        ),
+                    )
+                    return response.text
+                except Exception as e:
+                    last_error = e
+                    if "404" in str(e) or "not found" in str(e).lower():
+                        break
+                    if (
+                        "503" in str(e)
+                        or "429" in str(e)
+                        or "overloaded" in str(e).lower()
+                    ):
+                        time.sleep(3)
+                        continue
+                    raise
+        raise last_error
+
+    if provider == "OpenAI":
+        import openai
+
+        client = openai.OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+        )
+        return response.choices[0].message.content
+
+    if provider == "Groq":
+        import groq
+
+        client = groq.Groq(api_key=api_key)
+        response = client.chat.completions.create(
+            model="llama3-70b-8192",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+        )
+        return response.choices[0].message.content
+
+    if provider == "Anthropic":
+        import anthropic
+
+        client = anthropic.Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=4000,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+        )
+        return response.content[0].text
+
+    raise ValueError(f"Unknown AI provider: {provider}")
+
 
 def generate_gemini_questions(
     topic: str,
@@ -18,6 +105,7 @@ def generate_gemini_questions(
     difficulty: str = "Medium",
     context: str | None = None,
     exam_format: str = "Standard",
+    round_instructions: str | None = None,
 ) -> list:
     """Generate assessment questions using the configured AI provider."""
     provider = st.session_state.get("custom_ai_provider", "System Default")
@@ -75,6 +163,11 @@ def generate_gemini_questions(
         The 'correct' field MUST be exactly one of the keys (e.g. "a").
         """
 
+    question_types = '"single_mcq", "multi_mcq", "numerical"'
+    if round_instructions:
+        format_instructions = round_instructions
+        question_types = ", ".join(f'"{kind}"' for kind in placement.ANSWER_TYPES)
+
     prompt = f"""
     Generate exactly {count} questions about the topic '{topic}'.
     {context_prompt}
@@ -84,7 +177,7 @@ def generate_gemini_questions(
     
     Each object must have:
     - "qno": integer
-    - "type": string (must be one of: "single_mcq", "multi_mcq", "numerical")
+    - "type": string (must be one of: {question_types})
     - "ques": string (the question)
     - "options": object with keys "a", "b", "c", "d" (or empty {{}} for numerical)
     - "correct": string
@@ -92,102 +185,9 @@ def generate_gemini_questions(
     """
 
     try:
-        if provider in ["System Default", "Google Gemini"]:
-            models_to_try = [
-                "gemini-3.8-flash",
-                "gemini-3.6-flash",
-                "gemini-flash-latest",
-            ]
-            client = genai.Client(api_key=api_key)
-            last_error = None
-            for model_name in models_to_try:
-                for _attempt in range(3):
-                    try:
-                        response = client.models.generate_content(
-                            model=model_name,
-                            contents=prompt,
-                            config=types.GenerateContentConfig(
-                                response_mime_type="application/json",
-                                temperature=0.7,
-                            ),
-                        )
-                        text = (
-                            response.text.strip()
-                            .removeprefix("```json\n")
-                            .removesuffix("\n```")
-                            .removeprefix("```json")
-                            .removesuffix("```")
-                        )
-                        return json.loads(text.strip())
-                    except Exception as e:
-                        last_error = e
-                        if "404" in str(e) or "not found" in str(e).lower():
-                            break
-                        if (
-                            "503" in str(e)
-                            or "429" in str(e)
-                            or "overloaded" in str(e).lower()
-                        ):
-                            time.sleep(3)
-                            continue
-                        raise
-            if last_error:
-                raise last_error
-
-        elif provider == "OpenAI":
-            import openai
-
-            client = openai.OpenAI(api_key=api_key)
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-            )
-            text = response.choices[0].message.content.strip()
-            text = (
-                text.removeprefix("```json\n")
-                .removesuffix("\n```")
-                .removeprefix("```json")
-                .removesuffix("```")
-            )
-            return json.loads(text.strip())
-
-        elif provider == "Groq":
-            import groq
-
-            client = groq.Groq(api_key=api_key)
-            response = client.chat.completions.create(
-                model="llama3-70b-8192",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-            )
-            text = response.choices[0].message.content.strip()
-            text = (
-                text.removeprefix("```json\n")
-                .removesuffix("\n```")
-                .removeprefix("```json")
-                .removesuffix("```")
-            )
-            return json.loads(text.strip())
-
-        elif provider == "Anthropic":
-            import anthropic
-
-            client = anthropic.Anthropic(api_key=api_key)
-            response = client.messages.create(
-                model="claude-3-5-sonnet-20241022",
-                max_tokens=4000,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-            )
-            text = response.content[0].text.strip()
-            text = (
-                text.removeprefix("```json\n")
-                .removesuffix("\n```")
-                .removeprefix("```json")
-                .removesuffix("```")
-            )
-            return json.loads(text.strip())
+        return json.loads(
+            _strip_fence(_ask_provider(provider, api_key, prompt, temperature=0.7))
+        )
 
     except Exception as e:  # noqa: BLE001
         error_str = str(e)
@@ -282,3 +282,26 @@ def explain_wrong_answer(
     except Exception as e:  # noqa: BLE001
         print(f"Error generating dynamic explanation ({provider}): {e}")
         return base_explanation
+
+
+def grade_written_answer(
+    question: str, answer: str, reference: str, kind: str, language: str = ""
+) -> dict | None:
+    """Grade a written answer against the round's rubric. Returns None if that fails."""
+    provider = st.session_state.get("custom_ai_provider", "System Default")
+    api_key = st.session_state.get("custom_api_key", "")
+    if provider == "System Default":
+        try:
+            api_key = st.secrets.get("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY"))
+        except Exception:  # noqa: BLE001
+            api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return None
+
+    prompt = placement.grading_prompt(question, answer, reference, kind, language)
+    try:
+        reply = _ask_provider(provider, api_key, prompt, temperature=0.2)
+        return placement.parse_grade(json.loads(_strip_fence(reply)))
+    except Exception as e:  # noqa: BLE001
+        print(f"Error grading a written answer ({provider}): {e}")
+        return None
