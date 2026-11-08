@@ -1,2 +1,11 @@
 [client]
 showSidebarNavigation = false
+
+[theme]
+# Cool light classroom grey with indigo.
+base = "light"
+primaryColor = "#4f46e5"
+backgroundColor = "#f5f6fb"
+secondaryBackgroundColor = "#e6e8f5"
+textColor = "#161a33"
+font = "sans-serif"

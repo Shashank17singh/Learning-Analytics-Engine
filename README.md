@@ -1,20 +1,6 @@
-<div align="center">
-
 # Learning Analytics Engine
 
-**A student assessment platform that generates exams with AI, tracks behavior telemetry, and runs statistical analysis and predictive modeling.**
-
-[![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Backend-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Generative AI](https://img.shields.io/badge/Multi--LLM-Gemini%20|%20OpenAI%20|%20Groq%20|%20Anthropic-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://aistudio.google.com/)
-[![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?style=for-the-badge&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
-[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-Machine%20Learning-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
-
-</div>
-
----
+A student assessment platform that generates exams with AI, tracks behavior telemetry, and runs statistical analysis and predictive modeling.
 
 ## Overview
 
