@@ -2,10 +2,10 @@
 showSidebarNavigation = false
 
 [theme]
-# Cool light classroom grey with indigo.
-base = "light"
-primaryColor = "#4f46e5"
-backgroundColor = "#f5f6fb"
-secondaryBackgroundColor = "#e6e8f5"
-textColor = "#161a33"
+# Deep indigo classroom with an indigo accent.
+base = "dark"
+primaryColor = "#6366f1"
+backgroundColor = "#13132a"
+secondaryBackgroundColor = "#1d1d3a"
+textColor = "#e8e8f7"
 font = "sans-serif"
