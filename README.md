@@ -2,15 +2,20 @@
 
 A student assessment platform that generates exams with AI, tracks behavior telemetry, and runs statistical analysis and predictive modeling.
 
-## Overview
-
-The **Learning Analytics Engine** is an educational platform that combines real-time assessment delivery with data science and generative AI. Students take AI-generated, customized quizzes, and administrators follow cohort performance through interactive, predictive analytics.
-
-The platform uses **Retrieval-Augmented Generation (RAG)** through multiple LLM providers (Google Gemini, OpenAI, Groq, Anthropic) to generate quiz questions from uploaded PDF study materials, and stores behavioral telemetry in a **Supabase PostgreSQL** backend.
+> **Live Deployments:**
+> * **Interactive Streamlit App:** [learning-analytics-engine.streamlit.app](https://learning-analytics-engine.streamlit.app/)
 
 ---
 
-### System Architecture
+## Overview
+
+The **Learning Analytics Engine** combines real-time exam delivery with educational data science and generative AI. Students participate in adaptive, syllabus-grounded quizzes while administrators monitor cohort mastery through descriptive statistics, psychometric telemetry, and machine learning models.
+
+The platform uses Retrieval-Augmented Generation (RAG) across multiple LLM providers (Google Gemini, OpenAI, Groq, Anthropic) to extract questions from uploaded PDF course material, storing event telemetry and answer timings in a serverless Supabase PostgreSQL backend.
+
+---
+
+## Architecture Overview
 
 ```mermaid
 graph TD
@@ -51,47 +56,53 @@ graph TD
 
 ## Features
 
-| Capability                   | Description                                                                                                                                                                                                                                                |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Multi-Provider AI Engine** | Dynamically generates custom, on-the-fly questions (Single Choice, Multiple Choice, and Numerical) tailored to the user's selected difficulty and target exam format (e.g., GATE, CAT, UPSC). Supports **Google Gemini, OpenAI, Groq, and Anthropic** APIs. |
-| **RAG PDF Ingestion**        | Upload your own course material (PDFs) and let the engine extract context, synthesize data, and generate high-quality examination questions based strictly on the syllabus provided.                                                                       |
-| **Cloud PostgreSQL Backend** | Integrated with **Supabase Serverless PostgreSQL** for persistent storage of user logins, telemetry, and analytics records.                                                                                                                |
-| **Placement Rounds**         | Aptitude, technical MCQ, coding, system design, HR, group discussion and company-style mock rounds, each with its own format and enforced timer. Written answers are reviewed by AI against a rubric, with partial marks. Submitted code is never executed.                                     |
-| **Dynamic Leaderboards**     | Real-time, grouped hall of fame with explicit ranking. Filter top performers dynamically across specific Domains, Subjects, or Difficulty levels (Easy, Medium, Hard).                                                                                     |
-| **Personalized Analytics**   | Students get a dedicated analytics tab with their own seaborn charts (Score Distribution, Duration vs. Score, and Competency Breakdown).                                                                                         |
-| **Machine Learning**         | Implements Binary Classification (Pass/Fail), Regression (Score Prediction), and K-Means Clustering (Learner Segmentation).                                                                                                                                |
+| Feature | Description |
+| ------- | ----------- |
+| **Multi-Provider AI Engine** | Dynamically synthesizes single-choice, multiple-choice, and numerical questions across varying difficulty levels (Easy, Medium, Hard) and target competitive formats (GATE, CAT, UPSC) using Gemini, OpenAI, Groq, or Anthropic |
+| **RAG PDF Ingestion** | Extracts and indexes uploaded course syllabi (PDFs) to anchor generated questions directly to official course documents |
+| **Cloud PostgreSQL Telemetry** | Serverless Supabase PostgreSQL backend tracking per-question response times, completion percentages, and user sessions |
+| **Structured Placement Rounds** | Aptitude, technical MCQ, coding, system design, HR, and mock rounds with format enforcement and AI rubric scoring |
+| **Cohort Leaderboards** | Dynamic hall of fame ranking top performers filtered across domains, subjects, and difficulty tiers |
+| **Descriptive Analytics** | Score distributions, duration vs. accuracy curves, and competency breakdowns visualized via Seaborn and Matplotlib |
+| **Predictive Modeling** | Built-in Scikit-learn pipelines implementing Binary Classification (Pass/Fail) and K-Means clustering (Learner Segmentation) |
 
 ---
 
-## Tech Stack
+## Technology Stack
 
-- **Machine Learning & Analytics:** Scikit-Learn · Pandas · NumPy
-- **Software Engineering:** Python · Psycopg2 · PostgreSQL (Supabase)
-- **Generative AI (LLMs):** Google Gemini · OpenAI · Groq · Anthropic
-- **Visualizations:** Matplotlib · Seaborn · Streamlit
-- **Document Processing:** PyPDF (RAG Ingestion)
+| Component | Technology |
+| --------- | ---------- |
+| Application Framework | Streamlit, Python 3.11+ |
+| Machine Learning | Scikit-Learn, Pandas, NumPy |
+| Database & Storage | Supabase (PostgreSQL 15+), Psycopg2 |
+| Generative AI Providers | Google Gemini, OpenAI, Groq, Anthropic |
+| Data Visualizations | Matplotlib, Seaborn |
+| Document Parsing | PyPDF |
+| Testing & Quality | pytest, ruff |
+| Containerization | Docker |
 
 ---
 
-## Directory Structure
+## Project Structure
 
-```text
+```
 Learning-Analytics-Engine/
-│
-├── app.py                              # Main Streamlit Web Application (Authentication & Routing)
-├── pages/                              # Streamlit Multi-Page Components
-│   ├── Student_Portal.py               # Interactive Assessment Engine & Student Dashboard
-│   └── Admin_Portal.py                 # Secure Admin Auth, User Management & Analytics
-├── auth_utils.py                       # Secure Authentication & Password Hashing
-├── db_utils.py                         # Supabase PostgreSQL Connection & Schema Setup
-├── llm_utils.py                        # Multi-LLM Provider API Integrations & RAG Logic
-├── analytics.py                        # EDA & Descriptive Statistics Logic
-├── ml_models.py                        # Scikit-learn Modeling Pipelines (Clustering, Regression)
-│
-├── Learning_Analytics_EDA.ipynb        # Jupyter Notebook for offline EDA
-├── domains_catalog.json                # Pre-defined assessment domains & subjects catalog
-├── placement.py                        # Placement round formats, rubrics and answer rules
-└── README.md                           # Project Documentation
+├── app.py                      # Main Streamlit web application and routing
+├── pages/
+│   ├── Student_Portal.py       # Assessment engine and student telemetry dashboard
+│   └── Admin_Portal.py         # Cohort analytics, user management, and ML reports
+├── auth_utils.py               # Authentication and password hashing routines
+├── auth_rules.py               # RBAC permission rules
+├── db_utils.py                 # PostgreSQL connection pool and table migrations
+├── llm_utils.py                # Multi-LLM provider client and RAG prompt logic
+├── analytics.py                # Statistical aggregations and plot generators
+├── ml_models.py                # Scikit-learn classification and clustering models
+├── placement.py                # Mock interview rounds and rubric evaluation
+├── domains_catalog.json        # Pre-configured assessment taxonomies
+├── tests/                      # Automated test suite
+├── Dockerfile                  # Container definition
+├── requirements.txt            # Python dependencies
+└── README.md
 ```
 
 ---
@@ -101,60 +112,86 @@ Learning-Analytics-Engine/
 ### Prerequisites
 
 - Python 3.11+
-- A [Supabase Account](https://supabase.com/) with a running PostgreSQL project
-- API Keys for one or more supported providers (Gemini, OpenAI, Groq, Anthropic)
+- A [Supabase Account](https://supabase.com/) with an active PostgreSQL project
+- API keys for at least one supported AI provider (Gemini, OpenAI, Groq, or Anthropic)
 
-### 1. Clone the Repository
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Shashank17singh/Learning-Analytics-Engine.git
 cd Learning-Analytics-Engine
 ```
 
-### 2. Install Dependencies
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure API Keys & Database URL
+### 3. Configure secrets
 
-The app requires a PostgreSQL database URL for telemetry, and API keys for generating AI-powered assessment questions. Set `ADMIN_PASSWORD` as well: without it, no admin account is created. Create a `.streamlit/secrets.toml` file in the project root:
+Create `.streamlit/secrets.toml` in the repository root:
 
 ```toml
 # Database Connection (Required)
 DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.your-supabase-url.supabase.co:5432/postgres"
 
-# AI Provider Configurations
-# Note: You only need the key for the provider(s) you intend to use.
+# Administrator Account Setup
+ADMIN_PASSWORD="your-secure-admin-password"
+
+# AI Provider Configurations (At least one required)
 GEMINI_API_KEY="your-gemini-api-key"
 OPENAI_API_KEY="your-openai-api-key"
 GROQ_API_KEY="your-groq-api-key"
 ANTHROPIC_API_KEY="your-anthropic-api-key"
 ```
 
-### 4. Launch the Dashboard
-
-Once the dependencies are installed and the secrets are configured, launch the Streamlit app:
+### 4. Run the application
 
 ```bash
 streamlit run app.py
 ```
 
-The app will open automatically in your browser at `http://localhost:8501`.
+The application opens locally at `http://localhost:8501`.
 
 ---
 
-## Key Workflows
+## Running the Tests
 
-1. **Dynamic RAG Generation:** Generates real-time, context-aware assessments via external LLM APIs based on student uploaded PDFs or categorized domains.
-2. **Immediate Feedback Loop:** Submitting an assessment provides students with instant grading and transparent AI-generated explanations for incorrect answers.
-3. **End-to-End Tracking:** Student actions (time taken, accuracy, domain chosen) are stored in PostgreSQL with standardized dates and times, then analyzed with Pandas.
-4. **Statistical Rigor & Visualization:** Computes standard deviation, IQR, and Pearson correlation coefficients to identify conceptual bottlenecks. Visualized cleanly via Matplotlib and Seaborn for both students and admins.
-5. **Predictive Modeling:** Trains Random Forest and Logistic Regression models on-the-fly to predict student success based on behavioral telemetry.
+Execute automated tests:
+
+```bash
+pytest tests/
+```
+
+Run static code analysis and linting:
+
+```bash
+ruff check .
+```
 
 ---
 
 ## Deployment
 
-- **Dashboard URL:** [https://learning-analytics-engine.streamlit.app/](https://learning-analytics-engine.streamlit.app/)
+The platform is containerized and deployable to any standard container service:
+
+```bash
+docker build -t learning-analytics-engine .
+docker run -p 8501:8501 learning-analytics-engine
+```
+
+Live deployment is hosted on Streamlit Community Cloud at [learning-analytics-engine.streamlit.app](https://learning-analytics-engine.streamlit.app/).
+
+---
+
+## Known Limitations
+
+- RAG PDF chunking utilizes standard sliding window text splits; complex tables or equations in scanned PDF syllabi require explicit text conversion.
+- Code submissions in mock technical rounds are evaluated against rubric criteria via LLM analysis rather than sandboxed runtime execution.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
