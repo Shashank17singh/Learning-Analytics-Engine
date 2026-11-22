@@ -15,6 +15,7 @@ from db_utils import (
     is_login_locked,
     record_login_failure,
 )
+import theme_utils
 
 st.set_page_config(
     page_title="Assessment & Analytics Portal",
@@ -22,6 +23,8 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+theme_utils.inject_custom_theme()
 
 
 _init_conn = get_db_connection()
@@ -40,20 +43,22 @@ if not st.session_state.authenticated:
     with col_center:
         st.markdown(
             """
-        <div style='text-align: center; margin-bottom: 25px;'>
-            <h1 style='color: #1E3A8A; font-weight: 800; margin-bottom: 4px;'> Learning Analytics Portal</h1>
+        <div class="portal-header">
+            <div class="portal-badge">Assessment Engine</div>
+            <h1 class="portal-title">Learning Analytics Portal</h1>
+            <p class="portal-subtitle">Adaptive evaluation, cohort diagnostics, and predictive academic intelligence.</p>
         </div>
         """,
             unsafe_allow_html=True,
         )
 
         auth_tab1, auth_tab2 = st.tabs(
-            [" Student / Admin Login", " Create Student Account"]
+            ["Sign In", "Create Student Account"]
         )
 
         with auth_tab1:
             st.markdown(
-                "<div style='margin-bottom: 15px; color: #4B5563; font-size: 0.95rem;'>Log in with your registered username & password:</div>",
+                "<div style='margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.95rem;'>Sign in with your registered username and password:</div>",
                 unsafe_allow_html=True,
             )
             with st.form("login_form"):
@@ -69,7 +74,7 @@ if not st.session_state.authenticated:
                 _, btn_col1, _ = st.columns([1, 2, 1])
                 with btn_col1:
                     btn_login = st.form_submit_button(
-                        "Sign In ", type="primary", use_container_width=True
+                        "Sign In", type="primary", use_container_width=True
                     )
 
                 if btn_login:
@@ -111,8 +116,8 @@ if not st.session_state.authenticated:
 
             st.markdown(
                 """
-            <div style='background-color: #F1F5F9; border-radius: 8px; padding: 10px 14px; margin-top: 15px; font-size: 0.85rem; color: #475569;'>
-                 <b>Administrator Credentials:</b> Username: <code>admin</code> | Password is set via <code>ADMIN_PASSWORD</code> environment variable.
+            <div class="info-callout">
+                <strong>Administrator Access:</strong> Username: <code>admin</code> | Password is set via <code>ADMIN_PASSWORD</code> environment variable.
             </div>
             """,
                 unsafe_allow_html=True,
@@ -120,7 +125,7 @@ if not st.session_state.authenticated:
 
         with auth_tab2:
             st.markdown(
-                "<div style='margin-bottom: 15px; color: #4B5563; font-size: 0.95rem;'>New student? Create your account in 10 seconds:</div>",
+                "<div style='margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.95rem;'>New student? Create your account in seconds:</div>",
                 unsafe_allow_html=True,
             )
             with st.form("register_form"):
@@ -146,7 +151,7 @@ if not st.session_state.authenticated:
                 _, btn_col2, _ = st.columns([1, 2, 1])
                 with btn_col2:
                     btn_register = st.form_submit_button(
-                        "Create Account ", type="primary", use_container_width=True
+                        "Create Account", type="primary", use_container_width=True
                     )
 
                 if btn_register:
@@ -177,7 +182,7 @@ if not st.session_state.authenticated:
                             )
                             conn.commit()
                             st.success(
-                                " Account created successfully! Please switch to the Login tab and sign in."
+                                "Account created successfully! Please switch to the Sign In tab."
                             )
 
 else:

@@ -12,6 +12,7 @@ import streamlit as st
 import analytics
 import ml_models
 from db_utils import get_db_connection, init_db
+import theme_utils
 
 st.set_page_config(
     page_title="Assessment & Analytics Portal",
@@ -19,6 +20,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+theme_utils.inject_custom_theme()
+theme_utils.configure_matplotlib_dark()
 
 
 _init_conn = get_db_connection()
@@ -54,10 +58,10 @@ conn = get_db_connection()
 
 admin_tabs = st.tabs(
     [
-        " Cohort Analytics & BI Dashboard",
-        " ML & Predictive Analytics",
-        " Registered Accounts",
-        " Leaderboard",
+        "Cohort Analytics & BI",
+        "Predictive Analytics & ML",
+        "Registered Accounts",
+        "Leaderboard",
     ]
 )
 
@@ -65,7 +69,7 @@ with admin_tabs[0]:
     df_raw = pd.read_sql_query("SELECT * FROM attempts ORDER BY attempt_id ASC", conn)
 
     if df_raw.empty:
-        st.markdown("###  Assessment Cohort Analytics")
+        st.markdown("### Cohort Assessment Analytics")
         st.warning("No assessment attempt records found.")
     else:
         students_list = ["All Students"] + sorted(
@@ -74,11 +78,11 @@ with admin_tabs[0]:
         selected_student = st.selectbox("View Analytics for:", students_list)
 
         if selected_student == "All Students":
-            st.markdown("###  Assessment Cohort Analytics")
+            st.markdown("### Cohort Assessment Analytics")
             df_cohort = df_raw.copy()
             chart_prefix = "Cohort"
         else:
-            st.markdown(f"###  Personal Analytics for: **{selected_student.title()}**")
+            st.markdown(f"### Personal Analytics: **{selected_student.title()}**")
             df_cohort = df_raw[df_raw["student_name"] == selected_student].copy()
             chart_prefix = "Personal"
 
@@ -218,14 +222,14 @@ with admin_tabs[0]:
         )
         csv_bytes = df_cohort.to_csv(index=False).encode("utf-8")
         st.download_button(
-            " Export Cohort Data to CSV",
+            "Export Cohort Data (CSV)",
             data=csv_bytes,
             file_name="cohort_analytics.csv",
             mime="text/csv",
         )
 
 with admin_tabs[1]:
-    st.markdown("###  Machine Learning & Predictive Analytics")
+    st.markdown("### Predictive Analytics & Machine Learning")
     df_ml = pd.read_sql_query("SELECT * FROM attempts ORDER BY attempt_date ASC", conn)
 
     if df_ml.empty or len(df_ml) < 20:
@@ -236,11 +240,11 @@ with admin_tabs[1]:
     else:
         ml_sub_tabs = st.tabs(
             [
-                " Classification",
-                " Regression",
-                " Clustering",
-                " Feature Engineering",
-                " Advanced SQL",
+                "Classification",
+                "Regression",
+                "Clustering",
+                "Feature Engineering",
+                "Advanced SQL",
             ]
         )
 
@@ -540,12 +544,12 @@ with admin_tabs[1]:
                 ax_daily2.legend(loc="upper right")
                 st.pyplot(fig_daily)
 
-            st.markdown("** Review Usage vs Pass Rate (GROUP BY Analysis):**")
+            st.markdown("**Review Usage vs Pass Rate (Group Aggregation):**")
             df_reviews = analytics.get_review_vs_passrate(conn)
             st.dataframe(df_reviews, width="stretch", hide_index=True)
 
 with admin_tabs[2]:
-    st.markdown("###  Registered Users & Student Accounts")
+    st.markdown("### Registered User Accounts")
     df_users = pd.read_sql_query(
         'SELECT username AS "Username", role AS "Role", status AS "Status" FROM login',
         conn,
@@ -553,7 +557,7 @@ with admin_tabs[2]:
     st.dataframe(df_users, width="stretch", hide_index=True)
 
 with admin_tabs[3]:
-    st.markdown("###  Full Assessment Leaderboard")
+    st.markdown("### Global Assessment Leaderboard")
 
     df_filters = pd.read_sql_query(
         "SELECT DISTINCT domain, subject, difficulty FROM attempts", conn

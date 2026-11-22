@@ -2,10 +2,10 @@
 showSidebarNavigation = false
 
 [theme]
-# Deep indigo classroom with an indigo accent.
+# Modern minimal slate dashboard with electric royal blue accent
 base = "dark"
-primaryColor = "#6366f1"
-backgroundColor = "#13132a"
-secondaryBackgroundColor = "#1d1d3a"
-textColor = "#e8e8f7"
+primaryColor = "#3b82f6"
+backgroundColor = "#0d1117"
+secondaryBackgroundColor = "#161b22"
+textColor = "#f0f6fc"
 font = "sans-serif"

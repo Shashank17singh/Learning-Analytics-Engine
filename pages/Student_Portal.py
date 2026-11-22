@@ -20,6 +20,7 @@ from pypdf import PdfReader
 import llm_utils
 import placement
 from db_utils import get_db_connection, init_db
+import theme_utils
 
 st.set_page_config(
     page_title="Assessment & Analytics Portal",
@@ -27,6 +28,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+theme_utils.inject_custom_theme()
+theme_utils.configure_matplotlib_dark()
 
 
 _init_conn = get_db_connection()
@@ -83,18 +87,18 @@ if st.session_state.user_role != "admin":
     student_tabs = st.tabs(
         [
             "Take Assessment",
-            "My Performance & Analytics",
-            "Hall of Fame (Leaderboard)",
+            "Performance & Analytics",
+            "Leaderboard",
         ]
     )
 
     with student_tabs[0]:
-        st.markdown("###  Active Assessment: Dynamic Domain & Subject Selection")
+        st.markdown("### Assessment Setup & Configuration")
         if not st.session_state.get("student_assessment_started", False):
 
             @st.fragment
             def render_ai_config():
-                st.markdown("#### AI Configuration")
+                st.markdown("#### AI Model & Provider")
                 provider = st.selectbox(
                     "Select AI Provider (Use your own API key)",
                     ["System Default", "Google Gemini", "OpenAI", "Groq", "Anthropic"],
@@ -302,7 +306,7 @@ if st.session_state.user_role != "admin":
                     im_val = 0
                     st.info(f"**{placement_round}:** {round_rules.summary}")
                     difficulty_level = st.select_slider(
-                        " Select Difficulty:",
+                        "Select Difficulty:",
                         options=["Easy", "Medium", "Hard"],
                         value=round_rules.difficulty,
                     )
@@ -322,7 +326,7 @@ if st.session_state.user_role != "admin":
 
                     if matched_exam:
                         st.info(
-                            f" **{matched_exam} Format Detected!** Applying official marking scheme and settings."
+                            f"**{matched_exam} Format Detected!** Applying official marking scheme and settings."
                         )
                         q_val = exam_rules[matched_exam]["q"]
                         if "Mock" not in ai_subject and "Mock" not in custom_topic:
@@ -345,13 +349,13 @@ if st.session_state.user_role != "admin":
                         col_q, col_diff = st.columns(2)
                         with col_q:
                             num_questions_chosen = st.select_slider(
-                                " Number of Questions:",
+                                "Number of Questions:",
                                 options=q_options,
                                 value=10,
                             )
                         with col_diff:
                             difficulty_level = st.select_slider(
-                                " Select Difficulty:",
+                                "Select Difficulty:",
                                 options=["Easy", "Medium", "Hard"],
                                 value="Medium",
                             )
@@ -366,7 +370,7 @@ if st.session_state.user_role != "admin":
                     _, center_col, _ = st.columns([1, 2, 1])
                     with center_col:
                         if st.button(
-                            "Start Assessment Now ",
+                            "Start Assessment Now",
                             type="primary",
                             use_container_width=True,
                         ):
@@ -834,13 +838,13 @@ if st.session_state.user_role != "admin":
                     st.session_state.assessment_set = None
                     st.session_state.incorrect_answers = []
 
-                    if st.button(" Take Another Assessment"):
+                    if st.button("Take Another Assessment"):
                         st.rerun()
 
             render_assessment()
     with student_tabs[1]:
         st.markdown(
-            f"###  Personal Learning Analytics for: **{st.session_state.username.title()}**"
+            f"### Personal Performance & Analytics: **{st.session_state.username.title()}**"
         )
         df_my = pd.read_sql_query(
             "SELECT * FROM attempts WHERE LOWER(TRIM(student_name)) = %s ORDER BY attempt_id ASC",
@@ -995,7 +999,7 @@ if st.session_state.user_role != "admin":
 
         @st.fragment
         def render_leaderboard():
-            st.markdown("###  Real-Time Hall of Fame")
+            st.markdown("### Leaderboard & Rankings")
 
             df_filters = pd.read_sql_query(
                 "SELECT DISTINCT domain, subject FROM attempts WHERE student_name = %s",
