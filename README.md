@@ -185,10 +185,10 @@ Live deployment is hosted on Streamlit Community Cloud at [learning-analytics-en
 
 ---
 
-## Known Limitations
+## Operational Considerations & Limitations
 
-- RAG PDF chunking utilizes standard sliding window text splits; complex tables or equations in scanned PDF syllabi require explicit text conversion.
-- Code submissions in mock technical rounds are evaluated against rubric criteria via LLM analysis rather than sandboxed runtime execution.
+- **Syllabus Text Ingestion**: PDF document chunking employs sliding-window character splitting; mathematical formulas and complex tables in scanned documents benefit from pre-OCR markdown conversion.
+- **Rubric-Based Code Evaluation**: Programming assessment submissions in technical interview tracks are evaluated by LLM rubric analysis and static pattern verification rather than containerized execution.
 
 ---
 
